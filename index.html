@@ -1,10 +1,243 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>My GitHub Page</title>
-  </head>
-  <body>
-    <h1>Hello World</h1>
-    <p>Welcome to my website hosted on GitHub!</p>
-  </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peace | Anki Add-on Developer</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent: #FF6B6B; /* Soft Red/Pink for a modern pop */
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
+
+        /* Header / Hero Section */
+        header {
+            text-align: center;
+            padding: 80px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 { font-size: 3rem; margin-bottom: 10px; font-weight: 800; }
+        .subtitle { color: var(--accent); font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+        .bio { color: var(--text-muted); margin-top: 20px; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+        /* Container */
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+
+        /* Featured Section (Onigiri) */
+        .featured-section {
+            background: linear-gradient(145deg, #2a2a2a, #222);
+            border: 1px solid #333;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .featured-tag {
+            background-color: var(--accent);
+            color: #121212;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .featured-title { font-size: 2.5rem; margin-bottom: 15px; }
+        .featured-desc { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 30px; max-width: 700px; }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--text-main);
+            color: var(--bg-color);
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .btn:hover { background-color: white; transform: translateY(-2px); }
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--text-muted);
+            color: var(--text-muted);
+            margin-left: 10px;
+        }
+        .btn-outline:hover { border-color: var(--text-main); color: var(--text-main); }
+
+        /* Add-ons Grid */
+        .section-title { font-size: 1.5rem; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 25px;
+            transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover { transform: translateY(-5px); border-color: var(--accent); }
+        .card h3 { font-size: 1.4rem; margin-bottom: 10px; }
+        .card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; }
+        
+        .card-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .card-link:hover { text-decoration: underline; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 80px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid #333;
+            padding-top: 40px;
+        }
+        
+        /* Mobile Tweaks */
+        @media (max-width: 600px) {
+            h1 { font-size: 2.2rem; }
+            .featured-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="subtitle">Anki Add-on Developer</div>
+        <h1>Peace</h1>
+        <p class="bio">Building tools to modernize and gamify your study routine. Creator of Onigiri, Focumon, and more.</p>
+    </header>
+
+    <div class="container">
+        
+        <section class="featured-section">
+            <span class="featured-tag">Featured Project</span>
+            <h2 class="featured-title">🍙 Onigiri (Beta)</h2>
+            <p class="featured-desc">
+                A more modern Anki for your studies. Onigiri redesigns the Anki interface to make it cleaner, more aesthetic, and more enjoyable to use every day.
+            </p>
+            <div>
+                <a href="https://ankiweb.net/shared/info/1011095603" class="btn" target="_blank">View on AnkiWeb</a>
+            </div>
+        </section>
+
+        <h2 class="section-title">All Add-ons</h2>
+        <div class="grid">
+            
+            <div class="card">
+                <div>
+                    <h3>✨ Focumon for Anki</h3>
+                    <p>Gamify your focus. Collect monsters and level up while you study.</p>
+                </div>
+                <a href="https://ankiweb.net/shared/info/516325516" class="card-link" target="_blank">Get Add-on &rarr;</a>
+            </div>
+
+            <div class="card">
+                <div>
+                    <h3>Berry</h3>
+                    <p>Check your Bluetooth devices directly from your Anki menu.</p>
+                </div>
+                <a href="https://ankiweb.net/shared/info/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+            </div>
+
+            <div class="card">
+                <div>
+                    <h3>🐰 lofi.town for Anki</h3>
+                    <p>Listen to lofi beats and relax in your virtual town while reviewing cards.</p>
+                </div>
+                <a href="https://ankiweb.net/shared/info/1799253175" class="card-link" target="_blank">Get Add-on &rarr;</a>
+            </div>
+
+            <div class="card">
+                <div>
+                    <h3>Global</h3>
+                    <p>Check your local weather without leaving Anki.</p>
+                </div>
+                <a href="https://ankiweb.net/shared/by-author/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+            </div>
+
+            <div class="card">
+                <div>
+                    <h3>Hours</h3>
+                    <p>A simple utility to check the time from your Anki menu.</p>
+                </div>
+                <a href="https://ankiweb.net/shared/by-author/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+            </div>
+
+            <div class="card">
+                <div>
+                    <h3>Paper</h3>
+                    <p>Multiple cheat sheets and scratchpads available while you study.</p>
+                </div>
+                <a href="https://ankiweb.net/shared/by-author/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+            </div>
+
+            <div class="card">
+                <div>
+                    <h3>Power</h3>
+                    <p>Monitor your laptop's battery life directly from Anki.</p>
+                </div>
+                <a href="https://ankiweb.net/shared/by-author/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+            </div>
+
+            <div class="card">
+                <div>
+                    <h3>🍵 Senchado</h3>
+                    <p>A tea timer for your Anki sessions.</p>
+                </div>
+                <a href="https://ankiweb.net/shared/by-author/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+            </div>
+
+            <div class="card">
+                <div>
+                    <h3>Sticky</h3>
+                    <p>Write quick sticky notes on your Anki menu.</p>
+                </div>
+                <a href="https://ankiweb.net/shared/by-author/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Peace. All rights reserved.</p>
+        <p><a href="https://ankiweb.net/shared/by-author/73838120" style="color: #666; text-decoration: none;">View all on AnkiWeb</a></p>
+    </footer>
+
+</body>
 </html>
