@@ -8,7 +8,7 @@
         :root {
             --bg-color: #050505;
             --card-bg: rgba(20, 20, 20, 0.4);
-            --accent: #2FB0C2; /* The user-defined accent */
+            --accent: #2FB0C2;
             --text-main: #ffffff;
             --text-muted: #8892b0;
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -34,7 +34,6 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            /* Subtle blur to make the liquid look glowing/soft */
             filter: blur(1px); 
         }
 
@@ -84,7 +83,7 @@
             position: relative;
         }
 
-        /* --- FEATURED SECTION (Glassmorphism) --- */
+        /* --- FEATURED SECTION --- */
         .featured-section {
             background: rgba(255, 255, 255, 0.02);
             backdrop-filter: blur(10px);
@@ -119,7 +118,6 @@
         .featured-title { font-size: 3.5rem; margin-bottom: 20px; font-weight: 800; }
         .featured-desc { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 40px; max-width: 650px; margin-left: auto; margin-right: auto; }
         
-        /* Modern Button */
         .btn {
             display: inline-block;
             background: transparent;
@@ -331,104 +329,115 @@
         const ctx = canvas.getContext('2d');
         
         let width, height;
-        let mouseX = 0, mouseY = 0;
         let time = 0;
 
-        // Configuration for the blob
-        const blob = {
-            x: 0,
-            y: 0,
-            size: 350, // Base size
-            complexity: 0.5, // How "bumpy" it is
-            color: '#2FB0C2'
-        };
+        // Configuration
+        const blobCount = 5; // How many blobs you want
+        const blobs = [];
 
-        // Resize handler
         function resize() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
-            blob.x = width / 2;
-            blob.y = height / 2;
         }
         window.addEventListener('resize', resize);
         resize();
 
-        // Mouse tracker
-        window.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
-
-        // Math helper for smooth noise (Simplified Sine Summation)
-        // This simulates Perlin noise by adding multiple sine waves together
-        function noise(x, y, t) {
-            return Math.sin(x * 0.01 + t) + 
-                   Math.sin(y * 0.01 + t) * 0.5 + 
-                   Math.sin((x + y) * 0.01 + t * 1.5) * 0.25;
-        }
-
-        function drawBlob() {
-            // Clear screen with a slight fade for motion trails (optional, but clean clear is better for this style)
-            ctx.clearRect(0, 0, width, height);
-
-            // Move blob slightly towards mouse (smooth follow)
-            // Linear interpolation (lerp)
-            blob.x += (mouseX - blob.x) * 0.03;
-            blob.y += (mouseY - blob.y) * 0.03;
-
-            ctx.fillStyle = blob.color;
-            ctx.beginPath();
-
-            const numPoints = 150; // Resolution of the blob
-            const angleStep = (Math.PI * 2) / numPoints;
-
-            for (let i = 0; i <= numPoints; i++) {
-                const angle = i * angleStep;
-                
-                // Calculate basic circle point
-                const cos = Math.cos(angle);
-                const sin = Math.sin(angle);
-                
-                // Add noise to radius based on Angle and Time
-                // We use sine waves to offset the radius
-                const noiseVal = 
-                    Math.sin(angle * 3 + time) * 20 +    // Large wobbles
-                    Math.sin(angle * 7 - time * 2) * 15 + // Medium wobbles
-                    Math.sin(angle * 12 + time * 3) * 5;  // Small details
-
-                const radius = blob.size + noiseVal;
-
-                // Gradient offset based on mouse position to give 3D-ish feel
-                const x = blob.x + cos * radius;
-                const y = blob.y + sin * radius;
-
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
+        class Blob {
+            constructor() {
+                this.init();
             }
 
-            ctx.closePath();
+            init() {
+                // Randomize size between 200 and 400
+                this.size = 200 + Math.random() * 200; 
+                
+                // Random start position
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                
+                // Random drift velocity
+                this.vx = (Math.random() - 0.5) * 1.5; 
+                this.vy = (Math.random() - 0.5) * 1.5;
+                
+                // Random offset so they don't pulse in sync
+                this.timeOffset = Math.random() * 100;
+                
+                // Speed of the organic wobble
+                this.wobbleSpeed = 0.5 + Math.random() * 0.5;
+            }
 
-            // Create a gradient fill to look like liquid light
-            const gradient = ctx.createRadialGradient(
-                blob.x - 50, blob.y - 50, 10, 
-                blob.x, blob.y, blob.size + 20
-            );
-            gradient.addColorStop(0, '#2FB0C2');      // Bright core
-            gradient.addColorStop(0.6, 'rgba(47, 176, 194, 0.4)'); // Mid
-            gradient.addColorStop(1, 'rgba(47, 176, 194, 0)');    // Fade out edge
+            update() {
+                // Move the blob
+                this.x += this.vx;
+                this.y += this.vy;
 
-            ctx.fillStyle = gradient;
-            ctx.fill();
-            
-            // Optional: Draw a thin line border for definition
-            ctx.strokeStyle = 'rgba(47, 176, 194, 0.1)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+                // Bounce off walls (with a buffer equal to size so they don't disappear fully)
+                if (this.x < -this.size/2 || this.x > width + this.size/2) this.vx *= -1;
+                if (this.y < -this.size/2 || this.y > height + this.size/2) this.vy *= -1;
+            }
+
+            draw(ctx, globalTime) {
+                const localTime = globalTime * this.wobbleSpeed + this.timeOffset;
+                
+                ctx.fillStyle = '#2FB0C2'; // Base color for reference
+                ctx.beginPath();
+
+                const numPoints = 100; // Reduced slightly for performance with multiple blobs
+                const angleStep = (Math.PI * 2) / numPoints;
+
+                for (let i = 0; i <= numPoints; i++) {
+                    const angle = i * angleStep;
+                    
+                    // Organic Noise Calculation
+                    const noiseVal = 
+                        Math.sin(angle * 3 + localTime) * 20 + 
+                        Math.sin(angle * 7 - localTime * 2) * 15 + 
+                        Math.sin(angle * 12 + localTime * 3) * 5;
+
+                    const radius = (this.size / 2) + noiseVal; // Size is diameter, so divide by 2
+
+                    const x = this.x + Math.cos(angle) * radius;
+                    const y = this.y + Math.sin(angle) * radius;
+
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+
+                ctx.closePath();
+
+                // Gradient Fill (Local to the blob)
+                const gradient = ctx.createRadialGradient(
+                    this.x - 50, this.y - 50, 10, 
+                    this.x, this.y, (this.size / 2) + 20
+                );
+                
+                // Slightly lower opacity for the multi-blob version so text remains readable
+                gradient.addColorStop(0, 'rgba(47, 176, 194, 0.8)'); 
+                gradient.addColorStop(0.6, 'rgba(47, 176, 194, 0.2)');
+                gradient.addColorStop(1, 'rgba(47, 176, 194, 0)');
+
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+        }
+
+        // Initialize Blobs
+        for(let i=0; i<blobCount; i++) {
+            blobs.push(new Blob());
         }
 
         function animate() {
-            time += 0.03; // Speed of the wobble
-            drawBlob();
+            time += 0.01; 
+            
+            // Clear entire screen once per frame
+            ctx.clearRect(0, 0, width, height);
+            
+            // Update and draw all blobs
+            blobs.forEach(blob => {
+                blob.update();
+                blob.draw(ctx, time);
+            });
+
             requestAnimationFrame(animate);
         }
 
