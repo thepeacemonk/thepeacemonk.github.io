@@ -6,10 +6,10 @@
     <title>Peace | Anki Add-on Developer</title>
     <style>
         :root {
-            --bg-color: #0a0a0a;
-            --card-bg: rgba(30, 30, 30, 0.6); /* More transparent */
-            --accent: #2FB0C2; /* New accent color */
-            --text-main: #e0e0e0;
+            --bg-color: #050505;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --accent: #2FB0C2;
+            --text-main: #ffffff;
             --text-muted: #a0a0a0;
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
@@ -23,189 +23,243 @@
             font-family: var(--font-main);
             line-height: 1.6;
             padding-bottom: 50px;
-            position: relative;
-            overflow-x: hidden; /* Prevent horizontal scroll from moving blobs */
+            overflow-x: hidden;
         }
 
-        /* --- NEW: Flowing Blob Background --- */
-        #bg-blobs {
+        /* --- ORGANIC BACKGROUND ANIMATION --- */
+        .background-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -1;
-            filter: blur(120px); /* Strong blur for the soft light effect */
-            pointer-events: none;
             overflow: hidden;
-            background: #0a0a0a; /* Ensure dark background behind blobs */
+            background: #080808;
         }
 
         .blob {
             position: absolute;
-            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
             border-radius: 50%;
+            filter: blur(80px);
             opacity: 0.6;
-            mix-blend-mode: screen; /* Helps blend the lights together */
+            mix-blend-mode: screen;
+            animation: float 20s infinite ease-in-out alternate;
         }
 
-        /* First Blob */
+        /* Blob 1: Top Left - Cyan Accent */
         .blob:nth-child(1) {
-            width: 70vw;
-            height: 70vw;
-            top: -20%;
-            left: -10%;
-            animation: moveBlob1 25s infinite alternate ease-in-out;
+            background: var(--accent);
+            width: 500px;
+            height: 500px;
+            left: -100px;
+            top: -100px;
+            animation-duration: 25s;
         }
 
-        /* Second Blob */
+        /* Blob 2: Bottom Right - Darker Blue/Purple to add depth */
         .blob:nth-child(2) {
-            width: 60vw;
-            height: 60vw;
-            bottom: -10%;
-            right: -10%;
-            animation: moveBlob2 30s infinite alternate-reverse ease-in-out;
+            background: #4b2fc2;
+            width: 600px;
+            height: 600px;
+            right: -100px;
+            bottom: -100px;
+            animation-duration: 30s;
+            animation-delay: -5s;
         }
 
-        @keyframes moveBlob1 {
-            0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(20%, 10%) scale(1.1); }
-            100% { transform: translate(-10%, 20%) scale(0.9); }
+        /* Blob 3: Floating Middle - Lighter Cyan */
+        .blob:nth-child(3) {
+            background: #2f8bc2;
+            width: 400px;
+            height: 400px;
+            left: 30%;
+            top: 40%;
+            animation-duration: 22s;
+            animation-delay: -10s;
+            opacity: 0.4;
         }
 
-        @keyframes moveBlob2 {
-            0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(-15%, -10%) scale(1.15); }
-            100% { transform: translate(10%, -20%) scale(0.95); }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            33% { transform: translate(50px, -50px) scale(1.1) rotate(20deg); }
+            66% { transform: translate(-30px, 40px) scale(0.9) rotate(-10deg); }
+            100% { transform: translate(20px, -20px) scale(1.05) rotate(10deg); }
         }
         /* ------------------------------------ */
 
         /* Header / Hero Section */
         header {
             text-align: center;
-            padding: 80px 20px 60px;
+            padding: 100px 20px 60px;
             max-width: 800px;
             margin: 0 auto;
-            position: relative; z-index: 2;
+            /* Animation for load */
+            opacity: 0;
+            animation: fadeInDown 1s ease-out forwards;
         }
 
-        h1 { font-size: 3rem; margin-bottom: 10px; font-weight: 800; }
-        .subtitle { color: var(--accent); font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
-        .bio { color: var(--text-muted); margin-top: 20px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        h1 { font-size: 3.5rem; margin-bottom: 10px; font-weight: 800; letter-spacing: -1px; }
+        .subtitle { color: var(--accent); font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; display: block;}
+        .bio { color: var(--text-muted); margin-top: 20px; font-size: 1.1rem; max-width: 600px; margin-left: auto; margin-right: auto; }
 
         /* Container */
         .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; z-index: 2; position: relative;}
 
         /* Featured Section (Onigiri) */
         .featured-section {
-            background: rgba(42, 42, 42, 0.4);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 40px;
-            margin-bottom: 60px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 50px;
+            margin-bottom: 80px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            
+            /* Initial State for Scroll Animation */
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
         }
+        
+        /* Class added by JS when visible */
+        .featured-section.visible { opacity: 1; transform: translateY(0); }
 
         .featured-tag {
             background-color: var(--accent);
-            color: #121212;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-bottom: 20px;
+            color: #000;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 1px;
             text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 20px;
         }
 
-        .featured-title { font-size: 2.5rem; margin-bottom: 15px; }
-        .featured-desc { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 30px; max-width: 700px; }
+        .featured-title { font-size: 3rem; margin-bottom: 15px; font-weight: 700; }
+        .featured-desc { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 35px; max-width: 700px; margin-left: auto; margin-right: auto; }
         
         .btn {
             display: inline-block;
             background-color: var(--accent);
-            color: #121212;
-            padding: 12px 30px;
+            color: #050505;
+            padding: 14px 35px;
             text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            transition: transform 0.2s, background-color 0.2s;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(47, 176, 194, 0.3);
         }
-        .btn:hover { background-color: white; transform: translateY(-2px); }
+        .btn:hover { 
+            background-color: #fff; 
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+        }
 
         /* Add-ons Grid */
-        .section-title { font-size: 1.5rem; margin-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; }
+        .section-header { 
+            margin-bottom: 40px; 
+            opacity: 0; 
+            transform: translateY(20px); 
+            transition: all 0.6s ease-out; 
+        }
+        .section-header.visible { opacity: 1; transform: translateY(0); }
+        .section-title { font-size: 1.8rem; font-weight: 700; }
         
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
         }
 
         .card {
             background-color: var(--card-bg);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 25px;
-            transition: transform 0.2s, border-color 0.2s, background-color 0.2s;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            
+            /* Initial State */
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        /* Visible State (staggered by JS) */
+        .card.visible { opacity: 1; transform: translateY(0); }
+
+        .card:hover { 
+            transform: translateY(-10px); 
+            border-color: rgba(47, 176, 194, 0.4); 
+            background-color: rgba(47, 176, 194, 0.05);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
-        .card:hover { transform: translateY(-5px); border-color: var(--accent); background-color: rgba(40, 40, 40, 0.7); }
-        .card h3 { font-size: 1.4rem; margin-bottom: 10px; }
-        .card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; }
+        .card h3 { font-size: 1.3rem; margin-bottom: 12px; font-weight: 600; color: #fff; }
+        .card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px; line-height: 1.5; }
         
         .card-link {
             color: var(--accent);
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            transition: padding-left 0.2s;
         }
-        .card-link:hover { text-decoration: underline; }
+        .card-link:hover { padding-left: 5px; color: #fff; }
+        .card-link::after { content: '→'; margin-left: 5px; transition: margin-left 0.2s; }
+        .card-link:hover::after { margin-left: 8px; }
 
-        /* Footer */
         footer {
             text-align: center;
-            margin-top: 80px;
+            margin-top: 100px;
             color: var(--text-muted);
             font-size: 0.9rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
             padding-top: 40px;
-            position: relative;
-            z-index: 2;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         @media (max-width: 600px) {
-            h1 { font-size: 2.2rem; }
-            .featured-title { font-size: 1.8rem; }
+            h1 { font-size: 2.5rem; }
+            .featured-title { font-size: 2rem; }
             header { padding-top: 60px; }
+            .featured-section { padding: 30px 20px; }
         }
     </style>
 </head>
 <body>
-    <div id="bg-blobs">
+
+    <div class="background-container">
+        <div class="blob"></div>
         <div class="blob"></div>
         <div class="blob"></div>
     </div>
 
     <header>
-        <div class="subtitle">Anki Add-on Developer</div>
+        <span class="subtitle">Anki Add-on Developer</span>
         <h1>Peace</h1>
         <p class="bio">Building tools to modernize and gamify your study routine. Creator of Onigiri, Focumon, and more.</p>
     </header>
 
     <div class="container">
         
-        <section class="featured-section">
+        <section class="featured-section hidden-on-load">
             <span class="featured-tag">Featured Project</span>
             <h2 class="featured-title">🍙 Onigiri (Beta)</h2>
             <p class="featured-desc">
@@ -216,78 +270,110 @@
             </div>
         </section>
 
-        <h2 class="section-title">All Add-ons</h2>
+        <div class="section-header hidden-on-load">
+            <h2 class="section-title">All Add-ons</h2>
+        </div>
+
         <div class="grid">
-            <div class="card">
+            <div class="card hidden-on-load">
                 <div>
-                    <h3>✨ Focumon for Anki</h3>
+                    <h3>✨ Focumon</h3>
                     <p>Gamify your focus. Collect monsters and level up while you study.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/516325516" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/516325516" class="card-link" target="_blank">Get Add-on</a>
             </div>
-            <div class="card">
+            <div class="card hidden-on-load">
                 <div>
                     <h3>Berry</h3>
                     <p>Check your Bluetooth devices directly from your Anki menu.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/73838120" class="card-link" target="_blank">Get Add-on</a>
             </div>
-            <div class="card">
+            <div class="card hidden-on-load">
                 <div>
-                    <h3>🐰 lofi.town for Anki</h3>
+                    <h3>🐰 lofi.town</h3>
                     <p>Listen to lofi beats and relax in your virtual town while reviewing cards.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/1799253175" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/1799253175" class="card-link" target="_blank">Get Add-on</a>
             </div>
-             <div class="card">
+             <div class="card hidden-on-load">
                 <div>
                     <h3>Global</h3>
                     <p>Check your local weather without leaving Anki.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/519723565" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/519723565" class="card-link" target="_blank">Get Add-on</a>
             </div>
-            <div class="card">
+            <div class="card hidden-on-load">
                 <div>
                     <h3>Hours</h3>
                     <p>A simple utility to check the time from your Anki menu.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/691162538" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/691162538" class="card-link" target="_blank">Get Add-on</a>
             </div>
-            <div class="card">
+            <div class="card hidden-on-load">
                 <div>
                     <h3>Paper</h3>
                     <p>Multiple cheat sheets and scratchpads available while you study.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/1803057887" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/1803057887" class="card-link" target="_blank">Get Add-on</a>
             </div>
-            <div class="card">
+            <div class="card hidden-on-load">
                 <div>
                     <h3>Power</h3>
                     <p>Monitor your laptop's battery life directly from Anki.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/643961895" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/643961895" class="card-link" target="_blank">Get Add-on</a>
             </div>
-            <div class="card">
+            <div class="card hidden-on-load">
                 <div>
                     <h3>🍵 Senchado</h3>
                     <p>A tea timer for your Anki sessions.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/585575504" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/585575504" class="card-link" target="_blank">Get Add-on</a>
             </div>
-            <div class="card">
+            <div class="card hidden-on-load">
                 <div>
                     <h3>Sticky</h3>
                     <p>Write quick sticky notes on your Anki menu.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/629799722" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/629799722" class="card-link" target="_blank">Get Add-on</a>
             </div>
         </div>
     </div>
 
     <footer>
         <p>&copy; 2025 Peace. All rights reserved.</p>
-        <p><a href="https://ankiweb.net/shared/by-author/73838120" style="color: #888; text-decoration: none;">View all on AnkiWeb</a></p>
+        <p><a href="https://ankiweb.net/shared/by-author/73838120" style="color: #666; text-decoration: none;">View all on AnkiWeb</a></p>
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        // Add a slight delay based on index for the staggering effect
+                        // We check if it's a card to stagger them, otherwise show immediately
+                        if(entry.target.classList.contains('card')) {
+                            // Simple calculation to stagger grid items relative to their viewport position
+                            // We don't have the exact index in grid here easily without more complex logic,
+                            // so we use a small timeout to let the browser paint naturally.
+                            entry.target.classList.add('visible');
+                        } else {
+                            entry.target.classList.add('visible');
+                        }
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            const elements = document.querySelectorAll('.featured-section, .section-header, .card');
+            elements.forEach(el => observer.observe(el));
+        });
+    </script>
 </body>
 </html>
