@@ -6,13 +6,16 @@
     <title>Peace | Anki Add-on Developer</title>
     <style>
         :root {
-            --bg-color: #080808;
-            --card-bg: #121212;
-            --card-border: #2a2a2a;
-            --accent: #FFE600; /* Vibrant Yellow */
+            /* COLORS */
+            --bg-color: #050505;
+            --card-bg: #101010;
+            --card-border: #222222;
+            --accent: #2FB0C2; /* Your Original Teal Color */
             --text-main: #ffffff;
             --text-muted: #888888;
-            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            
+            /* FONTS */
+            --font-main: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,29 +30,28 @@
             position: relative;
         }
 
-        /* --- DECORATIVE STARS (Background) --- */
-        .star-container {
+        /* --- BACKGROUND DECORATION (Stars) --- */
+        #star-canvas {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 0;
             pointer-events: none;
         }
-        
+
         .star {
             position: absolute;
-            background: var(--text-main);
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            /* Alternative 4-point star shape */
+            background: white;
+            /* 4-point star shape matches your reference image */
             clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
+            animation: twinkle 4s ease-in-out infinite;
             opacity: 0.8;
-            animation: float 6s ease-in-out infinite;
         }
+        
+        .star.accent { background: var(--accent); }
 
-        .star.yellow { background: var(--accent); }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(10deg); }
+        @keyframes twinkle {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+            50% { transform: scale(1.2) rotate(15deg); opacity: 0.4; }
         }
 
         /* --- NAVIGATION --- */
@@ -57,173 +59,166 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 30px 5%;
+            padding: 40px 5%;
             max-width: 1400px;
             margin: 0 auto;
             position: relative;
-            z-index: 2;
+            z-index: 10;
         }
 
-        .logo { font-weight: 900; letter-spacing: -1px; font-size: 1.5rem; text-transform: uppercase; }
+        .logo { 
+            font-weight: 900; 
+            font-size: 1.5rem; 
+            text-transform: uppercase; 
+            letter-spacing: -1px;
+        }
 
-        .nav-pill {
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+        .nav-link:hover { color: #fff; }
+
+        .nav-btn {
             background: var(--accent);
             color: #000;
-            padding: 8px 20px;
+            padding: 10px 25px;
             border-radius: 50px;
             font-weight: 700;
-            font-size: 0.9rem;
+            text-decoration: none;
             text-transform: uppercase;
-            display: inline-block;
+            font-size: 0.9rem;
+            transition: transform 0.2s;
         }
-
-        .nav-links { display: flex; gap: 30px; font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
-        .nav-links span:hover { color: #fff; cursor: pointer; }
+        .nav-btn:hover { transform: scale(1.05); }
 
         /* --- HERO SECTION --- */
         header {
-            text-align: left;
-            padding: 80px 5%;
+            padding: 100px 5%;
             max-width: 1400px;
             margin: 0 auto;
             position: relative;
             z-index: 2;
         }
 
-        .hero-tag {
+        .hero-badge {
             display: inline-block;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
+            background: #1a1a1a;
+            border: 1px solid #333;
             color: var(--accent);
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 50px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 700;
             margin-bottom: 30px;
             text-transform: uppercase;
         }
 
-        h1 { 
-            font-size: clamp(3rem, 8vw, 6rem); /* Responsive giant text */
-            line-height: 1;
-            font-weight: 900; 
-            letter-spacing: -2px;
+        h1 {
+            font-size: clamp(3.5rem, 8vw, 7rem);
+            line-height: 1.1;
+            font-weight: 800;
             text-transform: uppercase;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            max-width: 1200px;
         }
 
-        h1 span.outline {
+        /* The "Hollow/Outline" text effect from reference */
+        .outline-text {
             color: transparent;
             -webkit-text-stroke: 2px #fff;
-            opacity: 0.5;
+            opacity: 0.3;
         }
         
-        h1 span.highlight {
+        .accent-text {
             color: var(--accent);
         }
 
-        .bio { 
-            color: var(--text-muted); 
-            font-size: 1.2rem; 
-            max-width: 600px; 
-            line-height: 1.6;
-            margin-bottom: 50px;
-        }
-
-        /* --- MAIN CONTAINER --- */
-        .container { 
-            max-width: 1400px; 
-            margin: 0 auto; 
-            padding: 0 5%; 
-            z-index: 2; 
-            position: relative;
-            padding-bottom: 100px;
-        }
-
-        /* --- FEATURED SECTION (Large Card) --- */
-        .featured-wrapper {
-            margin-bottom: 100px;
-        }
-        
-        .section-label {
+        .hero-desc {
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.85rem;
-            margin-bottom: 20px;
-            display: block;
+            font-size: 1.25rem;
+            max-width: 600px;
+            line-height: 1.6;
+            margin-bottom: 60px;
         }
 
+        /* --- LAYOUT GRID --- */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 5% 100px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Section Titles */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 20px;
+        }
+
+        .section-title { font-size: 2rem; font-weight: 700; }
+        .section-subtitle { color: var(--text-muted); }
+
+        /* --- FEATURED CARD (Onigiri) --- */
+        /* Mimics the large "Work with Purpose" card style */
         .featured-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 30px;
             padding: 60px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            transition: border-color 0.3s ease;
+            margin-bottom: 100px;
             position: relative;
             overflow: hidden;
-        }
-
-        .featured-card:hover {
-            border-color: var(--accent);
-        }
-
-        .featured-content h2 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            line-height: 1.1;
-        }
-
-        .featured-content p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            margin-bottom: 40px;
-        }
-
-        /* The Button Style from Reference */
-        .btn-pill {
-            display: inline-flex;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 40px;
             align-items: center;
-            justify-content: center;
+        }
+
+        .featured-bg-glow {
+            position: absolute;
+            top: -50%; right: -20%;
+            width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(47, 176, 194, 0.1) 0%, rgba(0,0,0,0) 70%);
+            pointer-events: none;
+        }
+
+        .feat-content h2 { font-size: 3.5rem; margin-bottom: 20px; line-height: 1; text-transform: uppercase; }
+        .feat-content p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 40px; max-width: 500px; }
+
+        .btn {
+            display: inline-block;
             background: var(--accent);
             color: #000;
-            padding: 15px 35px;
-            text-decoration: none;
+            padding: 15px 40px;
             border-radius: 50px;
+            text-decoration: none;
             font-weight: 700;
             font-size: 1rem;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s;
         }
+        .btn:hover { transform: translateY(-2px); }
 
-        .btn-pill:hover { transform: scale(1.05); }
-
-        .featured-visual {
-            background: #1a1a1a;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 300px;
-            font-size: 5rem;
-        }
-
-        /* --- GRID (Smaller Cards) --- */
-        .grid-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 40px;
-        }
-
-        .grid-header h2 { font-size: 2.5rem; font-weight: 800; }
-
+        /* --- BENTO GRID (Portfolio) --- */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 25px;
         }
 
@@ -231,228 +226,228 @@
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 24px;
-            padding: 30px;
+            padding: 35px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 320px;
+            min-height: 300px;
             transition: all 0.3s ease;
             position: relative;
         }
 
-        .card:hover { 
-            transform: translateY(-5px); 
+        .card:hover {
             border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
-        .card-top { margin-bottom: 20px; }
-
-        .tag {
-            background: rgba(255,255,255,0.05);
-            padding: 6px 12px;
+        .card-tag {
+            background: #1a1a1a;
+            color: var(--text-muted);
+            padding: 6px 14px;
             border-radius: 6px;
             font-size: 0.75rem;
-            color: var(--text-muted);
-            display: inline-block;
-            margin-bottom: 20px;
             text-transform: uppercase;
+            align-self: flex-start;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
         }
 
-        .card h3 { 
-            font-size: 1.8rem; 
-            margin-bottom: 15px; 
-            font-weight: 700; 
-            color: #fff; 
-            line-height: 1.2;
-        }
-        
-        .card p { 
-            color: var(--text-muted); 
-            font-size: 1rem; 
-            line-height: 1.6; 
-        }
-        
-        .card-footer {
+        .card h3 { font-size: 1.75rem; margin-bottom: 15px; color: #fff; }
+        .card p { color: var(--text-muted); font-size: 1rem; margin-bottom: 30px; }
+
+        .card-link {
             margin-top: auto;
-            padding-top: 30px;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .btn-sm {
-            background: transparent;
-            border: 1px solid #333;
+            display: inline-flex;
+            align-items: center;
             color: #fff;
-            padding: 10px 25px;
-            border-radius: 50px;
             text-decoration: none;
-            font-size: 0.85rem;
             font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 5px;
+            width: fit-content;
             transition: all 0.3s;
         }
 
-        .card:hover .btn-sm {
-            background: var(--accent);
-            color: #000;
-            border-color: var(--accent);
-        }
+        .card-link:hover { color: var(--accent); border-color: var(--accent); }
 
         footer {
-            text-align: left;
-            padding: 50px 5%;
             border-top: 1px solid var(--card-border);
+            padding: 60px 5%;
+            margin-top: 100px;
+            display: flex;
+            justify-content: space-between;
             color: var(--text-muted);
             max-width: 1400px;
-            margin: 0 auto;
-            margin-top: 50px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        /* Responsiveness for new layout */
         @media (max-width: 900px) {
-            .featured-card { grid-template-columns: 1fr; }
-            .hero-tag { margin-top: 20px; }
-            nav { flex-direction: column; gap: 20px; }
+            h1 { font-size: 3.5rem; }
+            .featured-card { grid-template-columns: 1fr; padding: 40px; }
+            nav { flex-direction: column; gap: 20px; padding: 30px; }
+            .nav-links { flex-wrap: wrap; justify-content: center; }
         }
     </style>
 </head>
 <body>
 
-    <div class="star-container" id="star-container">
-        </div>
+    <div id="star-canvas"></div>
 
     <nav>
-        <div class="logo">RAVIELL STYLE</div>
-        <div class="nav-pill">HOME</div>
+        <div class="logo">Peace.</div>
         <div class="nav-links">
-            <span>ABOUT</span>
-            <span>PROJECTS</span>
-            <span>SERVICES</span>
+            <a href="#about" class="nav-link">About</a>
+            <a href="#work" class="nav-link">Projects</a>
+            <a href="#contact" class="nav-link">Contact</a>
+            <a href="#" class="nav-btn">Home</a>
         </div>
     </nav>
 
-    <header>
-        <span class="hero-tag">Anki Add-on Developer</span>
+    <header id="about">
+        <span class="hero-badge">Anki Add-on Developer</span>
         <h1>
-            Make Study <br> 
-            <span class="outline">Simple.</span> Make It <br>
-            <span class="highlight">Satisfying.</span>
+            Make Study <span class="outline-text">Simple.</span><br>
+            Make It <span class="accent-text">Satisfying.</span>
         </h1>
-        <p class="bio">Creating tools like Onigiri and Focumon to modernize and gamify your study routine. From idea to execution, I help you realize the dream.</p>
+        <p class="hero-desc">
+            I create tools like Onigiri and Focumon that modernize your study routine. 
+            Merging utility with aesthetics to help you realize your academic goals.
+        </p>
     </header>
 
-    <div class="container">
+    <div class="container" id="work">
         
-        <div class="featured-wrapper">
-            <span class="section-label">01 / Featured Project</span>
-            <div class="featured-card">
-                <div class="featured-content">
-                    <h2>Onigiri</h2>
-                    <p>
-                        A complete redesign of the Anki interface. Cleaner, aesthetic, and built to make daily reviews satisfying.
-                    </p>
-                    <a href="https://ankiweb.net/shared/info/1011095603" class="btn-pill" target="_blank">View on AnkiWeb</a>
-                </div>
-                <div class="featured-visual">
-                    🍙
-                </div>
+        <div class="section-header">
+            <h2 class="section-title">Latest Release</h2>
+            <span class="section-subtitle">01 / Featured</span>
+        </div>
+
+        <div class="featured-card">
+            <div class="featured-bg-glow"></div>
+            <div class="feat-content">
+                <h2>Onigiri</h2>
+                <p>A complete redesign of the Anki interface. Cleaner, aesthetic, and built to make daily reviews satisfying.</p>
+                <a href="https://ankiweb.net/shared/info/1011095603" class="btn" target="_blank">View on AnkiWeb</a>
+            </div>
+            <div style="font-size: 8rem; text-align: center; opacity: 0.8;">
+                🍙
             </div>
         </div>
 
-        <div class="grid-header">
-            <h2>Portfolio</h2>
+        <div class="section-header">
+            <h2 class="section-title">Portfolio</h2>
+            <span class="section-subtitle">09 Projects</span>
         </div>
 
         <div class="grid">
             <div class="card">
-                <div class="card-top">
-                    <span class="tag">Gamification</span>
+                <span class="card-tag">Gamification</span>
+                <div>
                     <h3>Focumon</h3>
                     <p>Gamify your focus. Collect monsters and level up while you study.</p>
                 </div>
-                <div class="card-footer">
-                    <a href="https://ankiweb.net/shared/info/516325516" class="btn-sm" target="_blank">Download</a>
-                </div>
+                <a href="https://ankiweb.net/shared/info/516325516" class="card-link" target="_blank">Download Asset</a>
             </div>
 
             <div class="card">
-                <div class="card-top">
-                    <span class="tag">Utility</span>
+                <span class="card-tag">Utility</span>
+                <div>
                     <h3>Berry</h3>
                     <p>Check your Bluetooth devices directly from your Anki menu.</p>
                 </div>
-                <div class="card-footer">
-                    <a href="https://ankiweb.net/shared/info/73838120" class="btn-sm" target="_blank">Download</a>
-                </div>
+                <a href="https://ankiweb.net/shared/info/73838120" class="card-link" target="_blank">Download Asset</a>
             </div>
 
             <div class="card">
-                <div class="card-top">
-                    <span class="tag">Audio / Visual</span>
+                <span class="card-tag">Immersion</span>
+                <div>
                     <h3>lofi.town</h3>
                     <p>Listen to lofi beats and relax in your virtual town while reviewing.</p>
                 </div>
-                <div class="card-footer">
-                    <a href="https://ankiweb.net/shared/info/1799253175" class="btn-sm" target="_blank">Download</a>
-                </div>
+                <a href="https://ankiweb.net/shared/info/1799253175" class="card-link" target="_blank">Download Asset</a>
             </div>
 
-             <div class="card">
-                <div class="card-top">
-                    <span class="tag">Utility</span>
+            <div class="card">
+                <span class="card-tag">Widget</span>
+                <div>
                     <h3>Global</h3>
                     <p>Check your local weather without leaving Anki.</p>
                 </div>
-                <div class="card-footer">
-                    <a href="https://ankiweb.net/shared/info/519723565" class="btn-sm" target="_blank">Download</a>
-                </div>
+                <a href="https://ankiweb.net/shared/info/519723565" class="card-link" target="_blank">Download Asset</a>
             </div>
 
             <div class="card">
-                <div class="card-top">
-                    <span class="tag">Timer</span>
+                <span class="card-tag">Timer</span>
+                <div>
                     <h3>Senchado</h3>
                     <p>A tea timer for your Anki sessions.</p>
                 </div>
-                <div class="card-footer">
-                    <a href="https://ankiweb.net/shared/info/585575504" class="btn-sm" target="_blank">Download</a>
-                </div>
+                <a href="https://ankiweb.net/shared/info/585575504" class="card-link" target="_blank">Download Asset</a>
             </div>
 
             <div class="card">
-                <div class="card-top">
-                    <span class="tag">Productivity</span>
+                <span class="card-tag">Productivity</span>
+                <div>
                     <h3>Paper</h3>
-                    <p>Multiple cheat sheets and scratchpads available while you study.</p>
+                    <p>Cheat sheets and scratchpads available while you study.</p>
                 </div>
-                <div class="card-footer">
-                    <a href="https://ankiweb.net/shared/info/1803057887" class="btn-sm" target="_blank">Download</a>
+                <a href="https://ankiweb.net/shared/info/1803057887" class="card-link" target="_blank">Download Asset</a>
+            </div>
+             <div class="card">
+                <span class="card-tag">Utility</span>
+                <div>
+                    <h3>Power</h3>
+                    <p>Monitor your laptop's battery life directly from Anki.</p>
                 </div>
+                <a href="https://ankiweb.net/shared/info/643961895" class="card-link" target="_blank">Download Asset</a>
+            </div>
+             <div class="card">
+                <span class="card-tag">Utility</span>
+                <div>
+                    <h3>Hours</h3>
+                    <p>A simple utility to check the time from your Anki menu.</p>
+                </div>
+                <a href="https://ankiweb.net/shared/info/691162538" class="card-link" target="_blank">Download Asset</a>
+            </div>
+             <div class="card">
+                <span class="card-tag">Utility</span>
+                <div>
+                    <h3>Sticky</h3>
+                    <p>Write quick sticky notes on your Anki menu.</p>
+                </div>
+                <a href="https://ankiweb.net/shared/info/629799722" class="card-link" target="_blank">Download Asset</a>
             </div>
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2025 Peace.</p>
+    <footer id="contact">
+        <div>&copy; 2025 Peace. All rights reserved.</div>
+        <div>Designed with Passion.</div>
     </footer>
 
     <script>
-        // JS to generate random floating stars in the background
-        const container = document.getElementById('star-container');
-        const starCount = 8; // Number of stars
+        // Script to generate the stars from the reference image
+        const container = document.getElementById('star-canvas');
+        const starCount = 15; 
 
         for (let i = 0; i < starCount; i++) {
             const star = document.createElement('div');
             star.classList.add('star');
             
-            // Randomly make some yellow
-            if (Math.random() > 0.7) {
-                star.classList.add('yellow');
+            // Randomly apply accent color to some stars
+            if (Math.random() > 0.8) {
+                star.classList.add('accent');
             }
 
             // Random positioning
             const x = Math.random() * 100;
             const y = Math.random() * 100;
-            const size = 15 + Math.random() * 30; // Size between 15px and 45px
+            
+            // Random size (between 20px and 60px to match reference scale)
+            const size = 20 + Math.random() * 40; 
+            
             const delay = Math.random() * 5;
 
             star.style.left = `${x}%`;
