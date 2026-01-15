@@ -6,11 +6,12 @@
     <title>Peace | Anki Add-on Developer</title>
     <style>
         :root {
-            --bg-color: #050505;
-            --card-bg: rgba(20, 20, 20, 0.4);
-            --accent: #2FB0C2;
+            --bg-color: #080808;
+            --card-bg: #121212;
+            --card-border: #2a2a2a;
+            --accent: #FFE600; /* Vibrant Yellow */
             --text-main: #ffffff;
-            --text-muted: #8892b0;
+            --text-muted: #888888;
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
@@ -21,301 +22,411 @@
             min-height: 100vh;
             color: var(--text-main);
             font-family: var(--font-main);
-            line-height: 1.6;
+            line-height: 1.5;
             overflow-x: hidden;
             position: relative;
         }
 
-        /* --- CANVAS BACKGROUND --- */
-        #liquid-canvas {
+        /* --- DECORATIVE STARS (Background) --- */
+        .star-container {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            filter: blur(1px); 
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .star {
+            position: absolute;
+            background: var(--text-main);
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            /* Alternative 4-point star shape */
+            clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
+            opacity: 0.8;
+            animation: float 6s ease-in-out infinite;
         }
 
-        /* --- LAYOUT & TYPOGRAPHY --- */
-        header {
-            text-align: center;
-            padding: 120px 20px 80px;
-            max-width: 800px;
+        .star.yellow { background: var(--accent); }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 5%;
+            max-width: 1400px;
             margin: 0 auto;
             position: relative;
             z-index: 2;
         }
 
-        h1 { 
-            font-size: 4rem; 
-            margin-bottom: 15px; 
-            font-weight: 800; 
-            letter-spacing: -2px;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        
-        .subtitle { 
-            color: var(--accent); 
-            font-size: 1rem; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            letter-spacing: 3px; 
-            margin-bottom: 15px; 
-            display: block;
-        }
-        
-        .bio { 
-            color: var(--text-muted); 
-            margin-top: 25px; 
-            font-size: 1.2rem; 
-            max-width: 550px; 
-            margin-left: auto; 
-            margin-right: auto; 
-            line-height: 1.8;
-        }
+        .logo { font-weight: 900; letter-spacing: -1px; font-size: 1.5rem; text-transform: uppercase; }
 
-        .container { 
-            max-width: 1100px; 
-            margin: 0 auto; 
-            padding: 0 30px; 
-            z-index: 2; 
-            position: relative;
-        }
-
-        /* --- FEATURED SECTION --- */
-        .featured-section {
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 30px;
-            padding: 60px;
-            margin-bottom: 100px;
-            text-align: center;
-            transition: transform 0.5s ease;
-        }
-
-        .featured-section:hover {
-            border-color: rgba(47, 176, 194, 0.2);
-            box-shadow: 0 0 50px rgba(47, 176, 194, 0.05);
-        }
-
-        .featured-tag {
-            background: rgba(47, 176, 194, 0.1);
-            color: var(--accent);
-            padding: 8px 16px;
+        .nav-pill {
+            background: var(--accent);
+            color: #000;
+            padding: 8px 20px;
             border-radius: 50px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 1.5px;
+            font-weight: 700;
+            font-size: 0.9rem;
             text-transform: uppercase;
             display: inline-block;
-            margin-bottom: 25px;
-            border: 1px solid rgba(47, 176, 194, 0.2);
         }
 
-        .featured-title { font-size: 3.5rem; margin-bottom: 20px; font-weight: 800; }
-        .featured-desc { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 40px; max-width: 650px; margin-left: auto; margin-right: auto; }
-        
-        .btn {
+        .nav-links { display: flex; gap: 30px; font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
+        .nav-links span:hover { color: #fff; cursor: pointer; }
+
+        /* --- HERO SECTION --- */
+        header {
+            text-align: left;
+            padding: 80px 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-tag {
             display: inline-block;
-            background: transparent;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
             color: var(--accent);
-            padding: 15px 40px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        h1 { 
+            font-size: clamp(3rem, 8vw, 6rem); /* Responsive giant text */
+            line-height: 1;
+            font-weight: 900; 
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+        }
+
+        h1 span.outline {
+            color: transparent;
+            -webkit-text-stroke: 2px #fff;
+            opacity: 0.5;
+        }
+        
+        h1 span.highlight {
+            color: var(--accent);
+        }
+
+        .bio { 
+            color: var(--text-muted); 
+            font-size: 1.2rem; 
+            max-width: 600px; 
+            line-height: 1.6;
+            margin-bottom: 50px;
+        }
+
+        /* --- MAIN CONTAINER --- */
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 0 5%; 
+            z-index: 2; 
+            position: relative;
+            padding-bottom: 100px;
+        }
+
+        /* --- FEATURED SECTION (Large Card) --- */
+        .featured-wrapper {
+            margin-bottom: 100px;
+        }
+        
+        .section-label {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .featured-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 30px;
+            padding: 60px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            transition: border-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .featured-card:hover {
+            border-color: var(--accent);
+        }
+
+        .featured-content h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .featured-content p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        /* The Button Style from Reference */
+        .btn-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent);
+            color: #000;
+            padding: 15px 35px;
             text-decoration: none;
             border-radius: 50px;
             font-weight: 700;
             font-size: 1rem;
-            border: 2px solid var(--accent);
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
+            transition: transform 0.2s ease;
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 0%; height: 100%;
-            background: var(--accent);
-            z-index: -1;
-            transition: width 0.3s ease;
+        .btn-pill:hover { transform: scale(1.05); }
+
+        .featured-visual {
+            background: #1a1a1a;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            font-size: 5rem;
         }
 
-        .btn:hover { color: #000; }
-        .btn:hover::before { width: 100%; }
-
-        /* --- GRID --- */
-        .section-header { 
-            margin-bottom: 50px; 
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 20px;
+        /* --- GRID (Smaller Cards) --- */
+        .grid-header {
             display: flex;
             justify-content: space-between;
-            align-items: end;
+            align-items: flex-end;
+            margin-bottom: 40px;
         }
-        
-        .section-title { font-size: 1.5rem; font-weight: 700; color: #fff; }
-        .section-count { color: var(--text-muted); font-size: 0.9rem; }
-        
+
+        .grid-header h2 { font-size: 2.5rem; font-weight: 800; }
+
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
         }
 
         .card {
             background-color: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            border-radius: 20px;
-            padding: 35px;
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: transform 0.4s ease, background-color 0.4s ease;
+            min-height: 320px;
+            transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 4px;
-            background: var(--accent);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s ease;
         }
 
         .card:hover { 
-            transform: translateY(-10px); 
-            background-color: rgba(30, 30, 30, 0.8); 
+            transform: translateY(-5px); 
+            border-color: var(--accent);
         }
-        .card:hover::before { transform: scaleX(1); }
 
-        .card h3 { font-size: 1.4rem; margin-bottom: 10px; font-weight: 700; color: #fff; }
-        .card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px; line-height: 1.6; }
-        
-        .card-link {
-            color: #fff;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.85rem;
+        .card-top { margin-bottom: 20px; }
+
+        .tag {
+            background: rgba(255,255,255,0.05);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: inline-block;
+            margin-bottom: 20px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.7;
-            transition: opacity 0.2s;
         }
-        .card-link:hover { opacity: 1; color: var(--accent); }
+
+        .card h3 { 
+            font-size: 1.8rem; 
+            margin-bottom: 15px; 
+            font-weight: 700; 
+            color: #fff; 
+            line-height: 1.2;
+        }
+        
+        .card p { 
+            color: var(--text-muted); 
+            font-size: 1rem; 
+            line-height: 1.6; 
+        }
+        
+        .card-footer {
+            margin-top: auto;
+            padding-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-sm {
+            background: transparent;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .card:hover .btn-sm {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
 
         footer {
-            text-align: center;
-            margin-top: 120px;
+            text-align: left;
+            padding: 50px 5%;
+            border-top: 1px solid var(--card-border);
             color: var(--text-muted);
-            font-size: 0.9rem;
-            padding-top: 40px;
-            opacity: 0.5;
+            max-width: 1400px;
+            margin: 0 auto;
+            margin-top: 50px;
         }
-        
-        @media (max-width: 768px) {
-            h1 { font-size: 3rem; }
-            .featured-section { padding: 30px; }
-            .grid { grid-template-columns: 1fr; }
+
+        /* Responsiveness for new layout */
+        @media (max-width: 900px) {
+            .featured-card { grid-template-columns: 1fr; }
+            .hero-tag { margin-top: 20px; }
+            nav { flex-direction: column; gap: 20px; }
         }
     </style>
 </head>
 <body>
 
-    <canvas id="liquid-canvas"></canvas>
+    <div class="star-container" id="star-container">
+        </div>
+
+    <nav>
+        <div class="logo">RAVIELL STYLE</div>
+        <div class="nav-pill">HOME</div>
+        <div class="nav-links">
+            <span>ABOUT</span>
+            <span>PROJECTS</span>
+            <span>SERVICES</span>
+        </div>
+    </nav>
 
     <header>
-        <span class="subtitle">Portfolio</span>
-        <h1>Peace</h1>
-        <p class="bio">Add-on Developer for Anki. Creating tools like Onigiri and Focumon to modernize and gamify your study routine.</p>
+        <span class="hero-tag">Anki Add-on Developer</span>
+        <h1>
+            Make Study <br> 
+            <span class="outline">Simple.</span> Make It <br>
+            <span class="highlight">Satisfying.</span>
+        </h1>
+        <p class="bio">Creating tools like Onigiri and Focumon to modernize and gamify your study routine. From idea to execution, I help you realize the dream.</p>
     </header>
 
     <div class="container">
         
-        <section class="featured-section">
-            <span class="featured-tag">Latest Release</span>
-            <h2 class="featured-title">Onigiri</h2>
-            <p class="featured-desc">
-                A complete redesign of the Anki interface. Cleaner, aesthetic, and built to make daily reviews satisfying.
-            </p>
-            <div>
-                <a href="https://ankiweb.net/shared/info/1011095603" class="btn" target="_blank">View on AnkiWeb</a>
+        <div class="featured-wrapper">
+            <span class="section-label">01 / Featured Project</span>
+            <div class="featured-card">
+                <div class="featured-content">
+                    <h2>Onigiri</h2>
+                    <p>
+                        A complete redesign of the Anki interface. Cleaner, aesthetic, and built to make daily reviews satisfying.
+                    </p>
+                    <a href="https://ankiweb.net/shared/info/1011095603" class="btn-pill" target="_blank">View on AnkiWeb</a>
+                </div>
+                <div class="featured-visual">
+                    🍙
+                </div>
             </div>
-        </section>
+        </div>
 
-        <div class="section-header">
-            <h2 class="section-title">All Projects</h2>
-            <span class="section-count">09 items</span>
+        <div class="grid-header">
+            <h2>Portfolio</h2>
         </div>
 
         <div class="grid">
             <div class="card">
-                <div>
+                <div class="card-top">
+                    <span class="tag">Gamification</span>
                     <h3>Focumon</h3>
                     <p>Gamify your focus. Collect monsters and level up while you study.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/516325516" class="card-link" target="_blank">Download</a>
+                <div class="card-footer">
+                    <a href="https://ankiweb.net/shared/info/516325516" class="btn-sm" target="_blank">Download</a>
+                </div>
             </div>
+
             <div class="card">
-                <div>
+                <div class="card-top">
+                    <span class="tag">Utility</span>
                     <h3>Berry</h3>
                     <p>Check your Bluetooth devices directly from your Anki menu.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/73838120" class="card-link" target="_blank">Download</a>
+                <div class="card-footer">
+                    <a href="https://ankiweb.net/shared/info/73838120" class="btn-sm" target="_blank">Download</a>
+                </div>
             </div>
+
             <div class="card">
-                <div>
+                <div class="card-top">
+                    <span class="tag">Audio / Visual</span>
                     <h3>lofi.town</h3>
                     <p>Listen to lofi beats and relax in your virtual town while reviewing.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/1799253175" class="card-link" target="_blank">Download</a>
+                <div class="card-footer">
+                    <a href="https://ankiweb.net/shared/info/1799253175" class="btn-sm" target="_blank">Download</a>
+                </div>
             </div>
+
              <div class="card">
-                <div>
+                <div class="card-top">
+                    <span class="tag">Utility</span>
                     <h3>Global</h3>
                     <p>Check your local weather without leaving Anki.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/519723565" class="card-link" target="_blank">Download</a>
-            </div>
-            <div class="card">
-                <div>
-                    <h3>Hours</h3>
-                    <p>A simple utility to check the time from your Anki menu.</p>
+                <div class="card-footer">
+                    <a href="https://ankiweb.net/shared/info/519723565" class="btn-sm" target="_blank">Download</a>
                 </div>
-                <a href="https://ankiweb.net/shared/info/691162538" class="card-link" target="_blank">Download</a>
             </div>
+
             <div class="card">
-                <div>
-                    <h3>Paper</h3>
-                    <p>Multiple cheat sheets and scratchpads available while you study.</p>
-                </div>
-                <a href="https://ankiweb.net/shared/info/1803057887" class="card-link" target="_blank">Download</a>
-            </div>
-            <div class="card">
-                <div>
-                    <h3>Power</h3>
-                    <p>Monitor your laptop's battery life directly from Anki.</p>
-                </div>
-                <a href="https://ankiweb.net/shared/info/643961895" class="card-link" target="_blank">Download</a>
-            </div>
-            <div class="card">
-                <div>
+                <div class="card-top">
+                    <span class="tag">Timer</span>
                     <h3>Senchado</h3>
                     <p>A tea timer for your Anki sessions.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/585575504" class="card-link" target="_blank">Download</a>
-            </div>
-            <div class="card">
-                <div>
-                    <h3>Sticky</h3>
-                    <p>Write quick sticky notes on your Anki menu.</p>
+                <div class="card-footer">
+                    <a href="https://ankiweb.net/shared/info/585575504" class="btn-sm" target="_blank">Download</a>
                 </div>
-                <a href="https://ankiweb.net/shared/info/629799722" class="card-link" target="_blank">Download</a>
+            </div>
+
+            <div class="card">
+                <div class="card-top">
+                    <span class="tag">Productivity</span>
+                    <h3>Paper</h3>
+                    <p>Multiple cheat sheets and scratchpads available while you study.</p>
+                </div>
+                <div class="card-footer">
+                    <a href="https://ankiweb.net/shared/info/1803057887" class="btn-sm" target="_blank">Download</a>
+                </div>
             </div>
         </div>
     </div>
@@ -325,123 +436,33 @@
     </footer>
 
     <script>
-        const canvas = document.getElementById('liquid-canvas');
-        const ctx = canvas.getContext('2d');
-        
-        let width, height;
-        let time = 0;
+        // JS to generate random floating stars in the background
+        const container = document.getElementById('star-container');
+        const starCount = 8; // Number of stars
 
-        // Configuration
-        const blobCount = 5; // How many blobs you want
-        const blobs = [];
-
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        class Blob {
-            constructor() {
-                this.init();
-            }
-
-            init() {
-                // Randomize size between 200 and 400
-                this.size = 200 + Math.random() * 200; 
-                
-                // Random start position
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                
-                // Random drift velocity
-                this.vx = (Math.random() - 0.5) * 1.5; 
-                this.vy = (Math.random() - 0.5) * 1.5;
-                
-                // Random offset so they don't pulse in sync
-                this.timeOffset = Math.random() * 100;
-                
-                // Speed of the organic wobble
-                this.wobbleSpeed = 0.5 + Math.random() * 0.5;
-            }
-
-            update() {
-                // Move the blob
-                this.x += this.vx;
-                this.y += this.vy;
-
-                // Bounce off walls (with a buffer equal to size so they don't disappear fully)
-                if (this.x < -this.size/2 || this.x > width + this.size/2) this.vx *= -1;
-                if (this.y < -this.size/2 || this.y > height + this.size/2) this.vy *= -1;
-            }
-
-            draw(ctx, globalTime) {
-                const localTime = globalTime * this.wobbleSpeed + this.timeOffset;
-                
-                ctx.fillStyle = '#2FB0C2'; // Base color for reference
-                ctx.beginPath();
-
-                const numPoints = 100; // Reduced slightly for performance with multiple blobs
-                const angleStep = (Math.PI * 2) / numPoints;
-
-                for (let i = 0; i <= numPoints; i++) {
-                    const angle = i * angleStep;
-                    
-                    // Organic Noise Calculation
-                    const noiseVal = 
-                        Math.sin(angle * 3 + localTime) * 20 + 
-                        Math.sin(angle * 7 - localTime * 2) * 15 + 
-                        Math.sin(angle * 12 + localTime * 3) * 5;
-
-                    const radius = (this.size / 2) + noiseVal; // Size is diameter, so divide by 2
-
-                    const x = this.x + Math.cos(angle) * radius;
-                    const y = this.y + Math.sin(angle) * radius;
-
-                    if (i === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-
-                ctx.closePath();
-
-                // Gradient Fill (Local to the blob)
-                const gradient = ctx.createRadialGradient(
-                    this.x - 50, this.y - 50, 10, 
-                    this.x, this.y, (this.size / 2) + 20
-                );
-                
-                // Slightly lower opacity for the multi-blob version so text remains readable
-                gradient.addColorStop(0, 'rgba(47, 176, 194, 0.8)'); 
-                gradient.addColorStop(0.6, 'rgba(47, 176, 194, 0.2)');
-                gradient.addColorStop(1, 'rgba(47, 176, 194, 0)');
-
-                ctx.fillStyle = gradient;
-                ctx.fill();
-            }
-        }
-
-        // Initialize Blobs
-        for(let i=0; i<blobCount; i++) {
-            blobs.push(new Blob());
-        }
-
-        function animate() {
-            time += 0.01; 
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
             
-            // Clear entire screen once per frame
-            ctx.clearRect(0, 0, width, height);
-            
-            // Update and draw all blobs
-            blobs.forEach(blob => {
-                blob.update();
-                blob.draw(ctx, time);
-            });
+            // Randomly make some yellow
+            if (Math.random() > 0.7) {
+                star.classList.add('yellow');
+            }
 
-            requestAnimationFrame(animate);
+            // Random positioning
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            const size = 15 + Math.random() * 30; // Size between 15px and 45px
+            const delay = Math.random() * 5;
+
+            star.style.left = `${x}%`;
+            star.style.top = `${y}%`;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.animationDelay = `${delay}s`;
+
+            container.appendChild(star);
         }
-
-        animate();
     </script>
 </body>
 </html>
