@@ -6,11 +6,9 @@
     <title>Peace | Anki Add-on Developer</title>
     <style>
         :root {
-            /* Changed background color to a subtle deep gradient */
-            --bg-gradient-start: #0a0a0a;
-            --bg-gradient-end: #1a1a24;
-            --card-bg: rgba(30, 30, 30, 0.8); /* Made slightly transparent */
-            --accent: #FF6B6B; 
+            --bg-color: #0a0a0a;
+            --card-bg: rgba(30, 30, 30, 0.6); /* More transparent */
+            --accent: #2FB0C2; /* New accent color */
             --text-main: #e0e0e0;
             --text-muted: #a0a0a0;
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -19,27 +17,68 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            /* Replaced flat color with gradient and minimum height to fill screen */
-            background: linear-gradient(to bottom, var(--bg-gradient-start), var(--bg-gradient-end));
+            background-color: var(--bg-color);
             min-height: 100vh;
             color: var(--text-main);
             font-family: var(--font-main);
             line-height: 1.6;
             padding-bottom: 50px;
-            position: relative; /* Needed for canvas positioning */
+            position: relative;
+            overflow-x: hidden; /* Prevent horizontal scroll from moving blobs */
         }
 
-        /* --- NEW: Canvas Styling --- */
-        #bg-canvas {
+        /* --- NEW: Flowing Blob Background --- */
+        #bg-blobs {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1; /* Puts it behind everything else */
-            pointer-events: none; /* Ensures you can still click links */
+            z-index: -1;
+            filter: blur(120px); /* Strong blur for the soft light effect */
+            pointer-events: none;
+            overflow: hidden;
+            background: #0a0a0a; /* Ensure dark background behind blobs */
         }
-        /* --------------------------- */
+
+        .blob {
+            position: absolute;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0.6;
+            mix-blend-mode: screen; /* Helps blend the lights together */
+        }
+
+        /* First Blob */
+        .blob:nth-child(1) {
+            width: 70vw;
+            height: 70vw;
+            top: -20%;
+            left: -10%;
+            animation: moveBlob1 25s infinite alternate ease-in-out;
+        }
+
+        /* Second Blob */
+        .blob:nth-child(2) {
+            width: 60vw;
+            height: 60vw;
+            bottom: -10%;
+            right: -10%;
+            animation: moveBlob2 30s infinite alternate-reverse ease-in-out;
+        }
+
+        @keyframes moveBlob1 {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(20%, 10%) scale(1.1); }
+            100% { transform: translate(-10%, 20%) scale(0.9); }
+        }
+
+        @keyframes moveBlob2 {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-15%, -10%) scale(1.15); }
+            100% { transform: translate(10%, -20%) scale(0.95); }
+        }
+        /* ------------------------------------ */
 
         /* Header / Hero Section */
         header {
@@ -47,6 +86,7 @@
             padding: 80px 20px 60px;
             max-width: 800px;
             margin: 0 auto;
+            position: relative; z-index: 2;
         }
 
         h1 { font-size: 3rem; margin-bottom: 10px; font-weight: 800; }
@@ -58,8 +98,7 @@
 
         /* Featured Section (Onigiri) */
         .featured-section {
-            /* Added subtle transparency and blur for depth */
-            background: rgba(42, 42, 42, 0.7);
+            background: rgba(42, 42, 42, 0.4);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -70,7 +109,7 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .featured-tag {
@@ -89,7 +128,7 @@
         
         .btn {
             display: inline-block;
-            background-color: var(--text-main);
+            background-color: var(--accent);
             color: #121212;
             padding: 12px 30px;
             text-decoration: none;
@@ -100,7 +139,7 @@
         .btn:hover { background-color: white; transform: translateY(-2px); }
 
         /* Add-ons Grid */
-        .section-title { font-size: 1.5rem; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .section-title { font-size: 1.5rem; margin-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; }
         
         .grid {
             display: grid;
@@ -109,7 +148,6 @@
         }
 
         .card {
-            /* Added subtle transparency and blur to cards */
             background-color: var(--card-bg);
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
@@ -122,7 +160,7 @@
             justify-content: space-between;
         }
 
-        .card:hover { transform: translateY(-5px); border-color: var(--accent); background-color: rgba(40, 40, 40, 0.9); }
+        .card:hover { transform: translateY(-5px); border-color: var(--accent); background-color: rgba(40, 40, 40, 0.7); }
         .card h3 { font-size: 1.4rem; margin-bottom: 10px; }
         .card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; }
         
@@ -154,7 +192,10 @@
     </style>
 </head>
 <body>
-    <canvas id="bg-canvas"></canvas>
+    <div id="bg-blobs">
+        <div class="blob"></div>
+        <div class="blob"></div>
+    </div>
 
     <header>
         <div class="subtitle">Anki Add-on Developer</div>
@@ -203,42 +244,42 @@
                     <h3>Global</h3>
                     <p>Check your local weather without leaving Anki.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/by-author/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/519723565" class="card-link" target="_blank">Get Add-on &rarr;</a>
             </div>
             <div class="card">
                 <div>
                     <h3>Hours</h3>
                     <p>A simple utility to check the time from your Anki menu.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/by-author/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/691162538" class="card-link" target="_blank">Get Add-on &rarr;</a>
             </div>
             <div class="card">
                 <div>
                     <h3>Paper</h3>
                     <p>Multiple cheat sheets and scratchpads available while you study.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/by-author/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/1803057887" class="card-link" target="_blank">Get Add-on &rarr;</a>
             </div>
             <div class="card">
                 <div>
                     <h3>Power</h3>
                     <p>Monitor your laptop's battery life directly from Anki.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/by-author/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/643961895" class="card-link" target="_blank">Get Add-on &rarr;</a>
             </div>
             <div class="card">
                 <div>
                     <h3>🍵 Senchado</h3>
                     <p>A tea timer for your Anki sessions.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/by-author/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/585575504" class="card-link" target="_blank">Get Add-on &rarr;</a>
             </div>
             <div class="card">
                 <div>
                     <h3>Sticky</h3>
                     <p>Write quick sticky notes on your Anki menu.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/by-author/73838120" class="card-link" target="_blank">Get Add-on &rarr;</a>
+                <a href="https://ankiweb.net/shared/info/629799722" class="card-link" target="_blank">Get Add-on &rarr;</a>
             </div>
         </div>
     </div>
@@ -248,71 +289,5 @@
         <p><a href="https://ankiweb.net/shared/by-author/73838120" style="color: #888; text-decoration: none;">View all on AnkiWeb</a></p>
     </footer>
 
-    <script>
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        let particlesArray;
-
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                // Very slow upward movement for chill effect
-                this.speedY = Math.random() * 0.2 + 0.1;
-                // Slight horizontal drift
-                this.speedX = Math.random() * 0.2 - 0.1;
-                this.size = Math.random() * 2 + 0.5;
-                // Very faint opacity
-                this.opacity = Math.random() * 0.3 + 0.05;
-            }
-            update() {
-                this.y -= this.speedY;
-                this.x += this.speedX;
-                // Reset particle to bottom if it goes off screen
-                if (this.y < 0 || this.x > canvas.width || this.x < 0) {
-                    this.y = canvas.height + 10;
-                    this.x = Math.random() * canvas.width;
-                }
-            }
-            draw() {
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.fill();
-            }
-        }
-
-        function init() {
-            particlesArray = [];
-            // Number of particles based on screen width (fewer on mobile)
-            let numberOfParticles = (canvas.width * canvas.height) / 15000;
-            for (let i = 0; i < numberOfParticles; i++) {
-                particlesArray.push(new Particle());
-            }
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-                particlesArray[i].draw();
-            }
-            requestAnimationFrame(animate);
-        }
-
-        init();
-        animate();
-
-        // Handle resize smoothly
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            init();
-        });
-    </script>
 </body>
 </html>
