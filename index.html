@@ -7,7 +7,7 @@
     <title>peace</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href="assets/fonts/poppins-400.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=2" />
   </head>
   <body>
     <main>
@@ -200,12 +200,15 @@
         return [label, note.creator].filter(Boolean).join(' · ');
       }
 
+      /* sizes are set inline too, so a stale stylesheet cannot blow the card up */
       function modalCard(src, alt, className) {
         const card = document.createElement('span');
         card.className = className;
+        card.style.cssText = 'display:block;width:140px;height:190px;padding:8px;overflow:hidden;border-radius:14px;';
         const img = document.createElement('img');
         img.src = src;
         img.alt = alt;
+        img.style.cssText = 'display:block;width:100%;height:100%;object-fit:cover;border-radius:8px;';
         card.appendChild(img);
         return card;
       }
@@ -223,12 +226,18 @@
         const stack = document.createElement('button');
         stack.type = 'button';
         stack.className = 'note-modal-stack';
+        stack.style.cssText = 'position:relative;display:block;width:182px;height:216px;padding:0;border:0;background:none;cursor:pointer;';
 
         const depth = Math.min(images.length, 3);
         const order = ['note-modal-card-one', 'note-modal-card-two', 'note-modal-card-three'];
+        const offsets = [[4, 0], [22, 12], [40, 24]];
         const cards = [];
         for (let layer = depth - 1; layer >= 0; layer -= 1) {
           const card = modalCard('', '', `note-modal-card ${order[layer]}`);
+          card.style.position = 'absolute';
+          card.style.left = `${offsets[layer][0]}px`;
+          card.style.top = `${offsets[layer][1]}px`;
+          card.style.zIndex = String(3 - layer);
           cards[layer] = card;
           stack.appendChild(card);
         }
