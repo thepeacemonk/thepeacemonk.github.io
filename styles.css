@@ -516,9 +516,9 @@ section p { margin: 0 0 12px; }
   max-height: calc(100vh - 32px);
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 26px;
+  padding: 30px;
   position: relative;
-  width: min(420px, calc(100% - 32px));
+  width: min(640px, calc(100% - 48px));
 }
 
 .note-modal::backdrop { background: color-mix(in srgb, var(--ink) 22%, transparent); }
@@ -540,20 +540,20 @@ section p { margin: 0 0 12px; }
 
 .note-modal-close:hover,
 .note-modal-close:focus-visible { color: var(--ink); }
-.note-modal-cover {
+.note-modal-media { margin: 0 0 22px; }
+
+.note-modal-card {
   background: var(--page);
   border-radius: 14px;
   box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 14%, transparent);
   display: block;
   height: 190px;
-  margin: 0 auto 20px;
   overflow: hidden;
   padding: 8px;
-  transform: rotate(-2deg);
   width: 140px;
 }
 
-.note-modal-cover img {
+.note-modal-card img {
   border-radius: 8px;
   display: block;
   height: 100%;
@@ -561,32 +561,40 @@ section p { margin: 0 0 12px; }
   width: 100%;
 }
 
-[hidden] { display: none !important; }
+.note-modal-card.is-single { margin-left: 4px; transform: rotate(-2deg); }
 
-.note-modal-gallery {
-  display: flex;
-  gap: 7px;
-  justify-content: center;
-  margin: -8px 0 18px;
-}
-
-.note-modal-thumb {
+.note-modal-stack {
   appearance: none;
-  background: var(--page);
+  background: none;
   border: 0;
-  border-radius: 8px;
   cursor: pointer;
-  height: 46px;
-  opacity: .5;
-  overflow: hidden;
+  display: block;
+  height: 216px;
   padding: 0;
-  transition: opacity .18s ease, transform .18s ease;
-  width: 34px;
+  position: relative;
+  width: 182px;
 }
 
-.note-modal-thumb img { display: block; height: 100%; object-fit: cover; width: 100%; }
-.note-modal-thumb:hover { opacity: .85; }
-.note-modal-thumb.is-active { opacity: 1; transform: translateY(-2px); }
+.note-modal-stack .note-modal-card { position: absolute; transition: transform .22s ease; }
+.note-modal-stack .note-modal-card-one { left: 4px; top: 0; transform: rotate(-2deg); z-index: 3; }
+.note-modal-stack .note-modal-card-two { left: 22px; top: 12px; transform: rotate(4deg); z-index: 2; }
+.note-modal-stack .note-modal-card-three { left: 40px; top: 24px; transform: rotate(9deg); z-index: 1; }
+.note-modal-stack:hover .note-modal-card-one,
+.note-modal-stack:focus-visible .note-modal-card-one { transform: translate(-4px, -3px) rotate(-4deg); }
+.note-modal-stack:hover .note-modal-card-two,
+.note-modal-stack:focus-visible .note-modal-card-two { transform: translate(3px, 2px) rotate(5deg); }
+.note-modal-stack:hover .note-modal-card-three,
+.note-modal-stack:focus-visible .note-modal-card-three { transform: translate(9px, 6px) rotate(11deg); }
+.note-modal-stack.is-turning .note-modal-card-one { animation: note-card-turn .28s ease; }
+
+.note-modal-count { color: var(--muted); display: block; font-size: 12px; margin-top: 6px; }
+
+@keyframes note-card-turn {
+  from { opacity: .35; transform: translate(10px, 6px) rotate(6deg) scale(.96); }
+  to { opacity: 1; }
+}
+
+[hidden] { display: none !important; }
 
 .note-stars { color: var(--ink); display: inline-flex; gap: 3px; }
 .star-icon { height: 15px; width: 15px; }
@@ -623,6 +631,7 @@ section p { margin: 0 0 12px; }
 
 @media (prefers-reduced-motion: reduce) {
   .qifrey { animation: none; }
+  .note-modal-stack.is-turning .note-modal-card-one { animation: none; }
   .project-list,
   .project-list > div,
   .projects-toggle,
@@ -636,6 +645,7 @@ section p { margin: 0 0 12px; }
   .note-trigger,
   .note-preview,
   .note-card,
+  .note-modal-card,
   .note-modal,
   .tooltip,
   .project-logo,

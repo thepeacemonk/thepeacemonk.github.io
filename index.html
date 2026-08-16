@@ -113,8 +113,7 @@
     </main>
     <dialog class="note-modal" aria-labelledby="note-modal-title">
       <button class="note-modal-close" type="button" aria-label="Close review">×</button>
-      <div class="note-modal-cover"><img src="" alt="" /></div>
-      <div class="note-modal-gallery" hidden></div>
+      <div class="note-modal-media"></div>
       <p class="note-modal-meta"></p>
       <h2 id="note-modal-title"></h2>
       <div class="note-modal-stars" hidden></div>
@@ -146,8 +145,7 @@
       });
 
       const noteModal = document.querySelector('.note-modal');
-      const noteModalCover = noteModal.querySelector('.note-modal-cover img');
-      const noteModalGallery = noteModal.querySelector('.note-modal-gallery');
+      const noteModalMedia = noteModal.querySelector('.note-modal-media');
       const noteModalMeta = noteModal.querySelector('.note-modal-meta');
       const noteModalTitle = noteModal.querySelector('#note-modal-title');
       const noteModalStars = noteModal.querySelector('.note-modal-stars');
@@ -202,6 +200,67 @@
         return [label, note.creator].filter(Boolean).join(' · ');
       }
 
+      function modalCard(src, alt, className) {
+        const card = document.createElement('span');
+        card.className = className;
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = alt;
+        card.appendChild(img);
+        return card;
+      }
+
+      function renderModalMedia(note, images) {
+        noteModalMedia.textContent = '';
+        noteModalMedia.hidden = !images.length;
+        if (!images.length) return;
+
+        if (images.length === 1) {
+          noteModalMedia.appendChild(modalCard(images[0], `${note.title} cover`, 'note-modal-card is-single'));
+          return;
+        }
+
+        const stack = document.createElement('button');
+        stack.type = 'button';
+        stack.className = 'note-modal-stack';
+
+        const depth = Math.min(images.length, 3);
+        const order = ['note-modal-card-one', 'note-modal-card-two', 'note-modal-card-three'];
+        const cards = [];
+        for (let layer = depth - 1; layer >= 0; layer -= 1) {
+          const card = modalCard('', '', `note-modal-card ${order[layer]}`);
+          cards[layer] = card;
+          stack.appendChild(card);
+        }
+
+        const count = document.createElement('span');
+        count.className = 'note-modal-count';
+
+        let current = 0;
+        const update = () => {
+          cards.forEach((card, layer) => {
+            const src = images[(current + layer) % images.length];
+            const img = card.querySelector('img');
+            img.src = src;
+            img.alt = layer === 0 ? `${note.title} photo ${current + 1}` : '';
+          });
+          count.textContent = `${current + 1} / ${images.length}`;
+          stack.setAttribute('aria-label', `Photo ${current + 1} of ${images.length}. Show the next one.`);
+        };
+
+        stack.addEventListener('click', () => {
+          current = (current + 1) % images.length;
+          update();
+          stack.classList.remove('is-turning');
+          void stack.offsetWidth;
+          stack.classList.add('is-turning');
+        });
+
+        update();
+        noteModalMedia.appendChild(stack);
+        noteModalMedia.appendChild(count);
+      }
+
       function openNote(note) {
         const images = (note.images || []).filter(Boolean);
         noteModalTitle.textContent = note.title;
@@ -220,29 +279,7 @@
         noteModalStars.hidden = rating < 1;
         if (rating >= 1) noteModalStars.appendChild(starRow(rating));
 
-        noteModalCover.src = images[0] || '';
-        noteModalCover.alt = images.length ? `${note.title} cover` : '';
-        noteModal.querySelector('.note-modal-cover').hidden = !images.length;
-
-        noteModalGallery.textContent = '';
-        noteModalGallery.hidden = images.length < 2;
-        (images.length < 2 ? [] : images).forEach((src, index) => {
-          const thumb = document.createElement('button');
-          thumb.type = 'button';
-          thumb.className = index === 0 ? 'note-modal-thumb is-active' : 'note-modal-thumb';
-          thumb.setAttribute('aria-label', `Show image ${index + 1}`);
-          const img = document.createElement('img');
-          img.src = src;
-          img.alt = '';
-          thumb.appendChild(img);
-          thumb.addEventListener('click', () => {
-            noteModalCover.src = src;
-            noteModalGallery.querySelectorAll('.note-modal-thumb').forEach((el) => el.classList.remove('is-active'));
-            thumb.classList.add('is-active');
-          });
-          noteModalGallery.appendChild(thumb);
-        });
-
+        renderModalMedia(note, images);
         noteModal.showModal();
       }
 
