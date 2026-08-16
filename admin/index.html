@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>peace — notes admin</title>
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body class="is-locked">
+    <div class="lock">
+      <form class="lock-box">
+        <h1>My Notes</h1>
+        <p class="lock-msg">Enter your PIN to edit.</p>
+        <input class="lock-input" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN" aria-label="PIN" />
+        <input class="lock-confirm" type="password" inputmode="numeric" autocomplete="off" placeholder="Repeat PIN" aria-label="Repeat PIN" hidden />
+        <button class="primary block lock-submit" type="submit">Unlock</button>
+        <p class="lock-error" hidden></p>
+        <p class="hint lock-hint"></p>
+      </form>
+    </div>
+
+    <header class="bar">
+      <div class="bar-left">
+        <strong>My Notes</strong>
+        <span class="dirty-flag" hidden>unsaved draft</span>
+      </div>
+      <div class="bar-right">
+        <button class="ghost" type="button" data-action="import">Import JSON</button>
+        <button class="ghost" type="button" data-action="reload">Reload published</button>
+        <a class="ghost" href="../index.html?preview=draft" target="_blank" rel="noreferrer">Preview draft</a>
+        <button class="ghost" type="button" data-action="copy">Copy JSON</button>
+        <button class="ghost" type="button" data-action="download">Download notes.json</button>
+        <button class="primary" type="button" data-action="publish">Publish to GitHub</button>
+        <button class="ghost" type="button" data-action="github">Token</button>
+        <button class="ghost" type="button" data-action="pin">Change PIN</button>
+        <button class="ghost" type="button" data-action="lock">Lock</button>
+        <button class="ghost icon" type="button" data-action="theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </header>
+
+    <p class="hint bar-hint">
+      Edits are stored in this browser only. <strong>Publish to GitHub</strong> commits them straight to the repo;
+      without a token, download <code>notes.json</code> and commit it yourself.
+    </p>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-head">
+          <h2>Categories</h2>
+          <button class="ghost small" type="button" data-action="add-category">+ Category</button>
+        </div>
+        <div class="category-list"></div>
+        <button class="primary block" type="button" data-action="add-note">+ New note</button>
+      </aside>
+
+      <section class="editor">
+        <div class="empty-state">Select a note on the left, or create a new one.</div>
+        <form class="note-form" hidden autocomplete="off">
+          <div class="field-row">
+            <label class="field">
+              <span>Title</span>
+              <input type="text" name="title" placeholder="Project Hail Mary" />
+            </label>
+            <label class="field">
+              <span>Category</span>
+              <select name="categoryId"></select>
+            </label>
+          </div>
+
+          <div class="field-row">
+            <label class="field">
+              <span>Type</span>
+              <select name="type">
+                <option value="movie">Movie</option>
+                <option value="series">Series</option>
+                <option value="game">Videogame</option>
+                <option value="book">Book</option>
+                <option value="manga">Manga</option>
+                <option value="album">Album</option>
+                <option value="thought">Thought</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Author / director <em>(optional)</em></span>
+              <input type="text" name="creator" placeholder="Phil Lord and Chris Miller" />
+            </label>
+          </div>
+
+          <div class="field rating-field">
+            <span>Rating</span>
+            <div class="star-input" role="radiogroup" aria-label="Rating in stars"></div>
+            <p class="hint rating-hint">Stars show on movies, books, manga, series, games and albums. Zero stars hides the row.</p>
+          </div>
+
+          <div class="field">
+            <span>Photos</span>
+            <div class="image-list"></div>
+            <div class="image-actions">
+              <input type="text" class="path-input" placeholder="assets/covers/my-cover.jpg" />
+              <button class="ghost small" type="button" data-action="add-path">Add path</button>
+              <button class="ghost small" type="button" data-action="add-file">Upload photo…</button>
+              <input type="file" class="file-input" accept="image/*" multiple hidden />
+            </div>
+            <p class="hint">
+              First photo is the cover. Uploads are resized and embedded in <code>notes.json</code> — use
+              <em>Save as file</em> on one to drop it into <code>assets/covers/</code> and swap in the path instead.
+            </p>
+          </div>
+
+          <label class="field">
+            <span>Review</span>
+            <textarea name="review" rows="14" placeholder="Blank line between paragraphs."></textarea>
+          </label>
+
+          <div class="form-footer">
+            <button class="danger" type="button" data-action="delete-note">Delete note</button>
+            <span class="saved-flag">Saved to draft automatically</span>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <input type="file" class="json-input" accept="application/json,.json" hidden />
+
+    <dialog class="sheet github-sheet">
+      <form method="dialog">
+        <h2>GitHub publishing</h2>
+        <p class="hint">
+          Use a fine-grained personal access token limited to this one repository, with
+          <em>Contents: read and write</em>, and give it an expiry date. It is stored in this browser — never
+          commit it, and clear it on a shared machine.
+        </p>
+        <label class="field">
+          <span>Token</span>
+          <input type="password" name="token" autocomplete="off" placeholder="github_pat_…" />
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span>Owner</span>
+            <input type="text" name="owner" placeholder="thepeacemonk" />
+          </label>
+          <label class="field">
+            <span>Repository</span>
+            <input type="text" name="repo" placeholder="thepeacemonk.github.io" />
+          </label>
+        </div>
+        <label class="field">
+          <span>Branch</span>
+          <input type="text" name="branch" placeholder="main" />
+        </label>
+        <label class="check">
+          <input type="checkbox" name="remember" />
+          Keep the token on this device (otherwise it is forgotten when the tab closes)
+        </label>
+        <div class="sheet-actions">
+          <button class="danger" type="button" data-action="github-clear">Forget token</button>
+          <button class="ghost" type="button" data-action="github-cancel">Cancel</button>
+          <button class="primary" type="button" data-action="github-save">Save</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div class="toast" hidden></div>
+    <script src="pin.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>

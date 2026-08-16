@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "categories": [
+    { "id": "movies", "title": "Movie reviews" },
+    { "id": "games", "title": "Videogame reviews" },
+    { "id": "books", "title": "Book and Manga reviews" },
+    { "id": "thoughts", "title": "My Thoughts", "emptyText": "A space for smaller observations, coming soon." }
+  ],
+  "notes": [
+    {
+      "id": "the-creator",
+      "categoryId": "movies",
+      "title": "The Creator",
+      "type": "movie",
+      "creator": "Gareth Edwards",
+      "rating": 0,
+      "images": ["assets/covers/thecreator.webp"],
+      "review": "A beautiful, intimate piece of science fiction. Gareth Edwards gives the big questions room to breathe, pairing enormous images with a surprisingly human story about empathy, family, and what makes a person real."
+    },
+    {
+      "id": "project-hail-mary",
+      "categoryId": "movies",
+      "title": "Project Hail Mary",
+      "type": "movie",
+      "creator": "Phil Lord and Chris Miller",
+      "rating": 5,
+      "images": ["assets/covers/projecthailmary.jpeg"],
+      "review": "When I first heard of Project Hail Mary I thought to myself “so this is pretty much Interstellar for kids plus a funny little alien rock,” and I am not ashamed to admit I was absurdly wrong.\n\nThis movie was one of those movies that you finish watching and your mind keeps remembering the good moments, the intense moments, the sad ones. And I'll admit, became one of my favorite movies of all time.\n\nThe weight of your own life against the life of the whole world. That was something shocking to me because, mathematically, it’s simple, there’s no debate here, just plain facts: if it comes down to sacrificing one man to save over 8 billion, that’s a cheap price. But seeing Grace desperate to live his own life, even with nobody really there for him, and Eva rethinking her decision to force Grace into space while he is being chased, it brings up the question of how we see ourselves in comparison to others, and how important the whole context of humanity is even if there will be no more humanity to save.\n\nGrace didn’t have anyone on Earth, he didn’t have a family, he barely had friends or even people who knew him; he was alone even though surrounded by people. And even so, he sobbed when Rocky offered him the possibility of going back home. And what does that mean exactly? We may be alone, but the feeling of being isolated, stranded, is something that goes against our nature as humans. We also get attached to spaces, so imagine leaving everything you know today, every little thing that brings you comfort, and throwing it away; you almost lose yourself, because the space we belong to is part of us. In other words: being alone and being without the world we grew up in breaks who we are.\n\nOh, I could stay here and talk all day about this. Seeing Grace present Earth to Rocky through images on the spaceship, and seeing him explain the little things we do and say, such as climbing up a tree, or going to the beach, “fist bumps,” hugs, and so on, it brings me joy and makes me remember that I am part of this context. It reminds me I’m alive in this scenario: I give hugs, I climb trees, I go to the beach. How amazing that is, and how strange it would be not to be able to be this alive, to live in a world this colorful and beautiful.\n\nSeeing Grace run for his life, listening to Eva sing a song, or watching them talk by the sunset, watching Grace collect astrophage to save a humanity that couldn’t care less about who he is, it brings up the thought of how sophisticated and how intense life is, and how important it is to keep Earth safe and to protect humanity and our peace, so that dramatic actions, like Grace trying to save the world, are not for huge results, are to protect those small moments that build who we are as humans.\n\nI loved watching this movie, from the bottom of my heart, it reminded me that sometimes we may be alone, but we need to keep doing our best, maybe sacrifice a little, to save humanity, to save the love we cultivate for one another, and to save this unique small blue planet we live on and ironically call Earth.\n\nThank you to Phil Lord, Chris Miller, and Andy Weir (I’ll be reading your book soon) for reminding me that being on Earth means way more than just news, catastrophe economy, politics and negativity. It means that we are alive, that we are privileged to be in such a wonderful world, with such amazing people around us, and that we have a duty to our planet and to our people if we want to preserve all the little and big things that make life worth living."
+    },
+    {
+      "id": "death-stranding-2",
+      "categoryId": "games",
+      "title": "Death Stranding 2",
+      "type": "game",
+      "creator": "",
+      "rating": 0,
+      "images": ["assets/covers/deathstranding2.png"],
+      "review": "A strange, patient journey about connection and the weight of carrying something for someone else. It asks you to slow down, notice the landscape, and find meaning in every small act of delivery."
+    },
+    {
+      "id": "hollow-knight",
+      "categoryId": "games",
+      "title": "Hollow Knight",
+      "type": "game",
+      "creator": "",
+      "rating": 0,
+      "images": ["assets/covers/hollowknight.png"],
+      "review": "A quietly devastating world that rewards attention. Hallownest feels hand-drawn, haunted, and full of little discoveries—the kind of place that stays with you long after you put the controller down."
+    },
+    {
+      "id": "witch-hat-atelier",
+      "categoryId": "books",
+      "title": "Witch Hat Atelier",
+      "type": "manga",
+      "creator": "",
+      "rating": 0,
+      "images": [
+        "assets/covers/witch_hat_atelier.jpg",
+        "assets/covers/witch_hat_atelier12.jpg",
+        "assets/covers/witch_hat_atelier13.png"
+      ],
+      "review": "A tender, meticulous story about learning how to see the world differently. Its magic is beautiful because it is made from patience, practice, and the courage to keep asking questions."
+    }
+  ]
+}

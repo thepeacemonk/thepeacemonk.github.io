@@ -102,54 +102,7 @@
       <div class="notes">
         <button class="notes-toggle" type="button" aria-expanded="false" aria-controls="notes-content">My notes <span aria-hidden="true">+</span></button>
         <div class="notes-content" id="notes-content" aria-hidden="true">
-          <div class="notes-categories">
-            <section class="notes-category" aria-labelledby="movie-reviews-title">
-              <h3 id="movie-reviews-title">Movie reviews</h3>
-              <div class="note-list">
-                <article class="note-item note-creator">
-                  <button class="note-trigger" type="button" data-note-title="The Creator" data-note-meta="Movie · Gareth Edwards" data-note-cover="assets/covers/thecreator.webp" data-note-review="A beautiful, intimate piece of science fiction. Gareth Edwards gives the big questions room to breathe, pairing enormous images with a surprisingly human story about empathy, family, and what makes a person real.">The Creator</button>
-                  <div class="note-preview" aria-hidden="true"><div class="note-card note-card-front"><img src="assets/covers/thecreator.webp" alt="" /></div></div>
-                </article>
-                <article class="note-item note-hail-mary">
-                  <button class="note-trigger" type="button" data-note-title="Project Hail Mary" data-note-meta="Movie · Phil Lord and Chris Miller" data-note-cover="assets/covers/projecthailmary.jpeg" data-note-review="A warm, optimistic space adventure built around curiosity and friendship. The scale is cosmic, but the heart of it is wonderfully small: one problem, one unlikely companion, and the choice to keep trying.">Project Hail Mary</button>
-                  <div class="note-preview" aria-hidden="true"><div class="note-card note-card-front"><img src="assets/covers/projecthailmary.jpeg" alt="" /></div></div>
-                </article>
-              </div>
-            </section>
-
-            <section class="notes-category" aria-labelledby="game-reviews-title">
-              <h3 id="game-reviews-title">Videogame reviews</h3>
-              <div class="note-list">
-                <article class="note-item note-death-stranding">
-                  <button class="note-trigger" type="button" data-note-title="Death Stranding 2" data-note-meta="Videogame" data-note-cover="assets/covers/deathstranding2.png" data-note-review="A strange, patient journey about connection and the weight of carrying something for someone else. It asks you to slow down, notice the landscape, and find meaning in every small act of delivery.">Death Stranding 2</button>
-                  <div class="note-preview" aria-hidden="true"><div class="note-card note-card-front"><img src="assets/covers/deathstranding2.png" alt="" /></div></div>
-                </article>
-                <article class="note-item note-hollow-knight">
-                  <button class="note-trigger" type="button" data-note-title="Hollow Knight" data-note-meta="Videogame" data-note-cover="assets/covers/hollowknight.png" data-note-review="A quietly devastating world that rewards attention. Hallownest feels hand-drawn, haunted, and full of little discoveries—the kind of place that stays with you long after you put the controller down.">Hollow Knight</button>
-                  <div class="note-preview" aria-hidden="true"><div class="note-card note-card-front"><img src="assets/covers/hollowknight.png" alt="" /></div></div>
-                </article>
-              </div>
-            </section>
-
-            <section class="notes-category" aria-labelledby="book-manga-reviews-title">
-              <h3 id="book-manga-reviews-title">Book and Manga reviews</h3>
-              <div class="note-list">
-                <article class="note-item note-witch-hat">
-                  <button class="note-trigger" type="button" data-note-title="Witch Hat Atelier" data-note-meta="Manga" data-note-cover="assets/covers/witch_hat_atelier.jpg" data-note-review="A tender, meticulous story about learning how to see the world differently. Its magic is beautiful because it is made from patience, practice, and the courage to keep asking questions.">Witch Hat Atelier</button>
-                  <div class="note-preview note-preview-stack" aria-hidden="true">
-                    <div class="note-card note-card-three"><img src="assets/covers/witch_hat_atelier13.png" alt="" /></div>
-                    <div class="note-card note-card-two"><img src="assets/covers/witch_hat_atelier12.jpg" alt="" /></div>
-                    <div class="note-card note-card-one"><img src="assets/covers/witch_hat_atelier.jpg" alt="" /></div>
-                  </div>
-                </article>
-              </div>
-            </section>
-
-            <section class="notes-category" aria-labelledby="my-thoughts-title">
-              <h3 id="my-thoughts-title">My Thoughts</h3>
-              <p class="notes-empty">A space for smaller observations, coming soon.</p>
-            </section>
-          </div>
+          <div class="notes-categories"></div>
         </div>
       </div>
 
@@ -161,9 +114,11 @@
     <dialog class="note-modal" aria-labelledby="note-modal-title">
       <button class="note-modal-close" type="button" aria-label="Close review">×</button>
       <div class="note-modal-cover"><img src="" alt="" /></div>
+      <div class="note-modal-gallery" hidden></div>
       <p class="note-modal-meta"></p>
       <h2 id="note-modal-title"></h2>
-      <p class="note-modal-review"></p>
+      <div class="note-modal-stars" hidden></div>
+      <div class="note-modal-review"></div>
     </dialog>
     <script>
       const toggle = document.querySelector('.projects-toggle');
@@ -192,20 +147,184 @@
 
       const noteModal = document.querySelector('.note-modal');
       const noteModalCover = noteModal.querySelector('.note-modal-cover img');
+      const noteModalGallery = noteModal.querySelector('.note-modal-gallery');
       const noteModalMeta = noteModal.querySelector('.note-modal-meta');
       const noteModalTitle = noteModal.querySelector('#note-modal-title');
+      const noteModalStars = noteModal.querySelector('.note-modal-stars');
       const noteModalReview = noteModal.querySelector('.note-modal-review');
       const closeNoteModal = noteModal.querySelector('.note-modal-close');
-      document.querySelectorAll('.note-trigger').forEach((trigger) => {
-        trigger.addEventListener('click', () => {
-          noteModalTitle.textContent = trigger.dataset.noteTitle;
-          noteModalMeta.textContent = trigger.dataset.noteMeta;
-          noteModalReview.textContent = trigger.dataset.noteReview;
-          noteModalCover.src = trigger.dataset.noteCover;
-          noteModalCover.alt = `${trigger.dataset.noteTitle} cover`;
-          noteModal.showModal();
+      const notesCategories = document.querySelector('.notes-categories');
+
+      const TYPE_LABELS = {
+        movie: 'Movie',
+        series: 'Series',
+        game: 'Videogame',
+        book: 'Book',
+        manga: 'Manga',
+        album: 'Album',
+        thought: 'Thought',
+        other: '',
+      };
+
+      const STAR_PATH = 'M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z';
+
+      function starIcon(filled) {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('class', filled ? 'star-icon is-filled' : 'star-icon');
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('fill', filled ? 'currentColor' : 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '1.6');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', STAR_PATH);
+        svg.appendChild(path);
+        return svg;
+      }
+
+      function starRow(rating) {
+        const row = document.createElement('span');
+        row.className = 'note-stars';
+        row.setAttribute('role', 'img');
+        row.setAttribute('aria-label', `${rating} out of 5 stars`);
+        for (let i = 1; i <= 5; i += 1) row.appendChild(starIcon(i <= rating));
+        return row;
+      }
+
+      function noteMeta(note) {
+        const label = TYPE_LABELS[note.type] ?? '';
+        return [label, note.creator].filter(Boolean).join(' · ');
+      }
+
+      function openNote(note) {
+        const images = (note.images || []).filter(Boolean);
+        noteModalTitle.textContent = note.title;
+        noteModalMeta.textContent = noteMeta(note);
+        noteModalMeta.hidden = !noteMeta(note);
+        noteModalReview.textContent = '';
+        (note.review || '').split(/\n\s*\n/).forEach((chunk) => {
+          if (!chunk.trim()) return;
+          const p = document.createElement('p');
+          p.textContent = chunk.trim();
+          noteModalReview.appendChild(p);
         });
-      });
+
+        const rating = Number(note.rating) || 0;
+        noteModalStars.textContent = '';
+        noteModalStars.hidden = rating < 1;
+        if (rating >= 1) noteModalStars.appendChild(starRow(rating));
+
+        noteModalCover.src = images[0] || '';
+        noteModalCover.alt = images.length ? `${note.title} cover` : '';
+        noteModal.querySelector('.note-modal-cover').hidden = !images.length;
+
+        noteModalGallery.textContent = '';
+        noteModalGallery.hidden = images.length < 2;
+        (images.length < 2 ? [] : images).forEach((src, index) => {
+          const thumb = document.createElement('button');
+          thumb.type = 'button';
+          thumb.className = index === 0 ? 'note-modal-thumb is-active' : 'note-modal-thumb';
+          thumb.setAttribute('aria-label', `Show image ${index + 1}`);
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = '';
+          thumb.appendChild(img);
+          thumb.addEventListener('click', () => {
+            noteModalCover.src = src;
+            noteModalGallery.querySelectorAll('.note-modal-thumb').forEach((el) => el.classList.remove('is-active'));
+            thumb.classList.add('is-active');
+          });
+          noteModalGallery.appendChild(thumb);
+        });
+
+        noteModal.showModal();
+      }
+
+      function renderNotes(data) {
+        notesCategories.textContent = '';
+        const categories = data.categories || [];
+        const notes = data.notes || [];
+        categories.forEach((category) => {
+          const section = document.createElement('section');
+          section.className = 'notes-category';
+          const heading = document.createElement('h3');
+          heading.textContent = category.title;
+          section.appendChild(heading);
+
+          const items = notes.filter((note) => note.categoryId === category.id);
+          if (!items.length) {
+            const empty = document.createElement('p');
+            empty.className = 'notes-empty';
+            empty.textContent = category.emptyText || 'Nothing here yet.';
+            section.appendChild(empty);
+            notesCategories.appendChild(section);
+            return;
+          }
+
+          const list = document.createElement('div');
+          list.className = 'note-list';
+          items.forEach((note) => {
+            const article = document.createElement('article');
+            article.className = 'note-item';
+
+            const trigger = document.createElement('button');
+            trigger.type = 'button';
+            trigger.className = 'note-trigger';
+            trigger.textContent = note.title;
+            trigger.addEventListener('click', () => openNote(note));
+            article.appendChild(trigger);
+
+            const images = (note.images || []).filter(Boolean).slice(0, 3);
+            if (images.length) {
+              const preview = document.createElement('div');
+              preview.className = images.length > 1 ? 'note-preview note-preview-stack' : 'note-preview';
+              preview.setAttribute('aria-hidden', 'true');
+              const order = ['note-card-one', 'note-card-two', 'note-card-three'];
+              images
+                .map((src, index) => ({ src, cls: images.length > 1 ? order[index] : 'note-card-front' }))
+                .reverse()
+                .forEach(({ src, cls }) => {
+                  const card = document.createElement('div');
+                  card.className = `note-card ${cls}`;
+                  const img = document.createElement('img');
+                  img.src = src;
+                  img.alt = '';
+                  img.loading = 'lazy';
+                  card.appendChild(img);
+                  preview.appendChild(card);
+                });
+              article.appendChild(preview);
+            }
+
+            list.appendChild(article);
+          });
+          section.appendChild(list);
+          notesCategories.appendChild(section);
+        });
+      }
+
+      const draftPreview = new URLSearchParams(location.search).get('preview') === 'draft';
+      const draft = draftPreview ? localStorage.getItem('peace-notes-draft') : null;
+      if (draft) {
+        try {
+          renderNotes(JSON.parse(draft));
+        } catch (error) {
+          notesCategories.innerHTML = '<p class="notes-empty">Draft in local storage is not valid JSON.</p>';
+        }
+      } else {
+        fetch('notes.json', { cache: 'no-cache' })
+          .then((response) => {
+            if (!response.ok) throw new Error(response.status);
+            return response.json();
+          })
+          .then(renderNotes)
+          .catch(() => {
+            notesCategories.innerHTML = '<p class="notes-empty">Notes could not be loaded.</p>';
+          });
+      }
+
       closeNoteModal.addEventListener('click', () => noteModal.close());
       noteModal.addEventListener('click', (event) => {
         if (event.target === noteModal) noteModal.close();
