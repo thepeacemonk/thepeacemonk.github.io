@@ -5,29 +5,224 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="peace — Brazilian pre-med student and Anki add-on developer." />
     <title>peace</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href="assets/fonts/poppins-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main>
       <header>
-        <img class="qifrey" src="assets/illustrations/qifrey-floating.png" alt="Qifrey floating" />
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+          <svg class="theme-icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.985 12.486a9 9 0 1 1-8.472-8.472 7 7 0 0 0 8.472 8.472Z" />
+          </svg>
+          <svg class="theme-icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
+          </svg>
+        </button>
+        <div class="art-credit">
+          <a class="art-link" href="https://iclaimthisname.itch.io/" target="_blank" rel="noreferrer" aria-label="Art by iclamethisname">
+            <img class="qifrey" src="assets/illustrations/qifrey-floating.png" alt="Qifrey floating" />
+          </a>
+          <span class="tooltip" role="tooltip">Art by <a href="https://iclaimthisname.itch.io/" target="_blank" rel="noreferrer">iclamethisname</a></span>
+        </div>
         <h1>peace</h1>
-        <p class="location">Brazil</p>
+        <div class="country-wrap">
+          <p class="location"><span class="country-trigger" tabindex="0">Brazil</span></p>
+          <div class="country-cards" aria-hidden="true">
+            <img class="country-card country-card-one" src="assets/brazil/brasil_flag.jpg" alt="Brazilian flag" />
+            <img class="country-card country-card-two" src="assets/brazil/brasil_com_s.jpg" alt="Brazilian landscape" />
+            <img class="country-card country-card-three" src="assets/brazil/cataratas_do_iguac%CC%A7ul.jpg" alt="Iguaçu Falls in Brazil" />
+          </div>
+        </div>
       </header>
 
       <section aria-label="About peace">
-        <p>Pre-med student from Brazil, making focused Anki add-ons that make studying feel a little easier.</p>
+        <p>Pre-med student, making focused Anki add-ons and apps that make studying feel a little easier.</p>
         <p>I enjoy AI, automation, and thoughtful tools.</p>
       </section>
 
-      <nav aria-label="Projects and links">
-        <a href="https://ankiweb.net/shared/info/1011095603" target="_blank" rel="noreferrer">Onigiri</a>
-        <a href="https://ankiweb.net/shared/info/516325516" target="_blank" rel="noreferrer">Focumon</a>
-        <a href="https://github.com/thepeacemonk/Stacked-Library" target="_blank" rel="noreferrer">Stacked Library</a>
-        <a href="https://ankiweb.net/shared/by-author/1011095603" target="_blank" rel="noreferrer">all add-ons</a>
-        <a href="https://github.com/thepeacemonk" target="_blank" rel="noreferrer">GitHub</a>
-      </nav>
+      <div class="projects">
+        <button class="projects-toggle" type="button" aria-expanded="false" aria-controls="project-list">My projects <span aria-hidden="true">+</span></button>
+        <div class="project-list" id="project-list" aria-hidden="true">
+          <div>
+            <div class="project-item"><a href="https://ankiweb.net/shared/info/1011095603" target="_blank" rel="noreferrer">Onigiri</a><img class="project-logo" src="assets/logos/onigiri.svg" alt="" aria-hidden="true" /></div>
+            <div class="project-item"><a href="https://ankiweb.net/shared/info/516325516" target="_blank" rel="noreferrer">Focumon</a><img class="project-logo" src="assets/logos/focumon.svg" alt="" aria-hidden="true" /></div>
+            <div class="project-item"><a href="https://ankiweb.net/shared/info/1799253175" target="_blank" rel="noreferrer">lofi.town</a><img class="project-logo" src="assets/logos/lofitown.svg" alt="" aria-hidden="true" /></div>
+            <div class="project-item"><a href="https://buymeacoffee.com/peacemonk/extras/125639" target="_blank" rel="noreferrer">League</a><img class="project-logo" src="assets/logos/league.svg" alt="" aria-hidden="true" /></div>
+            <div class="project-item"><a href="https://ankiweb.net/shared/info/585575504" target="_blank" rel="noreferrer">Senchado</a><img class="project-logo" src="assets/logos/senchado.svg" alt="" aria-hidden="true" /></div>
+            <div class="project-item"><a href="https://ankiweb.net/shared/info/1803057887" target="_blank" rel="noreferrer">Paper</a><img class="project-logo" src="assets/logos/paper.svg" alt="" aria-hidden="true" /></div>
+            <div class="project-item"><a href="https://ankiweb.net/shared/info/629799722" target="_blank" rel="noreferrer">Sticky</a><img class="project-logo" src="assets/logos/sticky.svg" alt="" aria-hidden="true" /></div>
+            <div class="project-item"><a href="https://ankiweb.net/shared/info/643961895" target="_blank" rel="noreferrer">Power</a><img class="project-logo" src="assets/logos/power.svg" alt="" aria-hidden="true" /></div>
+            <div class="project-item"><a href="https://ankiweb.net/shared/info/691162538" target="_blank" rel="noreferrer">Hours</a><img class="project-logo" src="assets/logos/hours.svg" alt="" aria-hidden="true" /></div>
+            <div class="project-item"><a href="https://ankiweb.net/shared/info/519723565" target="_blank" rel="noreferrer">Global</a><img class="project-logo" src="assets/logos/global.svg" alt="" aria-hidden="true" /></div>
+            <div class="project-item"><a href="https://ankiweb.net/shared/info/73838120" target="_blank" rel="noreferrer">Berry</a><img class="project-logo" src="assets/logos/berry.svg" alt="" aria-hidden="true" /></div>
+            <div class="project-item"><a href="https://ankiweb.net/shared/info/1844248422" target="_blank" rel="noreferrer">First Letter Caps Fix</a><img class="project-logo" src="assets/logos/fixcaps-transparent.png" alt="" aria-hidden="true" /></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tools">
+        <button class="tools-toggle" type="button" aria-expanded="false" aria-controls="tool-list">My Tools <span aria-hidden="true">+</span></button>
+        <div class="tool-list" id="tool-list" aria-hidden="true">
+          <div class="tool-list-inner">
+          <div class="tool-item tool-alcove">
+            <a href="https://tryalcove.com/" target="_blank" rel="noreferrer">Alcove</a>
+            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>tryalcove.com</span></div><div class="window-body"><strong>Alcove</strong><small>Dynamic Island for your Mac</small><b>﹏﹏﹏</b></div></div>
+          </div>
+          <div class="tool-item tool-raycast">
+            <a href="https://www.raycast.com/" target="_blank" rel="noreferrer">Raycast</a>
+            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>raycast.com</span></div><div class="window-body"><strong>Raycast</strong><small>Your shortcut to everything</small><b>⌘　Search</b></div></div>
+          </div>
+          <div class="tool-item tool-obsidian">
+            <a href="https://obsidian.md/" target="_blank" rel="noreferrer">Obsidian</a>
+            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>obsidian.md</span></div><div class="window-body"><strong>Obsidian</strong><small>Your second brain</small><b>◈　Notes</b></div></div>
+          </div>
+          <div class="tool-item tool-anki">
+            <a href="https://apps.ankiweb.net/" target="_blank" rel="noreferrer">Anki</a>
+            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>apps.ankiweb.net</span></div><div class="window-body"><strong>Anki</strong><small>Powerful, intelligent flashcards</small><b>▣　Study</b></div></div>
+          </div>
+          <div class="tool-item tool-excalidraw">
+            <a href="https://excalidraw.com/" target="_blank" rel="noreferrer">Excalidraw</a>
+            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>excalidraw.com</span></div><div class="window-body"><strong>Excalidraw</strong><small>Virtual whiteboard</small><b>△　Draw freely</b></div></div>
+          </div>
+          <div class="tool-item tool-figma">
+            <a href="https://www.figma.com/" target="_blank" rel="noreferrer">Figma</a>
+            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>figma.com</span></div><div class="window-body"><strong>Figma</strong><small>Where teams design together</small><b>●　Design</b></div></div>
+          </div>
+          <div class="tool-item tool-chatgpt">
+            <a href="https://chatgpt.com/" target="_blank" rel="noreferrer">ChatGPT</a>
+            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>chatgpt.com</span></div><div class="window-body"><strong>ChatGPT</strong><small>Ideas, answers, and making</small><b>✦　Ask anything</b></div></div>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <button class="notes-toggle" type="button" aria-expanded="false" aria-controls="notes-content">My Notes <span aria-hidden="true">+</span></button>
+        <div class="notes-content" id="notes-content" aria-hidden="true">
+          <div class="notes-categories">
+            <section class="notes-category" aria-labelledby="movie-reviews-title">
+              <h3 id="movie-reviews-title">Movie reviews</h3>
+              <div class="note-list">
+                <article class="note-item note-creator">
+                  <button class="note-trigger" type="button" data-note-title="The Creator" data-note-meta="Movie · Gareth Edwards" data-note-cover="assets/covers/thecreator.webp" data-note-review="A beautiful, intimate piece of science fiction. Gareth Edwards gives the big questions room to breathe, pairing enormous images with a surprisingly human story about empathy, family, and what makes a person real.">The Creator</button>
+                  <div class="note-preview" aria-hidden="true"><div class="note-card note-card-front"><img src="assets/covers/thecreator.webp" alt="" /></div></div>
+                </article>
+                <article class="note-item note-hail-mary">
+                  <button class="note-trigger" type="button" data-note-title="Project Hail Mary" data-note-meta="Movie · Phil Lord and Chris Miller" data-note-cover="assets/covers/projecthailmary.jpeg" data-note-review="A warm, optimistic space adventure built around curiosity and friendship. The scale is cosmic, but the heart of it is wonderfully small: one problem, one unlikely companion, and the choice to keep trying.">Project Hail Mary</button>
+                  <div class="note-preview" aria-hidden="true"><div class="note-card note-card-front"><img src="assets/covers/projecthailmary.jpeg" alt="" /></div></div>
+                </article>
+              </div>
+            </section>
+
+            <section class="notes-category" aria-labelledby="game-reviews-title">
+              <h3 id="game-reviews-title">Videogame reviews</h3>
+              <div class="note-list">
+                <article class="note-item note-death-stranding">
+                  <button class="note-trigger" type="button" data-note-title="Death Stranding 2" data-note-meta="Videogame" data-note-cover="assets/covers/deathstranding2.png" data-note-review="A strange, patient journey about connection and the weight of carrying something for someone else. It asks you to slow down, notice the landscape, and find meaning in every small act of delivery.">Death Stranding 2</button>
+                  <div class="note-preview" aria-hidden="true"><div class="note-card note-card-front"><img src="assets/covers/deathstranding2.png" alt="" /></div></div>
+                </article>
+                <article class="note-item note-hollow-knight">
+                  <button class="note-trigger" type="button" data-note-title="Hollow Knight" data-note-meta="Videogame" data-note-cover="assets/covers/hollowknight.png" data-note-review="A quietly devastating world that rewards attention. Hallownest feels hand-drawn, haunted, and full of little discoveries—the kind of place that stays with you long after you put the controller down.">Hollow Knight</button>
+                  <div class="note-preview" aria-hidden="true"><div class="note-card note-card-front"><img src="assets/covers/hollowknight.png" alt="" /></div></div>
+                </article>
+              </div>
+            </section>
+
+            <section class="notes-category" aria-labelledby="book-manga-reviews-title">
+              <h3 id="book-manga-reviews-title">Book and Manga reviews</h3>
+              <div class="note-list">
+                <article class="note-item note-witch-hat">
+                  <button class="note-trigger" type="button" data-note-title="Witch Hat Atelier" data-note-meta="Manga" data-note-cover="assets/covers/witch_hat_atelier.jpg" data-note-review="A tender, meticulous story about learning how to see the world differently. Its magic is beautiful because it is made from patience, practice, and the courage to keep asking questions.">Witch Hat Atelier</button>
+                  <div class="note-preview note-preview-stack" aria-hidden="true">
+                    <div class="note-card note-card-three"><img src="assets/covers/witch_hat_atelier13.png" alt="" /></div>
+                    <div class="note-card note-card-two"><img src="assets/covers/witch_hat_atelier12.jpg" alt="" /></div>
+                    <div class="note-card note-card-one"><img src="assets/covers/witch_hat_atelier.jpg" alt="" /></div>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="notes-category" aria-labelledby="my-thoughts-title">
+              <h3 id="my-thoughts-title">My Thoughts</h3>
+              <p class="notes-empty">A space for smaller observations, coming soon.</p>
+            </section>
+          </div>
+        </div>
+      </div>
     </main>
+    <dialog class="note-modal" aria-labelledby="note-modal-title">
+      <button class="note-modal-close" type="button" aria-label="Close review">×</button>
+      <div class="note-modal-cover"><img src="" alt="" /></div>
+      <p class="note-modal-meta"></p>
+      <h2 id="note-modal-title"></h2>
+      <p class="note-modal-review"></p>
+    </dialog>
+    <script>
+      const toggle = document.querySelector('.projects-toggle');
+      const list = document.querySelector('.project-list');
+      toggle.addEventListener('click', () => {
+        const open = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!open));
+        list.setAttribute('aria-hidden', String(open));
+      });
+
+      const toolsToggle = document.querySelector('.tools-toggle');
+      const toolList = document.querySelector('.tool-list');
+      toolsToggle.addEventListener('click', () => {
+        const open = toolsToggle.getAttribute('aria-expanded') === 'true';
+        toolsToggle.setAttribute('aria-expanded', String(!open));
+        toolList.setAttribute('aria-hidden', String(open));
+      });
+
+      const notesToggle = document.querySelector('.notes-toggle');
+      const notesContent = document.querySelector('.notes-content');
+      notesToggle.addEventListener('click', () => {
+        const open = notesToggle.getAttribute('aria-expanded') === 'true';
+        notesToggle.setAttribute('aria-expanded', String(!open));
+        notesContent.setAttribute('aria-hidden', String(open));
+      });
+
+      const noteModal = document.querySelector('.note-modal');
+      const noteModalCover = noteModal.querySelector('.note-modal-cover img');
+      const noteModalMeta = noteModal.querySelector('.note-modal-meta');
+      const noteModalTitle = noteModal.querySelector('#note-modal-title');
+      const noteModalReview = noteModal.querySelector('.note-modal-review');
+      const closeNoteModal = noteModal.querySelector('.note-modal-close');
+      document.querySelectorAll('.note-trigger').forEach((trigger) => {
+        trigger.addEventListener('click', () => {
+          noteModalTitle.textContent = trigger.dataset.noteTitle;
+          noteModalMeta.textContent = trigger.dataset.noteMeta;
+          noteModalReview.textContent = trigger.dataset.noteReview;
+          noteModalCover.src = trigger.dataset.noteCover;
+          noteModalCover.alt = `${trigger.dataset.noteTitle} cover`;
+          noteModal.showModal();
+        });
+      });
+      closeNoteModal.addEventListener('click', () => noteModal.close());
+      noteModal.addEventListener('click', (event) => {
+        if (event.target === noteModal) noteModal.close();
+      });
+
+      const artCredit = document.querySelector('.art-credit');
+      const tooltip = artCredit.querySelector('.tooltip');
+      artCredit.addEventListener('pointerenter', () => artCredit.classList.add('is-pointer'));
+      artCredit.addEventListener('pointermove', (event) => {
+        const bounds = artCredit.getBoundingClientRect();
+        tooltip.style.setProperty('--cursor-x', `${event.clientX - bounds.left}px`);
+        tooltip.style.setProperty('--cursor-y', `${event.clientY - bounds.top}px`);
+      });
+      artCredit.addEventListener('pointerleave', () => artCredit.classList.remove('is-pointer'));
+
+      const themeToggle = document.querySelector('.theme-toggle');
+      themeToggle.addEventListener('click', () => {
+        const dark = document.documentElement.dataset.theme === 'dark';
+        document.documentElement.dataset.theme = dark ? 'light' : 'dark';
+        themeToggle.setAttribute('aria-pressed', String(!dark));
+        themeToggle.setAttribute('aria-label', dark ? 'Switch to dark mode' : 'Switch to light mode');
+      });
+    </script>
   </body>
 </html>
