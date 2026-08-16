@@ -171,6 +171,8 @@
       function starIcon(filled) {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('width', '15');
+        svg.setAttribute('height', '15');
         svg.setAttribute('class', filled ? 'star-icon is-filled' : 'star-icon');
         svg.setAttribute('aria-hidden', 'true');
         svg.setAttribute('fill', filled ? 'currentColor' : 'none');
@@ -187,6 +189,8 @@
       function starRow(rating) {
         const row = document.createElement('span');
         row.className = 'note-stars';
+        row.style.display = 'inline-flex';
+        row.style.gap = '3px';
         row.setAttribute('role', 'img');
         row.setAttribute('aria-label', `${rating} out of 5 stars`);
         for (let i = 1; i <= 5; i += 1) row.appendChild(starIcon(i <= rating));

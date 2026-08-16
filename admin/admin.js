@@ -36,6 +36,8 @@ let toastTimer = null;
 function starIcon(filled) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('width', '22');
+  svg.setAttribute('height', '22');
   svg.setAttribute('aria-hidden', 'true');
   svg.setAttribute('fill', filled ? 'currentColor' : 'none');
   svg.setAttribute('stroke', 'currentColor');
