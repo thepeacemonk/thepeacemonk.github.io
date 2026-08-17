@@ -90,12 +90,14 @@
     {
       "id": "untitled-note",
       "categoryId": "games",
-      "title": "Black Myth Wukong",
+      "title": "Black Myth: Wukong",
       "type": "game",
       "creator": "Game Science",
       "rating": 5,
       "images": [
-        "assets/covers/black-myth-wukong-1-1h3p.webp"
+        "assets/covers/black-myth-wukong-1-1h3p.webp",
+        "assets/covers/black-myth-wukong-2-5m0i.webp",
+        "assets/covers/black-myth-wukong-3-5m0i.webp"
       ],
       "review": "A majestic game steeped in Chinese mythology, a tapestry of tragic stories set in a world drowning in suffering, injustice, and poverty, while Heaven looks down and laughs from its privilege. Black Myth Wukong reaches far beyond its stunning aesthetics: beneath the spectacle lies a pointed critique of modern society. \n\nThe source material for Black Myth is Journey to the West, a novel from 1592, only sharpens the irony, half a millennium later, the same rot it depicts still festers, and the game dares us to notice. That critique may not be the point, but it becomes impossible to look away from.\n\nThis game shows, through Wukong's eyes that, sometimes, to become great, and to overcome difficulties, challenges and complications, you need to fight your way through it and humbly learn through several errors made again and again."
     }
