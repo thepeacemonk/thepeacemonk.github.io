@@ -319,7 +319,6 @@ section p { margin: 0 0 12px; }
 .project-list a:focus-visible { color: var(--ink); transform: translateX(3px); }
 
 .tools,
-.donate,
 .notes { margin-top: 8px; }
 
 .section-title,
@@ -394,14 +393,10 @@ section p { margin: 0 0 12px; }
 .tool-item:nth-child(5) { --tool-tilt: 4deg; }
 .tool-item:nth-child(6) { --tool-tilt: -5deg; }
 .tool-item:nth-child(7) { --tool-tilt: 2deg; }
-.tool-item > a,
-.donate-link { color: var(--link); font-size: 14px; text-decoration: none; transition: color .45s ease; }
+.tool-item > a { color: var(--link); font-size: 14px; text-decoration: none; transition: color .45s ease; }
 .tool-item > a:hover,
-.tool-item > a:focus-visible,
-.donate-link:hover,
-.donate-link:focus-visible { color: var(--ink); }
+.tool-item > a:focus-visible { color: var(--ink); }
 
-.donate { --tool-tilt: -3deg; position: relative; width: fit-content; }
 
 .tool-preview {
   background: var(--page);
@@ -422,9 +417,7 @@ section p { margin: 0 0 12px; }
 }
 
 .tool-item:hover .tool-preview,
-.tool-item:focus-within .tool-preview,
-.donate:hover .tool-preview,
-.donate:focus-within .tool-preview { opacity: 1; pointer-events: auto; transform: translate(0, -50%) scale(1) rotate(var(--tool-tilt)); }
+.tool-item:focus-within .tool-preview { opacity: 1; pointer-events: auto; transform: translate(0, -50%) scale(1) rotate(var(--tool-tilt)); }
 .window-bar { align-items: center; background: color-mix(in srgb, var(--ink) 7%, var(--page)); color: var(--muted); display: flex; gap: 4px; height: 25px; padding: 0 9px; }
 .window-bar i { background: var(--muted); border-radius: 50%; height: 5px; opacity: .65; width: 5px; }
 .window-bar span { font-size: 8px; margin-left: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -446,7 +439,6 @@ section p { margin: 0 0 12px; }
 .tool-excalidraw { --tool-accent: #2f9567; }
 .tool-figma { --tool-accent: #d94d62; }
 .tool-chatgpt { --tool-accent: #357bc4; }
-.donate-preview { --tool-accent: #b86a34; }
 
 .notes-content {
   display: grid;
@@ -700,5 +692,33 @@ section p { margin: 0 0 12px; }
   .country-card,
   .tool-preview,
   .tool-list,
-  .tool-list-inner { transition: none; }
+  .tool-list-inner,
+  .elsewhere a { transition: none; }
 }
+
+.elsewhere {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.elsewhere a {
+  align-items: center;
+  color: var(--link);
+  display: inline-flex;
+  font-size: 11px;
+  gap: 4px;
+  text-decoration: none;
+  transition: color .45s ease;
+}
+
+.elsewhere svg {
+  display: block;
+  font-size: 13px;
+  flex: none;
+}
+
+.elsewhere a:hover,
+.elsewhere a:focus-visible { color: var(--ink); }
