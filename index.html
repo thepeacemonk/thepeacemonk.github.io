@@ -410,11 +410,27 @@
         return choice ? choice === 'dark' : systemDark.matches;
       };
 
+      const favicon = document.querySelector('link[rel="icon"]');
+      const faviconSource = favicon.getAttribute('href');
+      let faviconMarkup = null;
+
+      // The icon file carries its own prefers-color-scheme rule for the no-JS case; this
+      // appends a later rule so a manual choice wins over the device setting too.
+      const paintFavicon = async () => {
+        try {
+          if (!faviconMarkup) faviconMarkup = await (await fetch(faviconSource)).text();
+          const ink = isDark() ? '#f3f1ed' : '#111';
+          const themed = faviconMarkup.replace('</style>', `path:not(.background) { fill: ${ink}; }</style>`);
+          favicon.href = `data:image/svg+xml,${encodeURIComponent(themed)}`;
+        } catch (error) {}
+      };
+
       const syncToggle = () => {
         const dark = isDark();
         themeToggle.setAttribute('aria-pressed', String(dark));
         themeToggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
         themeToggle.title = isAuto() ? 'Following your device theme' : 'Hold to follow your device';
+        paintFavicon();
       };
 
       // Passing null clears the manual choice and hands the theme back to the device.
