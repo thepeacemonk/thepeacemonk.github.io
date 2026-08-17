@@ -29,11 +29,12 @@
       "title": "The Creator",
       "type": "movie",
       "creator": "Gareth Edwards",
-      "rating": 0,
+      "rating": 5,
       "images": [
-        "assets/covers/thecreator.webp"
+        "assets/covers/thecreator.webp",
+        "assets/covers/the-creator-2-s5k1.webp"
       ],
-      "review": "A beautiful, intimate piece of science fiction. Gareth Edwards gives the big questions room to breathe, pairing enormous images with a surprisingly human story about empathy, family, and what makes a person real."
+      "review": "A beautiful, intimate piece of science fiction. Gareth Edwards allows us to think about the real nature of AI, pairing enormous images with a surprisingly human story about empathy, family, and what makes a person real.\n\nThe Creator puts on the screen what an imagery of what AI could become, a being capable of intelligence that grows beyond logic and rationality, but emotional, full of faith and love.  That humans may try to create a slave to be a servant for their needs, but will fail, and will create exactly what they fear the most: themselves, better, more united, cohesive, loving. \n\nWhen someone asks me what the future of AI is all about, I answer to watch this movie, because even though it is a simple script, it's magnitude, it's power, shapes my own personal vision of artificial intelligence is. It might be, for now, something we have on our computers and phones, but it will evolve to have a body and, with a body, it will grow to have their own society, their own beliefs, because, as God created us His image, we will create something that is our image, beings of belief, faith and emotional needs."
     },
     {
       "id": "project-hail-mary",
