@@ -293,7 +293,10 @@ section p { margin: 0 0 12px; }
 
 .project-list span {
   color: var(--ink);
+  font-family: inherit;
   font-size: 14px;
+  font-weight: inherit;
+  line-height: inherit;
   opacity: .55;
 }
 
