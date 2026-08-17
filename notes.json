@@ -13,7 +13,7 @@
     },
     {
       "id": "books",
-      "title": "Book and Manga reviews",
+      "title": "Reading reviews",
       "emptyText": ""
     },
     {
@@ -62,18 +62,6 @@
       "review": "A strange, patient journey about connection and the weight of carrying something for someone else. It asks you to slow down, notice the landscape, and find meaning in every small act of delivery. \n\nDeath Stranding raises the most essential question of all: what are humans when we are alone? And the answer couldn't be simpler: We're doomed to become nothing. "
     },
     {
-      "id": "hollow-knight",
-      "categoryId": "games",
-      "title": "Hollow Knight",
-      "type": "game",
-      "creator": "",
-      "rating": 5,
-      "images": [
-        "assets/covers/hollowknight.png"
-      ],
-      "review": "A quietly devastating world that rewards attention. Hallownest feels hand-drawn, haunted, and full of little discoveries—the kind of place that stays with you long after you put the controller down."
-    },
-    {
       "id": "witch-hat-atelier",
       "categoryId": "books",
       "title": "Witch Hat Atelier",
@@ -100,6 +88,30 @@
         "assets/covers/black-myth-wukong-3-5m0i.webp"
       ],
       "review": "A majestic game steeped in Chinese mythology, a tapestry of tragic stories set in a world drowning in suffering, injustice, and poverty, while Heaven looks down and laughs from its privilege. Black Myth Wukong reaches far beyond its stunning aesthetics: beneath the spectacle lies a pointed critique of modern society. \n\nThe source material for Black Myth is Journey to the West, a novel from 1592, only sharpens the irony, half a millennium later, the same rot it depicts still festers, and the game dares us to notice. That critique may not be the point, but it becomes impossible to look away from.\n\nThis game shows, through Wukong's eyes that, sometimes, to become great, and to overcome difficulties, challenges and complications, you need to fight your way through it and humbly learn through several errors made again and again."
+    },
+    {
+      "id": "hollow-knight",
+      "categoryId": "games",
+      "title": "Hollow Knight",
+      "type": "game",
+      "creator": "",
+      "rating": 5,
+      "images": [
+        "assets/covers/hollowknight.png"
+      ],
+      "review": "A quietly devastating world that rewards attention. Hallownest feels hand-drawn, haunted, and full of little discoveries—the kind of place that stays with you long after you put the controller down."
+    },
+    {
+      "id": "untitled-note-2",
+      "categoryId": "books",
+      "title": "Deus Negro (Black God) ",
+      "type": "book",
+      "creator": "Neimar de Barros",
+      "rating": 5,
+      "images": [
+        "assets/covers/deus-negro-black-god-1-4ftw.webp"
+      ],
+      "review": "Deus Negro (literally \"Black God\") is a poem by Neimar Barros in which the lyric self recounts his life as a man who looked down on the Black community, mistreating them, hating them, practicing racism as if it were natural. Upon arriving at the gates of Heaven, he sees, seated on the throne, a Black God. To his dismay, he must now spend eternity with a God cast in the very image of the thing he hated most his entire life, reminding him that, if he had treated all black folks as his equal, as his brothers and sisters on this Earth, he wouldn't have to live with such burden of hate on the afterlife. \n\nBarros shows us that hatred toward any race is like planting a seed that will not grow in this life. The more you cultivate it, the more accustomed you become to the practice. But the harvest comes in the afterlife, when you realize that the ones you mistreated never deserved it, that you were the one who caused their suffering, the reason for their misery, and that they may be the very image of God. The savior turns out to be the one you wronged, and so you are left to depend on their mercy."
     }
   ]
 }
