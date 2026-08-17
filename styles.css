@@ -291,6 +291,12 @@ section p { margin: 0 0 12px; }
   transition: color .45s ease, transform .18s ease;
 }
 
+.project-list span {
+  color: var(--ink);
+  font-size: 14px;
+  opacity: .55;
+}
+
 .project-logo {
   background: transparent;
   border-radius: 0;
