@@ -202,6 +202,21 @@ section { max-width: 620px; }
 
 section p { margin: 0 0 12px; }
 
+.quote {
+  margin: 0 0 16px;
+  padding-left: 14px;
+  border-left: 2px solid color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+.quote p { font-style: italic; }
+
+.quote footer {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.quote cite { font-style: normal; }
+
 .projects {
   margin-top: 28px;
   width: fit-content;
