@@ -54,11 +54,12 @@
       "title": "Death Stranding 2",
       "type": "game",
       "creator": "Hideo Kojima",
-      "rating": 0,
+      "rating": 5,
       "images": [
-        "assets/covers/deathstranding2.png"
+        "assets/covers/deathstranding2.png",
+        "assets/covers/death-stranding-2-2-wdiu.webp"
       ],
-      "review": "A strange, patient journey about connection and the weight of carrying something for someone else. It asks you to slow down, notice the landscape, and find meaning in every small act of delivery."
+      "review": "A strange, patient journey about connection and the weight of carrying something for someone else. It asks you to slow down, notice the landscape, and find meaning in every small act of delivery. \n\nDeath Stranding raises the most essential question of all: what are humans when we are alone? And the answer couldn't be simpler: We're doomed to become nothing. "
     },
     {
       "id": "hollow-knight",
@@ -66,7 +67,7 @@
       "title": "Hollow Knight",
       "type": "game",
       "creator": "",
-      "rating": 0,
+      "rating": 5,
       "images": [
         "assets/covers/hollowknight.png"
       ],
