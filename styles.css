@@ -337,24 +337,25 @@ section p { margin: 0 0 12px; }
   z-index: 3;
 }
 
-.project-soon-card {
+.project-soon-tag {
   align-items: center;
-  background: var(--page);
-  border: 2px solid color-mix(in srgb, var(--ink) 13%, var(--page));
-  border-radius: 10px;
-  bottom: 0;
-  box-shadow: 0 7px 18px color-mix(in srgb, var(--ink) 12%, transparent);
-  color: var(--muted);
+  background: var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 5px 12px color-mix(in srgb, var(--ink) 20%, transparent);
+  color: var(--page);
   display: flex;
-  font-size: 12px;
+  font-size: 10px;
+  font-weight: 500;
+  height: 22px;
   justify-content: center;
-  letter-spacing: .07em;
+  letter-spacing: .04em;
   line-height: 1;
   position: absolute;
-  right: 0;
+  right: -4px;
+  top: -5px;
   transform: rotate(5deg);
-  width: 90px;
-  height: 54px;
+  width: 44px;
+  z-index: 4;
 }
 
 .project-item-soon .project-logo {
