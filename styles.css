@@ -22,6 +22,17 @@
   --tooltip-fg: #171717;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #171717;
+    --ink: #f3f1ed;
+    --muted: #9a9a9a;
+    --link: #b3b0ab;
+    --tooltip-bg: #f3f1ed;
+    --tooltip-fg: #171717;
+  }
+}
+
 * { box-sizing: border-box; }
 
 body {
@@ -54,17 +65,32 @@ h1,
   position: absolute;
   right: 32px;
   top: 0;
+  touch-action: manipulation;
   transition: background-color .3s ease, color .45s ease, transform .3s ease;
+  user-select: none;
+  -webkit-touch-callout: none;
   width: 38px;
   z-index: 3;
 }
 
 .theme-toggle:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); transform: rotate(12deg); }
+.theme-toggle.is-auto-flash { animation: theme-auto-pulse .55s ease-out; }
+
+@keyframes theme-auto-pulse {
+  from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ink) 30%, transparent); }
+  to { box-shadow: 0 0 0 14px transparent; }
+}
+
 .theme-icon { height: 18px; position: absolute; width: 18px; transition: opacity .3s ease, transform .35s ease; }
 .icon-sun { opacity: 0; transform: scale(.6) rotate(-90deg); }
 .icon-moon { opacity: 1; transform: scale(1) rotate(0); }
 :root[data-theme="dark"] .icon-sun { opacity: 1; transform: scale(1) rotate(0); }
 :root[data-theme="dark"] .icon-moon { opacity: 0; transform: scale(.6) rotate(90deg); }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .icon-sun { opacity: 1; transform: scale(1) rotate(0); }
+  :root:not([data-theme="light"]) .icon-moon { opacity: 0; transform: scale(.6) rotate(90deg); }
+}
 
 main {
   width: min(640px, calc(100% - 48px));
@@ -393,6 +419,11 @@ section p { margin: 0 0 12px; }
 .window-body b { color: var(--tool-accent, var(--link)); font-size: 10px; font-weight: 400; margin-top: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 :root[data-theme="dark"] .window-body { background: color-mix(in srgb, var(--tool-accent, var(--link)) 22%, var(--page)); }
 :root[data-theme="dark"] .window-body b { color: color-mix(in srgb, var(--tool-accent, var(--link)) 55%, #fff); }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .window-body { background: color-mix(in srgb, var(--tool-accent, var(--link)) 22%, var(--page)); }
+  :root:not([data-theme="light"]) .window-body b { color: color-mix(in srgb, var(--tool-accent, var(--link)) 55%, #fff); }
+}
 .tool-alcove { --tool-accent: #7652b8; }
 .tool-raycast { --tool-accent: #d74444; }
 .tool-obsidian { --tool-accent: #7458c2; }
@@ -631,6 +662,7 @@ section p { margin: 0 0 12px; }
 
 @media (prefers-reduced-motion: reduce) {
   .qifrey { animation: none; }
+  .theme-toggle.is-auto-flash { animation: none; }
   .note-modal-stack.is-turning .note-modal-card-one { animation: none; }
   .project-list,
   .project-list > div,

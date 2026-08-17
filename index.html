@@ -7,7 +7,14 @@
     <title>peace</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href="assets/fonts/poppins-400.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="styles.css?v=2" />
+    <link rel="stylesheet" href="styles.css?v=4" />
+    <script>
+      // Applied before paint: a stored choice wins, otherwise the device decides via CSS.
+      try {
+        const stored = localStorage.getItem('theme');
+        if (stored === 'light' || stored === 'dark') document.documentElement.dataset.theme = stored;
+      } catch (error) {}
+    </script>
   </head>
   <body>
     <main>
@@ -391,12 +398,80 @@
       artCredit.addEventListener('pointerleave', () => artCredit.classList.remove('is-pointer'));
 
       const themeToggle = document.querySelector('.theme-toggle');
-      themeToggle.addEventListener('click', () => {
-        const dark = document.documentElement.dataset.theme === 'dark';
-        document.documentElement.dataset.theme = dark ? 'light' : 'dark';
-        themeToggle.setAttribute('aria-pressed', String(!dark));
-        themeToggle.setAttribute('aria-label', dark ? 'Switch to dark mode' : 'Switch to light mode');
+      const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+      const holdDelay = 600;
+      let holdTimer = null;
+      let heldToAuto = false;
+
+      const isAuto = () => !document.documentElement.dataset.theme;
+
+      const isDark = () => {
+        const choice = document.documentElement.dataset.theme;
+        return choice ? choice === 'dark' : systemDark.matches;
+      };
+
+      const syncToggle = () => {
+        const dark = isDark();
+        themeToggle.setAttribute('aria-pressed', String(dark));
+        themeToggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+        themeToggle.title = isAuto() ? 'Following your device theme' : 'Hold to follow your device';
+      };
+
+      // Passing null clears the manual choice and hands the theme back to the device.
+      const setTheme = (value) => {
+        if (value) document.documentElement.dataset.theme = value;
+        else delete document.documentElement.dataset.theme;
+        try {
+          if (value) localStorage.setItem('theme', value);
+          else localStorage.removeItem('theme');
+        } catch (error) {}
+        syncToggle();
+      };
+
+      const startHold = () => {
+        heldToAuto = false;
+        clearTimeout(holdTimer);
+        holdTimer = setTimeout(() => {
+          heldToAuto = true;
+          setTheme(null);
+          themeToggle.classList.remove('is-auto-flash');
+          void themeToggle.offsetWidth;
+          themeToggle.classList.add('is-auto-flash');
+        }, holdDelay);
+      };
+
+      const cancelHold = () => clearTimeout(holdTimer);
+
+      themeToggle.addEventListener('animationend', () => themeToggle.classList.remove('is-auto-flash'));
+      themeToggle.addEventListener('pointerdown', startHold);
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach((type) => {
+        themeToggle.addEventListener(type, cancelHold);
       });
+
+      themeToggle.addEventListener('keydown', (event) => {
+        if (event.repeat || (event.key !== ' ' && event.key !== 'Enter')) return;
+        startHold();
+      });
+      themeToggle.addEventListener('keyup', cancelHold);
+      themeToggle.addEventListener('blur', cancelHold);
+
+      // A completed hold already switched to auto, so the trailing click must not flip it back.
+      themeToggle.addEventListener('click', () => {
+        if (heldToAuto) {
+          heldToAuto = false;
+          return;
+        }
+        setTheme(isDark() ? 'light' : 'dark');
+      });
+
+      themeToggle.addEventListener('contextmenu', (event) => event.preventDefault());
+
+      // Follow the device while no manual choice is stored.
+      systemDark.addEventListener('change', () => {
+        if (isAuto()) syncToggle();
+      });
+
+      syncToggle();
     </script>
   </body>
 </html>
