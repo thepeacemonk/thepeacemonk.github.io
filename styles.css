@@ -763,23 +763,57 @@ section p { margin: 0 0 12px; }
   flex-wrap: wrap;
   gap: 14px;
   margin-top: 22px;
+  --elsewhere-transition: .75s ease-in-out;
 }
 
 .elsewhere a {
   align-items: center;
   color: var(--link);
   display: inline-flex;
-  font-size: 11px;
-  gap: 4px;
+  flex-direction: row;
+  font-size: 13px;
+  gap: 7px;
+  height: 24px;
+  justify-content: center;
+  min-width: 24px;
+  overflow: hidden;
   text-decoration: none;
-  transition: color .45s ease;
+  transition: color .45s ease, width var(--elsewhere-transition);
+  width: 24px;
 }
+
+.elsewhere a:nth-child(1) { --expanded-width: 61px; --label-width: 37px; }
+.elsewhere a:nth-child(2) { --expanded-width: 104px; --label-width: 80px; }
+.elsewhere a:nth-child(3) { --expanded-width: 72px; --label-width: 48px; }
 
 .elsewhere svg {
   display: block;
-  font-size: 13px;
+  font-size: 17px;
   flex: none;
 }
 
+.elsewhere a span {
+  font-size: 11px;
+  line-height: 1;
+  max-width: 0;
+  min-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: max-width var(--elsewhere-transition), opacity var(--elsewhere-transition);
+  visibility: hidden;
+  white-space: nowrap;
+}
+
 .elsewhere a:hover,
-.elsewhere a:focus-visible { color: var(--ink); }
+.elsewhere a:focus-visible {
+  color: var(--ink);
+  width: var(--expanded-width);
+}
+
+.elsewhere a:hover span,
+.elsewhere a:focus-visible span {
+  max-width: var(--label-width);
+  opacity: 1;
+  visibility: visible;
+}
