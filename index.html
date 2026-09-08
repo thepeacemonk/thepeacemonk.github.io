@@ -7,7 +7,7 @@
     <title>peace</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href="assets/fonts/poppins-400.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="styles.css?v=7" />
+    <link rel="stylesheet" href="styles.css?v=9" />
     <script>
       // Applied before paint: a stored choice wins, otherwise the device decides via CSS.
       try {
@@ -19,6 +19,18 @@
   <body>
     <main>
       <header>
+        <div class="music-player" aria-label="Music player">
+          <div class="spotify-embed" id="spotify-embed" aria-hidden="true"></div>
+          <span class="music-title" aria-live="polite">Knowledge Never Sleeps <span>— Masayoshi Soken</span></span>
+          <button class="music-player-button" type="button" aria-label="Play Knowledge Never Sleeps by Masayoshi Soken" aria-pressed="false">
+            <svg class="music-disc" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 12h.01M16 12a4 4 0 0 0-8 0M12 16a4 4 0 0 0 0-8" />
+            </svg>
+            <span class="music-note music-note-one" aria-hidden="true">♪</span>
+            <span class="music-note music-note-two" aria-hidden="true">♫</span>
+          </button>
+        </div>
         <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
           <svg class="theme-icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20.985 12.486a9 9 0 1 1-8.472-8.472 7 7 0 0 0 8.472 8.472Z" />
@@ -173,6 +185,84 @@
         const open = notesToggle.getAttribute('aria-expanded') === 'true';
         notesToggle.setAttribute('aria-expanded', String(!open));
         notesContent.setAttribute('aria-hidden', String(open));
+      });
+
+      const musicPlayer = document.querySelector('.music-player');
+      const musicButton = musicPlayer.querySelector('.music-player-button');
+      const spotifyEmbed = document.querySelector('#spotify-embed');
+      const spotifyTrack = 'https://open.spotify.com/track/0SyShykg5YI1xaGP2JphDm';
+      let spotifyController = null;
+      let wantsPlayback = false;
+      let previewFinished = false;
+      let previewEndTimer = null;
+
+      const setMusicState = (playing) => {
+        musicPlayer.classList.toggle('is-playing', playing);
+        musicButton.setAttribute('aria-pressed', String(playing));
+        musicButton.setAttribute('aria-label', `${playing ? 'Pause' : 'Play'} Knowledge Never Sleeps by Masayoshi Soken`);
+      };
+
+      const clearPreviewEndTimer = () => {
+        clearTimeout(previewEndTimer);
+        previewEndTimer = null;
+      };
+
+      const finishPreview = () => {
+        clearPreviewEndTimer();
+        wantsPlayback = false;
+        previewFinished = true;
+        setMusicState(false);
+      };
+
+      const schedulePreviewEnd = (duration, position) => {
+        clearPreviewEndTimer();
+        previewEndTimer = setTimeout(finishPreview, Math.max(duration - position + 250, 0));
+      };
+
+      window.onSpotifyIframeApiReady = (SpotifyIframeApi) => {
+        SpotifyIframeApi.createController(spotifyEmbed, {
+          width: 1,
+          height: 1,
+          url: spotifyTrack,
+        }, (controller) => {
+          spotifyController = controller;
+          controller.addListener('ready', () => {
+            if (wantsPlayback) controller.play();
+          });
+          controller.addListener('playback_update', (event) => {
+            const { duration, isPaused, position } = event.data;
+            if (!wantsPlayback || duration <= 0) return;
+            if (position >= duration - 500) {
+              finishPreview();
+            } else if (isPaused) {
+              clearPreviewEndTimer();
+            } else {
+              schedulePreviewEnd(duration, position);
+            }
+          });
+        });
+      };
+
+      const spotifyScript = document.createElement('script');
+      spotifyScript.src = 'https://open.spotify.com/embed/iframe-api/v1';
+      spotifyScript.async = true;
+      document.head.append(spotifyScript);
+
+      musicButton.addEventListener('click', () => {
+        wantsPlayback = !wantsPlayback;
+        setMusicState(wantsPlayback);
+        if (!spotifyController) return;
+        if (!wantsPlayback) {
+          clearPreviewEndTimer();
+          spotifyController.pause();
+          return;
+        }
+        if (previewFinished) {
+          previewFinished = false;
+          spotifyController.restart();
+        } else {
+          spotifyController.play();
+        }
       });
 
       const noteModal = document.querySelector('.note-modal');
