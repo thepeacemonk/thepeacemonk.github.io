@@ -457,8 +457,6 @@ section p { margin: 0 0 12px; }
 .tool-item:nth-child(8) { --tool-tilt: -3deg; }
 .tool-item:nth-child(9) { --tool-tilt: 5deg; }
 .tool-item:nth-child(10) { --tool-tilt: -4deg; }
-.tool-item:nth-child(11) { --tool-tilt: 2deg; }
-.tool-item:nth-child(12) { --tool-tilt: -5deg; }
 .tool-item > a { color: var(--link); font-size: 14px; text-decoration: none; transition: color .45s ease; }
 .tool-item > a:hover,
 .tool-item > a:focus-visible { color: var(--ink); }
@@ -496,7 +494,6 @@ section p { margin: 0 0 12px; }
 }
 
 .website-preview-art { object-position: center; }
-.tool-alcove .website-preview-art { object-position: center 20%; }
 
 .notes-content {
   display: grid;
