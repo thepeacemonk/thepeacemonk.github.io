@@ -147,9 +147,10 @@ header { margin-bottom: 20px; position: relative; }
 }
 
 h1 {
+  font-family: "Funnel Display", Poppins, Arial, sans-serif;
   margin: 0;
   font-size: 18px;
-  font-weight: 400;
+  font-weight: 300;
   line-height: 1.4;
 }
 
