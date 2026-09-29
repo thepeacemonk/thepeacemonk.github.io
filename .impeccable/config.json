@@ -1,0 +1,44 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "tiny-text",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-29T12:42:18.357Z",
+        "reason": "Existing compact control labels are not body copy; preserve the scoped portfolio typography."
+      },
+      {
+        "rule": "buried-raster",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-29T12:42:18.377Z",
+        "reason": "Hover previews intentionally begin hidden and become visible on focus or hover."
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-29T12:42:18.392Z",
+        "reason": "Intentional miniature browser chrome is preserved by the scoped portfolio brief."
+      },
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "styles.css"
+        ],
+        "createdAt": "2026-09-29T12:42:18.408Z",
+        "reason": "The remaining layout transitions are deliberate compact-to-expanded music and social-link interactions."
+      }
+    ]
+  }
+}

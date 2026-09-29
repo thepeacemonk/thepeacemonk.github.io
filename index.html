@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300&display=swap" />
-    <link rel="stylesheet" href="styles.css?v=17" />
+    <link rel="stylesheet" href="styles.css?v=18" />
     <script>
       // Applied before paint: a stored choice wins, otherwise the device decides via CSS.
       try {
@@ -19,7 +19,7 @@
       } catch (error) {}
     </script>
   </head>
-  <body>
+  <body class="home-page">
     <main>
       <header>
         <div class="music-player" aria-label="Music player">
@@ -69,8 +69,8 @@
       </section>
 
       <div class="projects">
-        <button class="projects-toggle" type="button" aria-expanded="false" aria-controls="project-list">My projects <span aria-hidden="true">+</span></button>
-        <div class="project-list" id="project-list" aria-hidden="true">
+        <a class="section-link" href="collections.html?section=projects" data-section="projects">My projects</a>
+        <div class="project-list" id="project-list" hidden>
           <div>
             <div class="project-item"><a href="https://ankiweb.net/shared/info/1011095603" target="_blank" rel="noreferrer">Onigiri</a><img class="project-logo" src="assets/logos/onigiri.svg" alt="" aria-hidden="true" /></div>
             <div class="project-item"><a href="https://ankiweb.net/shared/info/516325516" target="_blank" rel="noreferrer">Focumon</a><img class="project-logo" src="assets/logos/focumon.svg" alt="" aria-hidden="true" /></div>
@@ -92,8 +92,8 @@
       </div>
 
       <div class="tools">
-        <button class="tools-toggle" type="button" aria-expanded="false" aria-controls="tool-list">My tools <span aria-hidden="true">+</span></button>
-        <div class="tool-list" id="tool-list" aria-hidden="true">
+        <a class="section-link" href="collections.html?section=tools" data-section="tools">My tools</a>
+        <div class="tool-list" id="tool-list" hidden>
           <div class="tool-list-inner">
           <div class="tool-item tool-alcove">
             <a href="https://tryalcove.com/" target="_blank" rel="noreferrer">Alcove</a>
@@ -144,8 +144,8 @@
       </div>
 
       <div class="notes">
-        <button class="notes-toggle" type="button" aria-expanded="false" aria-controls="notes-content">My notes <span aria-hidden="true">+</span></button>
-        <div class="notes-content" id="notes-content" aria-hidden="true">
+        <a class="section-link" href="collections.html?section=notes" data-section="notes">My notes</a>
+        <div class="notes-content" id="notes-content" hidden>
           <div class="notes-categories"></div>
         </div>
       </div>
@@ -182,28 +182,27 @@
       <div class="note-modal-review"></div>
     </dialog>
     <script>
-      const toggle = document.querySelector('.projects-toggle');
-      const list = document.querySelector('.project-list');
-      toggle.addEventListener('click', () => {
-        const open = toggle.getAttribute('aria-expanded') === 'true';
-        toggle.setAttribute('aria-expanded', String(!open));
-        list.setAttribute('aria-hidden', String(open));
-      });
-
-      const toolsToggle = document.querySelector('.tools-toggle');
-      const toolList = document.querySelector('.tool-list');
-      toolsToggle.addEventListener('click', () => {
-        const open = toolsToggle.getAttribute('aria-expanded') === 'true';
-        toolsToggle.setAttribute('aria-expanded', String(!open));
-        toolList.setAttribute('aria-hidden', String(open));
-      });
-
-      const notesToggle = document.querySelector('.notes-toggle');
-      const notesContent = document.querySelector('.notes-content');
-      notesToggle.addEventListener('click', () => {
-        const open = notesToggle.getAttribute('aria-expanded') === 'true';
-        notesToggle.setAttribute('aria-expanded', String(!open));
-        notesContent.setAttribute('aria-hidden', String(open));
+      const sectionLinks = document.querySelectorAll('.section-link');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const navigationKey = 'peace-section-navigation';
+      const sectionSourceIds = { projects: 'project-list', tools: 'tool-list', notes: 'notes-content' };
+      if (sessionStorage.getItem(navigationKey) === 'return-home') {
+        sessionStorage.removeItem(navigationKey);
+        requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('is-returning-home')));
+      }
+      sectionLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+          if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0 || reducedMotion.matches) return;
+          event.preventDefault();
+          sessionStorage.setItem(navigationKey, 'enter-collection');
+          const sourceList = document.querySelector(`#${sectionSourceIds[link.dataset.section]}`);
+          if (sourceList) {
+            sessionStorage.setItem('peace-section-markup', sourceList.outerHTML);
+            sessionStorage.setItem('peace-section-markup-key', link.dataset.section);
+          }
+          document.body.classList.add('is-section-leaving');
+          window.setTimeout(() => window.location.assign(link.href), 220);
+        });
       });
 
       const musicPlayer = document.querySelector('.music-player');
