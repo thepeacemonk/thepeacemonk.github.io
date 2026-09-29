@@ -16,15 +16,12 @@
       try {
         const stored = localStorage.getItem('theme');
         if (stored === 'light' || stored === 'dark') document.documentElement.dataset.theme = stored;
-        if (sessionStorage.getItem('peace-section-navigation') === 'return-home') {
-          document.documentElement.dataset.pageTransition = 'return-home';
-        }
       } catch (error) {}
     </script>
   </head>
   <body class="home-page">
     <main>
-      <header>
+      <div class="header-controls">
         <div class="music-player" aria-label="Music player">
           <div class="spotify-embed" id="spotify-embed" aria-hidden="true"></div>
           <span class="music-title" aria-live="polite">Should We Have Connected? <span>— Ludvig Forssell</span></span>
@@ -37,15 +34,18 @@
             <span class="music-note music-note-two" aria-hidden="true">♫</span>
           </button>
         </div>
-        <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
-          <svg class="theme-icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20.985 12.486a9 9 0 1 1-8.472-8.472 7 7 0 0 0 8.472 8.472Z" />
-          </svg>
-          <svg class="theme-icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
-          </svg>
-        </button>
+      <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+        <svg class="theme-icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.985 12.486a9 9 0 1 1-8.472-8.472 7 7 0 0 0 8.472 8.472Z" />
+        </svg>
+        <svg class="theme-icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
+        </svg>
+      </button>
+      </div>
+      <div class="home-content">
+      <header>
         <div class="art-credit">
           <a class="art-link" href="https://iclaimthisname.itch.io/" target="_blank" rel="noreferrer" aria-label="Art by iclamethisname">
             <img class="qifrey" src="assets/illustrations/qifrey-floating.png" alt="Qifrey floating" />
@@ -72,7 +72,7 @@
       </section>
 
       <div class="projects">
-        <a class="section-link" href="collections.html?section=projects" data-section="projects">My projects</a>
+        <a class="section-link" href="#projects" data-section="projects">My projects</a>
         <div class="project-list" id="project-list" hidden>
           <div>
             <div class="project-item"><a href="https://ankiweb.net/shared/info/1011095603" target="_blank" rel="noreferrer">Onigiri</a><img class="project-logo" src="assets/logos/onigiri.svg" alt="" aria-hidden="true" /></div>
@@ -95,7 +95,7 @@
       </div>
 
       <div class="tools">
-        <a class="section-link" href="collections.html?section=tools" data-section="tools">My tools</a>
+        <a class="section-link" href="#tools" data-section="tools">My tools</a>
         <div class="tool-list" id="tool-list" hidden>
           <div class="tool-list-inner">
           <div class="tool-item tool-alcove">
@@ -147,7 +147,7 @@
       </div>
 
       <div class="notes">
-        <a class="section-link" href="collections.html?section=notes" data-section="notes">My notes</a>
+        <a class="section-link" href="#notes" data-section="notes">My notes</a>
         <div class="notes-content" id="notes-content" hidden>
           <div class="notes-categories"></div>
         </div>
@@ -175,6 +175,18 @@
           <span>AnkiWeb</span>
         </a>
       </nav>
+      </div>
+
+      <section class="collection-shell" id="collection-view" hidden aria-labelledby="collection-title">
+        <header class="collection-header">
+          <a class="collection-back" href="#">Back to home</a>
+          <div class="collection-title-row">
+            <span class="collection-qifrey-motion"></span>
+            <h1 class="collection-title" id="collection-title" tabindex="-1"></h1>
+          </div>
+        </header>
+        <div class="collection-content" aria-live="polite"></div>
+      </section>
     </main>
     <dialog class="note-modal" aria-labelledby="note-modal-title">
       <button class="note-modal-close" type="button" aria-label="Close review">×</button>
@@ -186,27 +198,138 @@
     </dialog>
     <script>
       const sectionLinks = document.querySelectorAll('.section-link');
-      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-      const navigationKey = 'peace-section-navigation';
-      const sectionSourceIds = { projects: 'project-list', tools: 'tool-list', notes: 'notes-content' };
-      if (sessionStorage.getItem(navigationKey) === 'return-home') {
-        sessionStorage.removeItem(navigationKey);
-        requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('is-returning-home')));
-      }
+      const collectionShell = document.querySelector('.collection-shell');
+      const collectionContent = collectionShell.querySelector('.collection-content');
+      const collectionTitle = collectionShell.querySelector('.collection-title');
+      const collectionBack = collectionShell.querySelector('.collection-back');
+      const qifreyCredit = document.querySelector('.art-credit');
+      const qifreyHome = { parent: qifreyCredit.parentNode, nextSibling: qifreyCredit.nextSibling };
+      const qifreyHost = collectionShell.querySelector('.collection-qifrey-motion');
+      const collectionSections = {
+        projects: { title: 'My projects', source: document.querySelector('#project-list') },
+        tools: { title: 'My tools', source: document.querySelector('#tool-list') },
+        notes: { title: 'My notes', source: document.querySelector('#notes-content') },
+      };
+      const sourceHomes = Object.fromEntries(Object.entries(collectionSections).map(([key, { source }]) => [key, {
+        parent: source.parentNode,
+        nextSibling: source.nextSibling,
+      }]));
+      let activeCollection = null;
+
+      const moveQifrey = (target, { fromRect = qifreyCredit.getBoundingClientRect(), animate = true } = {}) => {
+        target.insertBefore(qifreyCredit, target === qifreyHome.parent ? qifreyHome.nextSibling : null);
+        const toRect = qifreyCredit.getBoundingClientRect();
+        if (!animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !fromRect.width || !toRect.width) {
+          qifreyCredit.style.removeProperty('transform');
+          qifreyCredit.style.removeProperty('transform-origin');
+          qifreyCredit.style.removeProperty('transition');
+          return;
+        }
+
+        const offsetX = fromRect.left - toRect.left;
+        const offsetY = fromRect.top - toRect.top;
+        const scaleX = fromRect.width / toRect.width;
+        const scaleY = fromRect.height / toRect.height;
+        qifreyCredit.style.transition = 'none';
+        qifreyCredit.style.transformOrigin = 'top left';
+        qifreyCredit.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scaleX}, ${scaleY})`;
+        void qifreyCredit.offsetWidth;
+        requestAnimationFrame(() => {
+          qifreyCredit.style.transition = 'transform .52s cubic-bezier(.16, 1, .3, 1)';
+          qifreyCredit.style.transform = '';
+        });
+      };
+
+      qifreyCredit.addEventListener('transitionend', (event) => {
+        if (event.propertyName !== 'transform') return;
+        qifreyCredit.style.removeProperty('transform');
+        qifreyCredit.style.removeProperty('transform-origin');
+        qifreyCredit.style.removeProperty('transition');
+      });
+
+      const sectionFromLocation = () => {
+        const section = location.hash.slice(1);
+        return Object.prototype.hasOwnProperty.call(collectionSections, section) ? section : null;
+      };
+
+      const restoreCollection = () => {
+        if (!activeCollection) return;
+        const { source } = collectionSections[activeCollection];
+        const { parent, nextSibling } = sourceHomes[activeCollection];
+        source.classList.remove('collection-list');
+        source.hidden = true;
+        parent.insertBefore(source, nextSibling);
+        activeCollection = null;
+      };
+
+      const showCollection = (key, { focus = false, animate = true } = {}) => {
+        if (key === activeCollection) {
+          if (focus && key) requestAnimationFrame(() => collectionTitle.focus({ preventScroll: true }));
+          return;
+        }
+        if (!key) {
+          const wasCollectionOpen = Boolean(activeCollection);
+          if (wasCollectionOpen) {
+            const fromRect = qifreyCredit.getBoundingClientRect();
+            document.body.classList.remove('is-collection-open');
+            moveQifrey(qifreyHome.parent, { fromRect, animate });
+          }
+          restoreCollection();
+          collectionShell.hidden = true;
+          document.body.classList.remove('is-collection-open');
+          if (wasCollectionOpen) {
+            document.body.classList.remove('is-home-returning');
+            void document.body.offsetWidth;
+            document.body.classList.add('is-home-returning');
+          }
+          document.title = 'peace';
+          return;
+        }
+        const enteringFromHome = !activeCollection;
+        const qifreyStart = enteringFromHome ? qifreyCredit.getBoundingClientRect() : null;
+        if (activeCollection !== key) restoreCollection();
+        const { title, source } = collectionSections[key];
+        activeCollection = key;
+        collectionTitle.textContent = title;
+        source.classList.add('collection-list');
+        source.hidden = false;
+        collectionContent.replaceChildren(source);
+        collectionShell.hidden = false;
+        document.body.classList.add('is-collection-open');
+        if (enteringFromHome) moveQifrey(qifreyHost, { fromRect: qifreyStart, animate });
+        collectionShell.classList.remove('is-collection-arriving');
+        void collectionShell.offsetWidth;
+        collectionShell.classList.add('is-collection-arriving');
+        document.title = `${title} · peace`;
+        if (focus) requestAnimationFrame(() => collectionTitle.focus({ preventScroll: true }));
+      };
+
+      const syncCollectionFromLocation = ({ focus = false, animate = true } = {}) => showCollection(sectionFromLocation(), { focus, animate });
+
       sectionLinks.forEach((link) => {
         link.addEventListener('click', (event) => {
-          if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0 || reducedMotion.matches) return;
+          if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0) return;
           event.preventDefault();
-          sessionStorage.setItem(navigationKey, 'enter-collection');
-          const sourceList = document.querySelector(`#${sectionSourceIds[link.dataset.section]}`);
-          if (sourceList) {
-            sessionStorage.setItem('peace-section-markup', sourceList.outerHTML);
-            sessionStorage.setItem('peace-section-markup-key', link.dataset.section);
-          }
-          document.body.classList.add('is-section-leaving');
-          window.setTimeout(() => window.location.assign(link.href), 220);
+          const key = link.dataset.section;
+          history.pushState({ peaceSection: key }, '', `#${key}`);
+          showCollection(key, { focus: true, animate: true });
         });
       });
+
+      collectionBack.addEventListener('click', (event) => {
+        if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0) return;
+        event.preventDefault();
+        if (history.state?.peaceSection) history.back();
+        else {
+          history.replaceState(null, '', location.pathname + location.search);
+          showCollection(null, { animate: true });
+        }
+      });
+
+      window.addEventListener('popstate', () => syncCollectionFromLocation({ animate: true }));
+      window.addEventListener('hashchange', () => syncCollectionFromLocation({ animate: true }));
+      document.querySelector('.home-content').addEventListener('animationend', () => document.body.classList.remove('is-home-returning'));
+      syncCollectionFromLocation({ animate: false });
 
       const musicPlayer = document.querySelector('.music-player');
       const musicButton = musicPlayer.querySelector('.music-player-button');
