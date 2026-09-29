@@ -9,11 +9,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300&display=swap" />
-    <link rel="stylesheet" href="styles.css?v=18" />
+    <link rel="stylesheet" href="styles.css?v=26" />
     <script>
       try {
         const stored = localStorage.getItem('theme');
         if (stored === 'light' || stored === 'dark') document.documentElement.dataset.theme = stored;
+        if (sessionStorage.getItem('peace-section-navigation') === 'enter-collection') {
+          document.documentElement.dataset.pageTransition = 'enter-collection';
+        }
       } catch (error) {}
     </script>
   </head>
@@ -70,6 +73,11 @@
       const enteringFromHome = sessionStorage.getItem(navigationKey) === 'enter-collection';
       if (enteringFromHome) sessionStorage.removeItem(navigationKey);
 
+      const revealCollection = () => {
+        if (!enteringFromHome) return;
+        requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('is-entering-collection')));
+      };
+
       const renderCollection = (source) => {
         if (!source) throw new Error('missing collection');
         const list = source;
@@ -78,9 +86,7 @@
         list.removeAttribute('aria-hidden');
         content.replaceChildren(list);
         if (sectionKey === 'notes') loadNotes(list.querySelector('.notes-categories'));
-        if (enteringFromHome) {
-          requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('is-entering-collection')));
-        }
+        revealCollection();
       };
 
       if (!section) {
@@ -106,6 +112,7 @@
             .then((html) => renderCollection(new DOMParser().parseFromString(html, 'text/html').querySelector(section.selector)))
             .catch(() => {
               content.innerHTML = '<p class="collection-error">This collection could not be loaded. Please return home and try again.</p>';
+              revealCollection();
             });
         }
       }

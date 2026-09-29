@@ -10,12 +10,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300&display=swap" />
-    <link rel="stylesheet" href="styles.css?v=18" />
+    <link rel="stylesheet" href="styles.css?v=26" />
     <script>
       // Applied before paint: a stored choice wins, otherwise the device decides via CSS.
       try {
         const stored = localStorage.getItem('theme');
         if (stored === 'light' || stored === 'dark') document.documentElement.dataset.theme = stored;
+        if (sessionStorage.getItem('peace-section-navigation') === 'return-home') {
+          document.documentElement.dataset.pageTransition = 'return-home';
+        }
       } catch (error) {}
     </script>
   </head>
