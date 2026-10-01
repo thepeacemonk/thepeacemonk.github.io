@@ -954,9 +954,10 @@ section p { margin: 0 0 12px; }
   width: 24px;
 }
 
-.elsewhere a:nth-child(1) { --expanded-width: 61px; --label-width: 37px; }
-.elsewhere a:nth-child(2) { --expanded-width: 104px; --label-width: 80px; }
-.elsewhere a:nth-child(3) { --expanded-width: 72px; --label-width: 48px; }
+.elsewhere a[aria-label="GitHub"] { --expanded-width: 61px; --label-width: 37px; }
+.elsewhere a[aria-label="X"] { --expanded-width: 32px; --label-width: 8px; }
+.elsewhere a[aria-label="Buy me a coffee"] { --expanded-width: 104px; --label-width: 80px; }
+.elsewhere a[aria-label="AnkiWeb"] { --expanded-width: 72px; --label-width: 48px; }
 
 .elsewhere svg {
   display: block;
