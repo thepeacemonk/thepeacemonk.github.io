@@ -1,61 +1,80 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="peace — Brazilian pre-med student and Anki add-on developer." />
-    <title>peace</title>
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="preload" href="assets/fonts/poppins-400.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300&display=swap" />
-    <link rel="stylesheet" href="styles.css?v=63" />
-    <script type="module" src="assets/ambient-background.js?v=32"></script>
-    <script type="module" src="assets/target-cursor.js?v=8"></script>
-    <script>
-      // Applied before paint: a stored choice wins, otherwise the device decides via CSS.
-      try {
-        const stored = localStorage.getItem('theme');
-        if (stored === 'light' || stored === 'dark') document.documentElement.dataset.theme = stored;
-      } catch (error) {}
-    </script>
-  </head>
-  <body class="home-page">
-    <div class="ambient-background" aria-hidden="true"><canvas class="gradient-ascii-canvas"></canvas></div>
-    <main>
-      <div class="header-controls">
-        <button class="clock-toggle" type="button" aria-label="Your local time. Switch to AM/PM format" aria-pressed="false"><time class="local-clock">--:--</time><span class="control-hover-shape clock-hover-shape" aria-hidden="true"><svg class="control-text-contour" focusable="false"><text x="50%" y="50%" text-anchor="middle">--:--</text></svg></span></button>
-        <div class="weather-widget">
-          <button class="weather-button" type="button" aria-label="Local temperature. Switch to Fahrenheit" aria-pressed="false"><span class="weather-value">Weather</span><span class="control-hover-shape weather-hover-shape" aria-hidden="true"><svg class="control-text-contour" focusable="false"><text x="50%" y="50%" text-anchor="middle">Weather</text></svg></span></button>
-        </div>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="peace — Brazilian pre-med student and Anki add-on developer." />
+  <title>peace</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preload" href="assets/fonts/poppins-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300&display=swap" />
+  <link rel="stylesheet" href="styles.css?v=63" />
+  <script type="module" src="assets/ambient-background.js?v=32"></script>
+  <script type="module" src="assets/target-cursor.js?v=8"></script>
+  <link rel="stylesheet" href="assets/pong.css?v=7" />
+  <script type="module" src="assets/pong.js?v=6"></script>
+  <script>
+    // Applied before paint: a stored choice wins, otherwise the device decides via CSS.
+    try {
+      const stored = localStorage.getItem('theme');
+      if (stored === 'light' || stored === 'dark') document.documentElement.dataset.theme = stored;
+    } catch (error) { }
+  </script>
+</head>
+
+<body class="home-page">
+  <div class="ambient-background" aria-hidden="true"><canvas class="gradient-ascii-canvas"></canvas></div>
+  <main>
+    <div class="header-controls">
+      <button class="clock-toggle" type="button" aria-label="Your local time. Switch to AM/PM format"
+        aria-pressed="false"><time class="local-clock">--:--</time><span class="control-hover-shape clock-hover-shape"
+          aria-hidden="true"><svg class="control-text-contour" focusable="false"><text x="50%" y="50%"
+              text-anchor="middle">--:--</text></svg></span></button>
+      <div class="weather-widget">
+        <button class="weather-button" type="button" aria-label="Local temperature. Switch to Fahrenheit"
+          aria-pressed="false"><span class="weather-value">Weather</span><span
+            class="control-hover-shape weather-hover-shape" aria-hidden="true"><svg class="control-text-contour"
+              focusable="false"><text x="50%" y="50%" text-anchor="middle">Weather</text></svg></span></button>
+      </div>
       <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
-        <svg class="theme-icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <svg class="theme-icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20.985 12.486a9 9 0 1 1-8.472-8.472 7 7 0 0 0 8.472 8.472Z" />
         </svg>
-        <svg class="theme-icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <svg class="theme-icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
+          <path
+            d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
         </svg>
         <span class="control-hover-shape" aria-hidden="true">
-        <svg class="theme-icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20.985 12.486a9 9 0 1 1-8.472-8.472 7 7 0 0 0 8.472 8.472Z" />
-        </svg>
-        <svg class="theme-icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
-        </svg>
+          <svg class="theme-icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"
+            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.985 12.486a9 9 0 1 1-8.472-8.472 7 7 0 0 0 8.472 8.472Z" />
+          </svg>
+          <svg class="theme-icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"
+            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4" />
+            <path
+              d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
+          </svg>
         </span>
       </button>
-      </div>
-      <div class="home-content">
+    </div>
+    <div class="home-content">
       <header>
         <div class="art-credit">
-          <button class="art-link" type="button" aria-label="Qifrey. Hold for 5 seconds to reveal artist credits" aria-expanded="false" aria-controls="qifrey-credits">
+          <button class="art-link" type="button" aria-label="Qifrey. Hold for 5 seconds to reveal artist credits"
+            aria-expanded="false" aria-controls="qifrey-credits">
             <!-- Corners measured from the PNG's opaque silhouette: TL, TR, BR, BL. -->
-            <img class="qifrey" src="assets/illustrations/qifrey-floating.png" alt="Qifrey floating" draggable="false" data-cursor-corners="0.095376,0.336765 0.761561,0.141176 0.747471,0.91875 0.187861,0.814706" />
+            <img class="qifrey" src="assets/illustrations/qifrey-floating.png" alt="Qifrey floating" draggable="false"
+              data-cursor-corners="0.095376,0.336765 0.761561,0.141176 0.747471,0.91875 0.187861,0.814706" />
           </button>
-          <span class="tooltip" id="qifrey-credits" role="group" aria-label="Artist credits" hidden>Art by <a href="https://iclaimthisname.itch.io/" target="_blank" rel="noreferrer">iclaimthisname</a></span>
+          <span class="tooltip" id="qifrey-credits" role="group" aria-label="Artist credits" hidden>Art by <a
+              href="https://iclaimthisname.itch.io/" target="_blank" rel="noreferrer">iclaimthisname</a></span>
         </div>
         <h1>peace</h1>
         <div class="country-wrap">
@@ -63,17 +82,22 @@
           <div class="country-cards" aria-hidden="true">
             <img class="country-card country-card-one" src="assets/brazil/brasil_flag.jpg" alt="Brazilian flag" />
             <img class="country-card country-card-two" src="assets/brazil/brasil_com_s.jpg" alt="Brazilian landscape" />
-            <img class="country-card country-card-three" src="assets/brazil/deus_brasileiro.jpg" alt="Poster reading Deus é brasileiro e anda do meu lado" />
+            <img class="country-card country-card-three" src="assets/brazil/deus_brasileiro.jpg"
+              alt="Poster reading Deus é brasileiro e anda do meu lado" />
           </div>
         </div>
       </header>
 
       <section aria-label="About peace">
         <blockquote class="quote">
-          <p>&ldquo;That&rsquo;s truly difficult,&rdquo; said Wukong, &ldquo;truly difficult!&rdquo; &ldquo;Nothing in the world is difficult,&rdquo; said the Patriarch; &ldquo;only the mind makes it so.&rdquo;</p>
+          <p>&ldquo;That&rsquo;s <button class="pong-secret" type="button" aria-haspopup="dialog"
+              aria-controls="pong-dialog" aria-label="Truly difficult. Play a secret game of Pong">truly
+              difficult</button>,&rdquo; said Wukong, &ldquo;truly difficult!&rdquo; &ldquo;Nothing in the world is
+            difficult,&rdquo; said the Patriarch; &ldquo;only the mind makes it so.&rdquo;</p>
           <footer>Anthony Yu, <cite>The Journey to the West</cite> (西遊記)</footer>
         </blockquote>
-        <p>This conversation between Sun Wukong and his master captures my mindset as a premed student and app developer: nothing is truly difficult once you commit to mastering it.</p>
+        <p>This conversation between Sun Wukong and his master captures my mindset as a premed student and app
+          developer: nothing is truly difficult once you commit to mastering it.</p>
       </section>
 
       <div class="projects">
@@ -83,20 +107,54 @@
             <section class="project-category" aria-labelledby="anki-addons-title">
               <h2 class="project-category-title" id="anki-addons-title">My Anki add-ons</h2>
               <div class="project-items">
-                <div class="project-item"><a href="https://ankiweb.net/shared/info/1011095603" target="_blank" rel="noreferrer">Onigiri</a><img class="project-logo" src="assets/logos/onigiri.svg" alt="" aria-hidden="true" /></div>
-                <div class="project-item"><a href="https://ankiweb.net/shared/info/516325516" target="_blank" rel="noreferrer">Focumon</a><img class="project-logo" src="assets/logos/focumon.svg" alt="" aria-hidden="true" /></div>
-                <div class="project-item"><a href="https://ankiweb.net/shared/info/1799253175" target="_blank" rel="noreferrer">lofi.town</a><img class="project-logo" src="assets/logos/lofitown.svg" alt="" aria-hidden="true" /></div>
-                <div class="project-item"><a href="https://buymeacoffee.com/peacemonk/extras/125639" target="_blank" rel="noreferrer">League</a><img class="project-logo" src="assets/logos/league.svg" alt="" aria-hidden="true" /></div>
-                <div class="project-item"><a href="https://ankiweb.net/shared/info/585575504" target="_blank" rel="noreferrer">Senchado</a><img class="project-logo" src="assets/logos/senchado.svg" alt="" aria-hidden="true" /></div>
-                <div class="project-item"><a href="https://ankiweb.net/shared/info/1803057887" target="_blank" rel="noreferrer">Paper</a><img class="project-logo" src="assets/logos/paper.svg" alt="" aria-hidden="true" /></div>
-                <div class="project-item"><a href="https://ankiweb.net/shared/info/629799722" target="_blank" rel="noreferrer">Sticky</a><img class="project-logo" src="assets/logos/sticky.svg" alt="" aria-hidden="true" /></div>
-                <div class="project-item"><a href="https://ankiweb.net/shared/info/643961895" target="_blank" rel="noreferrer">Power</a><img class="project-logo" src="assets/logos/power.svg" alt="" aria-hidden="true" /></div>
-                <div class="project-item"><a href="https://ankiweb.net/shared/info/691162538" target="_blank" rel="noreferrer">Hours</a><img class="project-logo" src="assets/logos/hours.svg" alt="" aria-hidden="true" /></div>
-                <div class="project-item"><a href="https://ankiweb.net/shared/info/519723565" target="_blank" rel="noreferrer">Global</a><img class="project-logo" src="assets/logos/global.svg" alt="" aria-hidden="true" /></div>
-                <div class="project-item"><a href="https://ankiweb.net/shared/info/73838120" target="_blank" rel="noreferrer">Berry</a><img class="project-logo" src="assets/logos/berry.svg" alt="" aria-hidden="true" /></div>
-                <div class="project-item project-item-soon"><span>Astra</span><div class="project-preview" aria-hidden="true"><div class="project-soon-tag">soon</div><img class="project-logo" src="assets/logos/astra.svg" alt="" /></div></div>
-                <div class="project-item"><a href="https://ankiweb.net/shared/info/1844248422" target="_blank" rel="noreferrer">First Letter Caps Fix</a><img class="project-logo" src="assets/logos/fixcaps-transparent.png" alt="" aria-hidden="true" /></div>
-                <div class="project-item project-item-soon"><span>8BitDo Companion</span><div class="project-preview" aria-hidden="true"><div class="project-soon-tag">soon</div><img class="project-logo" src="assets/logos/8bitdo.svg" alt="" /></div></div>
+                <div class="project-item"><a href="https://ankiweb.net/shared/info/1011095603" target="_blank"
+                    rel="noreferrer">Onigiri</a><img class="project-logo" src="assets/logos/onigiri.svg" alt=""
+                    aria-hidden="true" /></div>
+                <div class="project-item"><a href="https://ankiweb.net/shared/info/516325516" target="_blank"
+                    rel="noreferrer">Focumon</a><img class="project-logo" src="assets/logos/focumon.svg" alt=""
+                    aria-hidden="true" /></div>
+                <div class="project-item"><a href="https://ankiweb.net/shared/info/1799253175" target="_blank"
+                    rel="noreferrer">lofi.town</a><img class="project-logo" src="assets/logos/lofitown.svg" alt=""
+                    aria-hidden="true" /></div>
+                <div class="project-item"><a href="https://buymeacoffee.com/peacemonk/extras/125639" target="_blank"
+                    rel="noreferrer">League</a><img class="project-logo" src="assets/logos/league.svg" alt=""
+                    aria-hidden="true" /></div>
+                <div class="project-item"><a href="https://ankiweb.net/shared/info/585575504" target="_blank"
+                    rel="noreferrer">Senchado</a><img class="project-logo" src="assets/logos/senchado.svg" alt=""
+                    aria-hidden="true" /></div>
+                <div class="project-item"><a href="https://ankiweb.net/shared/info/1803057887" target="_blank"
+                    rel="noreferrer">Paper</a><img class="project-logo" src="assets/logos/paper.svg" alt=""
+                    aria-hidden="true" /></div>
+                <div class="project-item"><a href="https://ankiweb.net/shared/info/629799722" target="_blank"
+                    rel="noreferrer">Sticky</a><img class="project-logo" src="assets/logos/sticky.svg" alt=""
+                    aria-hidden="true" /></div>
+                <div class="project-item"><a href="https://ankiweb.net/shared/info/643961895" target="_blank"
+                    rel="noreferrer">Power</a><img class="project-logo" src="assets/logos/power.svg" alt=""
+                    aria-hidden="true" /></div>
+                <div class="project-item"><a href="https://ankiweb.net/shared/info/691162538" target="_blank"
+                    rel="noreferrer">Hours</a><img class="project-logo" src="assets/logos/hours.svg" alt=""
+                    aria-hidden="true" /></div>
+                <div class="project-item"><a href="https://ankiweb.net/shared/info/519723565" target="_blank"
+                    rel="noreferrer">Global</a><img class="project-logo" src="assets/logos/global.svg" alt=""
+                    aria-hidden="true" /></div>
+                <div class="project-item"><a href="https://ankiweb.net/shared/info/73838120" target="_blank"
+                    rel="noreferrer">Berry</a><img class="project-logo" src="assets/logos/berry.svg" alt=""
+                    aria-hidden="true" /></div>
+                <div class="project-item project-item-soon"><span>Astra</span>
+                  <div class="project-preview" aria-hidden="true">
+                    <div class="project-soon-tag">soon</div><img class="project-logo" src="assets/logos/astra.svg"
+                      alt="" />
+                  </div>
+                </div>
+                <div class="project-item"><a href="https://ankiweb.net/shared/info/1844248422" target="_blank"
+                    rel="noreferrer">First Letter Caps Fix</a><img class="project-logo"
+                    src="assets/logos/fixcaps-transparent.png" alt="" aria-hidden="true" /></div>
+                <div class="project-item project-item-soon"><span>8BitDo Companion</span>
+                  <div class="project-preview" aria-hidden="true">
+                    <div class="project-soon-tag">soon</div><img class="project-logo" src="assets/logos/8bitdo.svg"
+                      alt="" />
+                  </div>
+                </div>
               </div>
             </section>
             <section class="project-category" aria-labelledby="apps-title">
@@ -114,7 +172,8 @@
                 </div>
                 <div class="project-item future-app-item">
                   <button class="future-app-trigger" type="button"><span>Distraction app</span></button>
-                  <img class="project-logo future-app-logo" src="assets/logos/future-app.png" alt="" aria-hidden="true" />
+                  <img class="project-logo future-app-logo" src="assets/logos/future-app.png" alt=""
+                    aria-hidden="true" />
                 </div>
               </div>
             </section>
@@ -126,54 +185,102 @@
         <a class="section-link" href="#tools" data-section="tools">My tools</a>
         <div class="tool-list" id="tool-list" hidden>
           <div class="tool-list-inner">
-          <div class="tool-item tool-alcove">
-            <a href="https://tryalcove.com/" target="_blank" rel="noreferrer">Alcove</a>
-            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>tryalcove.com</span></div><img class="website-preview-image website-preview-art" src="assets/sites/alcove.png" alt="" loading="lazy" decoding="async" /></div>
-          </div>
-          <div class="tool-item tool-anki">
-            <a href="https://apps.ankiweb.net/" target="_blank" rel="noreferrer">Anki</a>
-            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>apps.ankiweb.net</span></div><img class="website-preview-image website-preview-art" src="assets/sites/anki.png" alt="" loading="lazy" decoding="async" /></div>
-          </div>
-          <div class="tool-item tool-antinote">
-            <a href="https://antinote.io/" target="_blank" rel="noreferrer">Antinote</a>
-            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>antinote.io</span></div><img class="website-preview-image website-preview-art" src="assets/sites/antinote.png" alt="" loading="lazy" decoding="async" /></div>
-          </div>
-          <div class="tool-item tool-chatgpt">
-            <a href="https://chatgpt.com/" target="_blank" rel="noreferrer">ChatGPT</a>
-            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>chatgpt.com</span></div><img class="website-preview-image website-preview-art" src="assets/sites/chatgpt.png" alt="" loading="lazy" decoding="async" /></div>
-          </div>
-          <div class="tool-item tool-cleanshotx">
-            <a href="https://cleanshot.com/" target="_blank" rel="noreferrer">CleanShotX</a>
-            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>cleanshot.com</span></div><img class="website-preview-image website-preview-art" src="assets/sites/cleanshotx.png" alt="" loading="lazy" decoding="async" /></div>
-          </div>
-          <div class="tool-item tool-dia">
-            <a href="https://www.diabrowser.com/" target="_blank" rel="noreferrer">Dia</a>
-            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>diabrowser.com</span></div><img class="website-preview-image website-preview-art" src="assets/sites/dia.png" alt="" loading="lazy" decoding="async" /></div>
-          </div>
-          <div class="tool-item tool-dribbble">
-            <a href="https://dribbble.com/" target="_blank" rel="noreferrer">Dribbble</a>
-            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>dribbble.com</span></div><img class="website-preview-image website-preview-art" src="assets/sites/dribbble.png" alt="" loading="lazy" decoding="async" /></div>
-          </div>
-          <div class="tool-item tool-figma">
-            <a href="https://www.figma.com/" target="_blank" rel="noreferrer">Figma</a>
-            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>figma.com</span></div><img class="website-preview-image website-preview-art" src="assets/sites/figma.png" alt="" loading="lazy" decoding="async" /></div>
-          </div>
-          <div class="tool-item tool-klack">
-            <a href="https://tryklack.com/" target="_blank" rel="noreferrer">Klack</a>
-            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>tryklack.com</span></div><img class="website-preview-image website-preview-art" src="assets/sites/klack.png" alt="" loading="lazy" decoding="async" /></div>
-          </div>
-          <div class="tool-item tool-obsidian">
-            <a href="https://obsidian.md/" target="_blank" rel="noreferrer">Obsidian</a>
-            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>obsidian.md</span></div><img class="website-preview-image website-preview-art" src="assets/sites/obsidian.jpeg" alt="" loading="lazy" decoding="async" /></div>
-          </div>
-          <div class="tool-item tool-pinterest">
-            <a href="https://www.pinterest.com/" target="_blank" rel="noreferrer">Pinterest</a>
-            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>pinterest.com</span></div><img class="website-preview-image website-preview-art" src="assets/sites/pinterest.png" alt="" loading="lazy" decoding="async" /></div>
-          </div>
-          <div class="tool-item tool-raycast">
-            <a href="https://www.raycast.com/" target="_blank" rel="noreferrer">Raycast</a>
-            <div class="tool-preview" aria-hidden="true"><div class="window-bar"><i></i><i></i><i></i><span>raycast.com</span></div><img class="website-preview-image website-preview-art" src="assets/sites/raycast.png" alt="" loading="lazy" decoding="async" /></div>
-          </div>
+            <div class="tool-item tool-alcove">
+              <a href="https://tryalcove.com/" target="_blank" rel="noreferrer">Alcove</a>
+              <div class="tool-preview" aria-hidden="true">
+                <div class="window-bar"><i></i><i></i><i></i><span>tryalcove.com</span></div><img
+                  class="website-preview-image website-preview-art" src="assets/sites/alcove.png" alt="" loading="lazy"
+                  decoding="async" />
+              </div>
+            </div>
+            <div class="tool-item tool-anki">
+              <a href="https://apps.ankiweb.net/" target="_blank" rel="noreferrer">Anki</a>
+              <div class="tool-preview" aria-hidden="true">
+                <div class="window-bar"><i></i><i></i><i></i><span>apps.ankiweb.net</span></div><img
+                  class="website-preview-image website-preview-art" src="assets/sites/anki.png" alt="" loading="lazy"
+                  decoding="async" />
+              </div>
+            </div>
+            <div class="tool-item tool-antinote">
+              <a href="https://antinote.io/" target="_blank" rel="noreferrer">Antinote</a>
+              <div class="tool-preview" aria-hidden="true">
+                <div class="window-bar"><i></i><i></i><i></i><span>antinote.io</span></div><img
+                  class="website-preview-image website-preview-art" src="assets/sites/antinote.png" alt=""
+                  loading="lazy" decoding="async" />
+              </div>
+            </div>
+            <div class="tool-item tool-chatgpt">
+              <a href="https://chatgpt.com/" target="_blank" rel="noreferrer">ChatGPT</a>
+              <div class="tool-preview" aria-hidden="true">
+                <div class="window-bar"><i></i><i></i><i></i><span>chatgpt.com</span></div><img
+                  class="website-preview-image website-preview-art" src="assets/sites/chatgpt.png" alt="" loading="lazy"
+                  decoding="async" />
+              </div>
+            </div>
+            <div class="tool-item tool-cleanshotx">
+              <a href="https://cleanshot.com/" target="_blank" rel="noreferrer">CleanShotX</a>
+              <div class="tool-preview" aria-hidden="true">
+                <div class="window-bar"><i></i><i></i><i></i><span>cleanshot.com</span></div><img
+                  class="website-preview-image website-preview-art" src="assets/sites/cleanshotx.png" alt=""
+                  loading="lazy" decoding="async" />
+              </div>
+            </div>
+            <div class="tool-item tool-dia">
+              <a href="https://www.diabrowser.com/" target="_blank" rel="noreferrer">Dia</a>
+              <div class="tool-preview" aria-hidden="true">
+                <div class="window-bar"><i></i><i></i><i></i><span>diabrowser.com</span></div><img
+                  class="website-preview-image website-preview-art" src="assets/sites/dia.png" alt="" loading="lazy"
+                  decoding="async" />
+              </div>
+            </div>
+            <div class="tool-item tool-dribbble">
+              <a href="https://dribbble.com/" target="_blank" rel="noreferrer">Dribbble</a>
+              <div class="tool-preview" aria-hidden="true">
+                <div class="window-bar"><i></i><i></i><i></i><span>dribbble.com</span></div><img
+                  class="website-preview-image website-preview-art" src="assets/sites/dribbble.png" alt=""
+                  loading="lazy" decoding="async" />
+              </div>
+            </div>
+            <div class="tool-item tool-figma">
+              <a href="https://www.figma.com/" target="_blank" rel="noreferrer">Figma</a>
+              <div class="tool-preview" aria-hidden="true">
+                <div class="window-bar"><i></i><i></i><i></i><span>figma.com</span></div><img
+                  class="website-preview-image website-preview-art" src="assets/sites/figma.png" alt="" loading="lazy"
+                  decoding="async" />
+              </div>
+            </div>
+            <div class="tool-item tool-klack">
+              <a href="https://tryklack.com/" target="_blank" rel="noreferrer">Klack</a>
+              <div class="tool-preview" aria-hidden="true">
+                <div class="window-bar"><i></i><i></i><i></i><span>tryklack.com</span></div><img
+                  class="website-preview-image website-preview-art" src="assets/sites/klack.png" alt="" loading="lazy"
+                  decoding="async" />
+              </div>
+            </div>
+            <div class="tool-item tool-obsidian">
+              <a href="https://obsidian.md/" target="_blank" rel="noreferrer">Obsidian</a>
+              <div class="tool-preview" aria-hidden="true">
+                <div class="window-bar"><i></i><i></i><i></i><span>obsidian.md</span></div><img
+                  class="website-preview-image website-preview-art" src="assets/sites/obsidian.jpeg" alt=""
+                  loading="lazy" decoding="async" />
+              </div>
+            </div>
+            <div class="tool-item tool-pinterest">
+              <a href="https://www.pinterest.com/" target="_blank" rel="noreferrer">Pinterest</a>
+              <div class="tool-preview" aria-hidden="true">
+                <div class="window-bar"><i></i><i></i><i></i><span>pinterest.com</span></div><img
+                  class="website-preview-image website-preview-art" src="assets/sites/pinterest.png" alt=""
+                  loading="lazy" decoding="async" />
+              </div>
+            </div>
+            <div class="tool-item tool-raycast">
+              <a href="https://www.raycast.com/" target="_blank" rel="noreferrer">Raycast</a>
+              <div class="tool-preview" aria-hidden="true">
+                <div class="window-bar"><i></i><i></i><i></i><span>raycast.com</span></div><img
+                  class="website-preview-image website-preview-art" src="assets/sites/raycast.png" alt="" loading="lazy"
+                  decoding="async" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -188,787 +295,901 @@
       <nav class="elsewhere" aria-label="Elsewhere">
         <a href="https://github.com/thepeacemonk" target="_blank" rel="noreferrer" aria-label="GitHub">
           <svg viewBox="0 0 24 24" aria-hidden="true" width="1em" height="1em">
-            <path fill="currentColor" d="M16.974 2.31c.696-.237 1.69-.62 2.279.032c.4.444.5 1.188.571 1.755c.08.634.099 1.462-.111 2.282C20.516 7.415 21 8.653 21 10c0 2.042-1.106 3.814-2.743 5.042a9.5 9.5 0 0 1-2.592 1.354c.215.491.335 1.033.335 1.604v3a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-.995c-.955.117-1.756.017-2.438-.272c-.711-.302-1.208-.77-1.58-1.218a10 10 0 0 1-.481-.638c-.145-.206-.255-.367-.37-.516c-.234-.302-.363-.385-.447-.413a1 1 0 0 1 .632-1.897c.666.222 1.1.702 1.397 1.087c.15.195.298.409.423.586c.132.188.254.356.382.51c.253.302.506.522.826.657c.314.134.776.22 1.5.12L8 17.978a4 4 0 0 1 .334-1.582a9.5 9.5 0 0 1-2.59-1.354C4.105 13.815 3 12.043 3 10c0-1.346.483-2.583 1.284-3.62c-.21-.82-.192-1.647-.112-2.282c.074-.59.155-1.295.571-1.757c.59-.653 1.584-.268 2.28-.03c.619.21 1.384.544 2.125 1.044A11.4 11.4 0 0 1 12 3.001c.993 0 1.951.124 2.849.355a9 9 0 0 1 2.125-1.046" />
+            <path fill="currentColor"
+              d="M16.974 2.31c.696-.237 1.69-.62 2.279.032c.4.444.5 1.188.571 1.755c.08.634.099 1.462-.111 2.282C20.516 7.415 21 8.653 21 10c0 2.042-1.106 3.814-2.743 5.042a9.5 9.5 0 0 1-2.592 1.354c.215.491.335 1.033.335 1.604v3a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-.995c-.955.117-1.756.017-2.438-.272c-.711-.302-1.208-.77-1.58-1.218a10 10 0 0 1-.481-.638c-.145-.206-.255-.367-.37-.516c-.234-.302-.363-.385-.447-.413a1 1 0 0 1 .632-1.897c.666.222 1.1.702 1.397 1.087c.15.195.298.409.423.586c.132.188.254.356.382.51c.253.302.506.522.826.657c.314.134.776.22 1.5.12L8 17.978a4 4 0 0 1 .334-1.582a9.5 9.5 0 0 1-2.59-1.354C4.105 13.815 3 12.043 3 10c0-1.346.483-2.583 1.284-3.62c-.21-.82-.192-1.647-.112-2.282c.074-.59.155-1.295.571-1.757c.59-.653 1.584-.268 2.28-.03c.619.21 1.384.544 2.125 1.044A11.4 11.4 0 0 1 12 3.001c.993 0 1.951.124 2.849.355a9 9 0 0 1 2.125-1.046" />
           </svg>
           <span>GitHub</span>
         </a>
         <a href="https://x.com/thepeacemonk" target="_blank" rel="noreferrer" aria-label="X">
           <svg viewBox="0 0 24 24" aria-hidden="true" width="1em" height="1em">
-            <path fill="currentColor" d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584l-6.64 7.584H.47l8.6-9.835L0 1.154h7.594l5.243 6.932zm-1.29 19.49h2.039L6.487 3.24H4.3z" />
+            <path fill="currentColor"
+              d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584l-6.64 7.584H.47l8.6-9.835L0 1.154h7.594l5.243 6.932zm-1.29 19.49h2.039L6.487 3.24H4.3z" />
           </svg>
           <span>X</span>
         </a>
         <a href="https://buymeacoffee.com/peacemonk" target="_blank" rel="noreferrer" aria-label="Buy me a coffee">
           <svg viewBox="0 0 24 24" aria-hidden="true" width="1em" height="1em">
-            <path fill="currentColor" d="M12 8.07v-.01c-.01 0-.03.02-.04.03h.02Zm-.02 12.51h.01s.02-.03.03-.04c-.02 0-.03.02-.05.04Zm.03.12s-.03-.02-.05-.02c.01 0 .03.01.04.02Zm2.25-.66c.23-.21.37-.51.4-.82l.78-8.29c-.35-.12-.7-.2-1.1-.2c-.69 0-1.24.24-1.88.51c-.72.31-1.53.66-2.59.66c-.44 0-.88-.06-1.31-.18l.73 7.5c.03.31.17.61.4.82s.53.33.85.33c0 0 1.04.05 1.38.05c.37 0 1.49-.05 1.49-.05c.31 0 .62-.12.85-.33M12.01 8.05l-.02-.02H12v.02Z" />
-            <path fill="currentColor" d="M18.74 6.79c-.1-.5-.32-.97-.83-1.15c-.16-.06-.35-.08-.48-.2s-.16-.3-.19-.48c-.05-.32-.1-.63-.16-.94c-.05-.27-.09-.57-.21-.82c-.16-.33-.5-.53-.83-.66c-.17-.06-.34-.12-.52-.16c-.83-.22-1.71-.3-2.56-.35c-1.03-.06-2.06-.04-3.08.05c-.76.07-1.57.15-2.29.42c-.27.1-.54.21-.74.42c-.25.25-.33.64-.15.95c.13.22.35.38.58.48c.3.13.61.24.94.3c.9.2 1.82.28 2.74.31c1.01.04 2.03 0 3.04-.1c.25-.03.5-.06.75-.1c.29-.04.48-.43.39-.7c-.1-.32-.38-.44-.7-.39c-.05 0-.09.01-.14.02h-.03c-.11.02-.21.03-.32.04l-.66.06c-.49.03-.99.05-1.49.05c-.49 0-.97-.01-1.46-.05q-.33-.015-.66-.06l-.3-.03h-.1l-.02-.02h-.1l-.6-.12c-.02 0-.04-.02-.05-.03c-.01-.02-.02-.04-.02-.06s0-.04.02-.06c.01-.02.03-.03.05-.03c.17-.04.35-.07.52-.1c.06 0 .12-.02.18-.03c.11 0 .22-.03.33-.04c.95-.1 1.9-.13 2.85-.1c.46.01.92.04 1.39.09l.3.03c.04 0 .08 0 .11.01h.08c.22.04.44.08.66.13c.33.07.75.09.89.45c.05.11.07.24.09.36l.03.15c.08.36.15.72.23 1.08v.08c0 .03-.02.05-.03.07s-.04.04-.06.06c-.02.01-.05.02-.08.03H16l-.05.01c-.15.02-.3.04-.44.05l-.87.09q-.87.075-1.74.09c-.3 0-.59.01-.89.01c-1.18 0-2.36-.07-3.53-.21c-.12-.01-.24-.03-.36-.04c-.02 0-.11-.01-.13-.02c-.08-.01-.16-.02-.24-.04c-.27-.04-.54-.09-.81-.13c-.33-.05-.64-.03-.94.13c-.24.13-.44.34-.56.58c-.13.26-.17.55-.22.83c-.06.28-.15.59-.11.88c.07.63.51 1.14 1.14 1.25a33 33 0 0 0 8.88.37l.58-.06c.06 0 .12 0 .18.02s.11.05.15.09s.08.09.1.15s.03.12.02.18l-.06.58l-.36 3.52c-.13 1.23-.25 2.46-.38 3.7c-.04.35-.07.69-.11 1.04c-.03.34-.04.69-.1 1.03c-.1.53-.46.86-.99.98c-.48.11-.97.17-1.46.17c-.55 0-1.09-.02-1.64-.02c-.58 0-1.3-.05-1.75-.48c-.4-.38-.45-.98-.5-1.49l-.21-2.05l-.4-3.8l-.26-2.46s0-.08-.01-.12c-.03-.29-.24-.58-.57-.57c-.28.01-.6.25-.57.57l.19 1.82l.39 3.77l.33 3.21l.06.62c.12 1.12.98 1.72 2.04 1.89c.62.1 1.25.12 1.88.13c.81.01 1.62.04 2.41-.1c1.17-.22 2.05-1 2.18-2.21c.04-.35.07-.7.11-1.05l.36-3.48l.39-3.79l.18-1.74c0-.09.05-.17.1-.23s.14-.11.22-.12c.34-.07.66-.18.89-.43c.38-.41.46-.94.32-1.47l-.11-.56ZM6.26 7.97s.01 0 .02.02zm11.36.01c-.12.11-.3.17-.48.19c-2.01.3-4.05.45-6.09.38c-1.46-.05-2.9-.21-4.34-.42c-.14-.02-.29-.05-.39-.15c-.06-.06-.08-.14-.1-.23v.01v-.01c-.03-.2.02-.43.05-.6c.04-.22.13-.51.39-.54c.4-.05.87.12 1.27.18c.48.07.96.13 1.45.18c2.07.19 4.17.16 6.23-.12c.38-.05.75-.11 1.12-.18c.33-.06.7-.17.9.17c.14.23.16.55.13.81c0 .12-.06.22-.14.3Z" />
+            <path fill="currentColor"
+              d="M12 8.07v-.01c-.01 0-.03.02-.04.03h.02Zm-.02 12.51h.01s.02-.03.03-.04c-.02 0-.03.02-.05.04Zm.03.12s-.03-.02-.05-.02c.01 0 .03.01.04.02Zm2.25-.66c.23-.21.37-.51.4-.82l.78-8.29c-.35-.12-.7-.2-1.1-.2c-.69 0-1.24.24-1.88.51c-.72.31-1.53.66-2.59.66c-.44 0-.88-.06-1.31-.18l.73 7.5c.03.31.17.61.4.82s.53.33.85.33c0 0 1.04.05 1.38.05c.37 0 1.49-.05 1.49-.05c.31 0 .62-.12.85-.33M12.01 8.05l-.02-.02H12v.02Z" />
+            <path fill="currentColor"
+              d="M18.74 6.79c-.1-.5-.32-.97-.83-1.15c-.16-.06-.35-.08-.48-.2s-.16-.3-.19-.48c-.05-.32-.1-.63-.16-.94c-.05-.27-.09-.57-.21-.82c-.16-.33-.5-.53-.83-.66c-.17-.06-.34-.12-.52-.16c-.83-.22-1.71-.3-2.56-.35c-1.03-.06-2.06-.04-3.08.05c-.76.07-1.57.15-2.29.42c-.27.1-.54.21-.74.42c-.25.25-.33.64-.15.95c.13.22.35.38.58.48c.3.13.61.24.94.3c.9.2 1.82.28 2.74.31c1.01.04 2.03 0 3.04-.1c.25-.03.5-.06.75-.1c.29-.04.48-.43.39-.7c-.1-.32-.38-.44-.7-.39c-.05 0-.09.01-.14.02h-.03c-.11.02-.21.03-.32.04l-.66.06c-.49.03-.99.05-1.49.05c-.49 0-.97-.01-1.46-.05q-.33-.015-.66-.06l-.3-.03h-.1l-.02-.02h-.1l-.6-.12c-.02 0-.04-.02-.05-.03c-.01-.02-.02-.04-.02-.06s0-.04.02-.06c.01-.02.03-.03.05-.03c.17-.04.35-.07.52-.1c.06 0 .12-.02.18-.03c.11 0 .22-.03.33-.04c.95-.1 1.9-.13 2.85-.1c.46.01.92.04 1.39.09l.3.03c.04 0 .08 0 .11.01h.08c.22.04.44.08.66.13c.33.07.75.09.89.45c.05.11.07.24.09.36l.03.15c.08.36.15.72.23 1.08v.08c0 .03-.02.05-.03.07s-.04.04-.06.06c-.02.01-.05.02-.08.03H16l-.05.01c-.15.02-.3.04-.44.05l-.87.09q-.87.075-1.74.09c-.3 0-.59.01-.89.01c-1.18 0-2.36-.07-3.53-.21c-.12-.01-.24-.03-.36-.04c-.02 0-.11-.01-.13-.02c-.08-.01-.16-.02-.24-.04c-.27-.04-.54-.09-.81-.13c-.33-.05-.64-.03-.94.13c-.24.13-.44.34-.56.58c-.13.26-.17.55-.22.83c-.06.28-.15.59-.11.88c.07.63.51 1.14 1.14 1.25a33 33 0 0 0 8.88.37l.58-.06c.06 0 .12 0 .18.02s.11.05.15.09s.08.09.1.15s.03.12.02.18l-.06.58l-.36 3.52c-.13 1.23-.25 2.46-.38 3.7c-.04.35-.07.69-.11 1.04c-.03.34-.04.69-.1 1.03c-.1.53-.46.86-.99.98c-.48.11-.97.17-1.46.17c-.55 0-1.09-.02-1.64-.02c-.58 0-1.3-.05-1.75-.48c-.4-.38-.45-.98-.5-1.49l-.21-2.05l-.4-3.8l-.26-2.46s0-.08-.01-.12c-.03-.29-.24-.58-.57-.57c-.28.01-.6.25-.57.57l.19 1.82l.39 3.77l.33 3.21l.06.62c.12 1.12.98 1.72 2.04 1.89c.62.1 1.25.12 1.88.13c.81.01 1.62.04 2.41-.1c1.17-.22 2.05-1 2.18-2.21c.04-.35.07-.7.11-1.05l.36-3.48l.39-3.79l.18-1.74c0-.09.05-.17.1-.23s.14-.11.22-.12c.34-.07.66-.18.89-.43c.38-.41.46-.94.32-1.47l-.11-.56ZM6.26 7.97s.01 0 .02.02zm11.36.01c-.12.11-.3.17-.48.19c-2.01.3-4.05.45-6.09.38c-1.46-.05-2.9-.21-4.34-.42c-.14-.02-.29-.05-.39-.15c-.06-.06-.08-.14-.1-.23v.01v-.01c-.03-.2.02-.43.05-.6c.04-.22.13-.51.39-.54c.4-.05.87.12 1.27.18c.48.07.96.13 1.45.18c2.07.19 4.17.16 6.23-.12c.38-.05.75-.11 1.12-.18c.33-.06.7-.17.9.17c.14.23.16.55.13.81c0 .12-.06.22-.14.3Z" />
             <path fill="currentColor" d="M6.22 7.77c0-.02.01-.05 0-.05z" />
           </svg>
           <span>BuyMeACoffee</span>
         </a>
         <a href="https://ankiweb.net/shared/by-author/1011095603" target="_blank" rel="noreferrer" aria-label="AnkiWeb">
           <svg viewBox="0 0 24 24" aria-hidden="true" width="1em" height="1em">
-            <path fill="currentColor" d="m15.845 22.627l-.169.131l-.182.091a1.3 1.3 0 0 1-.362.079c-.27.021-.611-.036-.989-.16c-.686-.223-1.537-.67-2.256-.973c-.343-.145-.633-.281-.829-.254c-.197.027-.44.236-.73.467c-.611.486-1.311 1.145-1.91 1.546c-.331.22-.644.368-.91.42q-.196.038-.37.021l-.201-.038l-.196-.082l-.177-.119l-.143-.145a1.3 1.3 0 0 1-.187-.32c-.104-.25-.154-.593-.154-.99c.001-.721.164-1.669.23-2.447c.031-.37.07-.687-.016-.866s-.359-.345-.67-.55c-.65-.431-1.494-.893-2.06-1.34c-.312-.246-.548-.498-.681-.735a1.3 1.3 0 0 1-.134-.345l-.025-.202l.016-.213l.059-.205l.094-.18q.095-.147.246-.277c.207-.175.517-.33.895-.452c.685-.222 1.637-.361 2.397-.539c.362-.084.676-.145.819-.281c.144-.138.217-.45.316-.808c.209-.752.387-1.696.638-2.373c.138-.373.305-.676.489-.874q.137-.147.286-.235l.185-.086l.207-.051l.214-.006l.2.033q.17.045.339.148c.231.143.473.389.706.711c.424.584.85 1.446 1.253 2.114c.192.318.347.598.522.692c.174.094.494.068.865.052c.78-.034 1.734-.157 2.455-.128c.397.017.736.081.983.195q.18.083.31.201l.14.148l.112.181l.072.201l.03.202q.01.173-.036.368c-.063.263-.223.57-.457.891c-.425.583-1.113 1.254-1.623 1.845c-.244.281-.463.514-.498.71c-.035.194.089.49.219.838c.273.731.684 1.601.879 2.295c.108.382.151.725.119.995a1.3 1.3 0 0 1-.095.358l-.098.179zm-1.54-18.929c-.018-.057-.07-.226-.122-.346c-.17-.387-.418-.846-.544-1.216c-.166-.483-.099-.88.102-1.096c.201-.214.592-.308 1.086-.177c.377.1.851.316 1.249.458c.125.044.297.084.354.096c.047-.032.193-.134.291-.221c.316-.282.675-.659.988-.894c.408-.305.807-.366 1.074-.241c.266.124.476.468.504.977c.021.391-.037.909-.049 1.331c-.004.132.011.309.017.366c.046.035.187.142.301.209c.365.213.835.438 1.155.662c.417.294.597.655.56.947c-.035.293-.296.599-.773.782c-.365.141-.875.246-1.28.364c-.126.037-.29.106-.343.129c-.019.056-.077.223-.105.351c-.091.413-.159.93-.274 1.304c-.151.487-.438.77-.727.826s-.661-.098-.983-.494c-.246-.303-.504-.756-.742-1.105a3 3 0 0 0-.229-.287a4 4 0 0 0-.366.009c-.421.042-.933.135-1.324.141c-.51.008-.867-.177-1.011-.435c-.142-.257-.11-.659.167-1.088c.212-.328.563-.713.822-1.047c.08-.104.171-.256.202-.305" />
+            <path fill="currentColor"
+              d="m15.845 22.627l-.169.131l-.182.091a1.3 1.3 0 0 1-.362.079c-.27.021-.611-.036-.989-.16c-.686-.223-1.537-.67-2.256-.973c-.343-.145-.633-.281-.829-.254c-.197.027-.44.236-.73.467c-.611.486-1.311 1.145-1.91 1.546c-.331.22-.644.368-.91.42q-.196.038-.37.021l-.201-.038l-.196-.082l-.177-.119l-.143-.145a1.3 1.3 0 0 1-.187-.32c-.104-.25-.154-.593-.154-.99c.001-.721.164-1.669.23-2.447c.031-.37.07-.687-.016-.866s-.359-.345-.67-.55c-.65-.431-1.494-.893-2.06-1.34c-.312-.246-.548-.498-.681-.735a1.3 1.3 0 0 1-.134-.345l-.025-.202l.016-.213l.059-.205l.094-.18q.095-.147.246-.277c.207-.175.517-.33.895-.452c.685-.222 1.637-.361 2.397-.539c.362-.084.676-.145.819-.281c.144-.138.217-.45.316-.808c.209-.752.387-1.696.638-2.373c.138-.373.305-.676.489-.874q.137-.147.286-.235l.185-.086l.207-.051l.214-.006l.2.033q.17.045.339.148c.231.143.473.389.706.711c.424.584.85 1.446 1.253 2.114c.192.318.347.598.522.692c.174.094.494.068.865.052c.78-.034 1.734-.157 2.455-.128c.397.017.736.081.983.195q.18.083.31.201l.14.148l.112.181l.072.201l.03.202q.01.173-.036.368c-.063.263-.223.57-.457.891c-.425.583-1.113 1.254-1.623 1.845c-.244.281-.463.514-.498.71c-.035.194.089.49.219.838c.273.731.684 1.601.879 2.295c.108.382.151.725.119.995a1.3 1.3 0 0 1-.095.358l-.098.179zm-1.54-18.929c-.018-.057-.07-.226-.122-.346c-.17-.387-.418-.846-.544-1.216c-.166-.483-.099-.88.102-1.096c.201-.214.592-.308 1.086-.177c.377.1.851.316 1.249.458c.125.044.297.084.354.096c.047-.032.193-.134.291-.221c.316-.282.675-.659.988-.894c.408-.305.807-.366 1.074-.241c.266.124.476.468.504.977c.021.391-.037.909-.049 1.331c-.004.132.011.309.017.366c.046.035.187.142.301.209c.365.213.835.438 1.155.662c.417.294.597.655.56.947c-.035.293-.296.599-.773.782c-.365.141-.875.246-1.28.364c-.126.037-.29.106-.343.129c-.019.056-.077.223-.105.351c-.091.413-.159.93-.274 1.304c-.151.487-.438.77-.727.826s-.661-.098-.983-.494c-.246-.303-.504-.756-.742-1.105a3 3 0 0 0-.229-.287a4 4 0 0 0-.366.009c-.421.042-.933.135-1.324.141c-.51.008-.867-.177-1.011-.435c-.142-.257-.11-.659.167-1.088c.212-.328.563-.713.822-1.047c.08-.104.171-.256.202-.305" />
           </svg>
           <span>AnkiWeb</span>
         </a>
       </nav>
-      </div>
+    </div>
 
-      <section class="collection-shell" id="collection-view" hidden aria-labelledby="collection-title">
-        <header class="collection-header">
-          <a class="collection-back" href="#">Back to home</a>
-          <div class="collection-title-row">
-            <span class="collection-qifrey-motion"></span>
-            <h1 class="collection-title" id="collection-title" tabindex="-1"></h1>
-          </div>
-        </header>
-        <div class="collection-content" aria-live="polite"></div>
-      </section>
-    </main>
-    <section class="studyhub-coming-soon" id="studyhub-coming-soon" hidden role="dialog" aria-modal="true" aria-labelledby="studyhub-coming-soon-copy">
-      <div class="coming-soon-qifrey-motion"></div>
-      <p id="studyhub-coming-soon-copy">Coming soon, by a student, for the students</p>
-      <button class="studyhub-coming-soon-close" type="button">Back to My apps</button>
+    <section class="collection-shell" id="collection-view" hidden aria-labelledby="collection-title">
+      <header class="collection-header">
+        <a class="collection-back" href="#">Back to home</a>
+        <div class="collection-title-row">
+          <span class="collection-qifrey-motion"></span>
+          <h1 class="collection-title" id="collection-title" tabindex="-1"></h1>
+        </div>
+      </header>
+      <div class="collection-content" aria-live="polite"></div>
     </section>
-    <dialog class="note-modal" aria-labelledby="note-modal-title">
-      <button class="note-modal-close" type="button" aria-label="Close article">
-        <svg class="note-modal-close-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M18 6 6 18" />
-          <path d="m6 6 12 12" />
-        </svg>
-      </button>
-      <div class="note-modal-scroll" id="note-modal-scroll">
-        <div class="note-modal-media"></div>
-        <p class="note-modal-meta"></p>
-        <h2 id="note-modal-title"></h2>
-        <div class="note-modal-stars" hidden></div>
-        <div class="note-modal-review"></div>
+  </main>
+  <section class="studyhub-coming-soon" id="studyhub-coming-soon" hidden role="dialog" aria-modal="true"
+    aria-labelledby="studyhub-coming-soon-copy">
+    <div class="coming-soon-qifrey-motion"></div>
+    <p id="studyhub-coming-soon-copy">Coming soon, by a student, for the students</p>
+    <button class="studyhub-coming-soon-close" type="button">Back to My apps</button>
+  </section>
+  <dialog class="pong-dialog" id="pong-dialog" aria-labelledby="pong-title">
+    <div class="pong-frame">
+      <span class="pong-frame-corner" aria-hidden="true"><svg viewBox="0 0 30 30">
+          <path d="M1.25 28.75V24A22.75 22.75 0 0 1 24 1.25H28.75" />
+        </svg></span><span class="pong-frame-corner" aria-hidden="true"><svg viewBox="0 0 30 30">
+          <path d="M1.25 28.75V24A22.75 22.75 0 0 1 24 1.25H28.75" />
+        </svg></span><span class="pong-frame-corner" aria-hidden="true"><svg viewBox="0 0 30 30">
+          <path d="M1.25 28.75V24A22.75 22.75 0 0 1 24 1.25H28.75" />
+        </svg></span><span class="pong-frame-corner" aria-hidden="true"><svg viewBox="0 0 30 30">
+          <path d="M1.25 28.75V24A22.75 22.75 0 0 1 24 1.25H28.75" />
+        </svg></span>
+      <div class="pong-content">
+        <div class="pong-heading">
+          <h2 id="pong-title">Truly difficult?</h2><button class="pong-close" type="button" aria-label="Close Pong"><svg
+              viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" aria-hidden="true">
+              <path d="m6 6 12 12M18 6 6 18" />
+            </svg></button>
+        </div>
+        <div class="pong-levels"></div>
+        <div class="pong-score" aria-label="Current match score"><span>Bot <strong id="pong-bot">0</strong></span><span
+            class="pong-score-rule" aria-hidden="true">:</span><span><strong id="pong-you">0</strong> You</span></div>
+        <div class="pong-court">
+          <canvas class="pong-canvas" width="720" height="400" tabindex="0"
+            aria-label="Pong court. Use up and down arrows, W and S, or move your mouse or finger to control your paddle on the right."></canvas>
+          <div class="pong-overlay" hidden>
+            <p class="pong-overlay-title" role="status" aria-live="polite"></p>
+          </div>
+          <span class="pong-side-hint" hidden>You</span>
+          <span class="pong-feedback" aria-hidden="true"></span>
+          <svg class="pong-paddle-avatar" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path class="pong-paddle-avatar-path" d="" />
+          </svg>
+        </div>
+        <p class="pong-comment" role="status" aria-live="polite"></p>
+        <div class="pong-actions">
+          <button class="pong-play" type="button" aria-keyshortcuts="Space">Play</button>
+          <div class="pong-tools">
+            <div class="pong-dock-menu" role="toolbar" aria-label="Game controls">
+              <div class="pong-dock-section pong-control-mode" role="radiogroup" aria-label="Game control method">
+                <button type="button" role="radio" aria-checked="true" data-mode="cursor" class="pong-dock-btn pong-mode-btn is-active" aria-label="Play with cursor" aria-keyshortcuts="c" data-tip="Cursor">
+                  <span class="pong-mode-glyph">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-mouse-pointer-2">
+                      <path d="M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z" />
+                    </svg>
+                  </span>
+                  <span class="pong-mode-dot" aria-hidden="true"></span>
+                </button>
+                <button type="button" role="radio" aria-checked="false" data-mode="keyboard" class="pong-dock-btn pong-mode-btn" aria-label="Play with keyboard" aria-keyshortcuts="k" data-tip="Keyboard">
+                  <span class="pong-mode-glyph">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-keyboard">
+                      <rect width="20" height="16" x="2" y="4" rx="2" />
+                      <path d="M10 8h.01" />
+                      <path d="M12 12h.01" />
+                      <path d="M14 8h.01" />
+                      <path d="M16 12h.01" />
+                      <path d="M18 8h.01" />
+                      <path d="M6 8h.01" />
+                      <path d="M7 16h10" />
+                      <path d="M8 12h.01" />
+                    </svg>
+                  </span>
+                  <span class="pong-mode-dot" aria-hidden="true"></span>
+                </button>
+              </div>
+              <div class="pong-dock-sep" aria-hidden="true"></div>
+              <div class="pong-dock-section pong-dock-actions">
+                <button class="pong-dock-btn pong-sound" type="button" aria-label="Mute game sounds" aria-pressed="false" data-tip="Sound">
+                  <span class="pong-mode-glyph">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-volume-2">
+                      <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" />
+                      <g class="pong-sound-waves">
+                        <path d="M16 9a5 5 0 0 1 0 6" />
+                        <path d="M19.364 18.364a9 9 0 0 0 0-12.728" />
+                      </g>
+                      <g class="pong-sound-muted">
+                        <path d="m16.5 14.5 5-5" />
+                        <path d="m16.5 9.5 5 5" />
+                      </g>
+                    </svg>
+                  </span>
+                </button>
+                <button class="pong-dock-btn pong-history-open" type="button" aria-label="Match history" aria-keyshortcuts="s" aria-haspopup="dialog" aria-controls="pong-history" data-tip="Stats">
+                  <span class="pong-mode-glyph">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-chart-no-axes-column">
+                      <path d="M5 21v-6" />
+                      <path d="M12 21V3" />
+                      <path d="M19 21V9" />
+                    </svg>
+                  </span>
+                </button>
+              </div>
+              <span class="pong-mode-tip" aria-hidden="true"><span>Cursor</span></span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="note-modal-app-scrollbar" role="scrollbar" aria-controls="note-modal-scroll" aria-label="Article scroll position" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0" hidden>
-        <span class="note-modal-app-scrollbar-thumb"></span>
-      </div>
-    </dialog>
-    <script>
-      const sectionLinks = document.querySelectorAll('.section-link');
-      const collectionShell = document.querySelector('.collection-shell');
-      const collectionContent = collectionShell.querySelector('.collection-content');
-      const collectionTitle = collectionShell.querySelector('.collection-title');
-      const collectionBack = collectionShell.querySelector('.collection-back');
-      const qifreyCredit = document.querySelector('.art-credit');
-      const qifreyHome = { parent: qifreyCredit.parentNode, nextSibling: qifreyCredit.nextSibling };
-      const qifreyHost = collectionShell.querySelector('.collection-qifrey-motion');
-      const studyhubLaunch = document.querySelector('.studyhub-launch');
-      const studyhubComingSoon = document.querySelector('.studyhub-coming-soon');
-      const studyhubComingSoonClose = document.querySelector('.studyhub-coming-soon-close');
-      const studyhubQifreyHost = studyhubComingSoon.querySelector('.coming-soon-qifrey-motion');
-      const collectionSections = {
-        projects: { title: 'My projects', source: document.querySelector('#project-list') },
-        tools: { title: 'My tools', source: document.querySelector('#tool-list') },
-        notes: { title: 'My notes', source: document.querySelector('#notes-content') },
-      };
-      const sourceHomes = Object.fromEntries(Object.entries(collectionSections).map(([key, { source }]) => [key, {
-        parent: source.parentNode,
-        nextSibling: source.nextSibling,
-      }]));
-      let activeCollection = null;
+    </div>
+    <canvas class="pong-gooey" aria-hidden="true"></canvas>
+    <div class="pong-flight" aria-hidden="true"></div>
+  </dialog>
+  <dialog class="pong-history-dialog" id="pong-history" aria-labelledby="pong-history-title">
+    <div class="pong-history-card"></div>
+  </dialog>
+  <dialog class="note-modal" aria-labelledby="note-modal-title">
+    <button class="note-modal-close" type="button" aria-label="Close article">
+      <svg class="note-modal-close-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 6 6 18" />
+        <path d="m6 6 12 12" />
+      </svg>
+    </button>
+    <div class="note-modal-scroll" id="note-modal-scroll">
+      <div class="note-modal-media"></div>
+      <p class="note-modal-meta"></p>
+      <h2 id="note-modal-title"></h2>
+      <div class="note-modal-stars" hidden></div>
+      <div class="note-modal-review"></div>
+    </div>
+    <div class="note-modal-app-scrollbar" role="scrollbar" aria-controls="note-modal-scroll"
+      aria-label="Article scroll position" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="0"
+      aria-valuenow="0" tabindex="0" hidden>
+      <span class="note-modal-app-scrollbar-thumb"></span>
+    </div>
+  </dialog>
+  <script>
+    const sectionLinks = document.querySelectorAll('.section-link');
+    const collectionShell = document.querySelector('.collection-shell');
+    const collectionContent = collectionShell.querySelector('.collection-content');
+    const collectionTitle = collectionShell.querySelector('.collection-title');
+    const collectionBack = collectionShell.querySelector('.collection-back');
+    const qifreyCredit = document.querySelector('.art-credit');
+    const qifreyHome = { parent: qifreyCredit.parentNode, nextSibling: qifreyCredit.nextSibling };
+    const qifreyHost = collectionShell.querySelector('.collection-qifrey-motion');
+    const studyhubLaunch = document.querySelector('.studyhub-launch');
+    const studyhubComingSoon = document.querySelector('.studyhub-coming-soon');
+    const studyhubComingSoonClose = document.querySelector('.studyhub-coming-soon-close');
+    const studyhubQifreyHost = studyhubComingSoon.querySelector('.coming-soon-qifrey-motion');
+    const collectionSections = {
+      projects: { title: 'My projects', source: document.querySelector('#project-list') },
+      tools: { title: 'My tools', source: document.querySelector('#tool-list') },
+      notes: { title: 'My notes', source: document.querySelector('#notes-content') },
+    };
+    const sourceHomes = Object.fromEntries(Object.entries(collectionSections).map(([key, { source }]) => [key, {
+      parent: source.parentNode,
+      nextSibling: source.nextSibling,
+    }]));
+    let activeCollection = null;
 
-      const openStudyHubComingSoon = () => {
-        if (activeCollection !== 'projects' || !studyhubComingSoon.hidden) return;
-        const fromRect = qifreyCredit.getBoundingClientRect();
-        studyhubComingSoon.hidden = false;
-        collectionShell.inert = true;
-        document.body.classList.add('is-studyhub-coming-soon-open');
-        moveQifrey(studyhubQifreyHost, { fromRect, animate: true });
-        requestAnimationFrame(() => studyhubComingSoonClose.focus({ preventScroll: true }));
-      };
+    const openStudyHubComingSoon = () => {
+      if (activeCollection !== 'projects' || !studyhubComingSoon.hidden) return;
+      const fromRect = qifreyCredit.getBoundingClientRect();
+      studyhubComingSoon.hidden = false;
+      collectionShell.inert = true;
+      document.body.classList.add('is-studyhub-coming-soon-open');
+      moveQifrey(studyhubQifreyHost, { fromRect, animate: true });
+      requestAnimationFrame(() => studyhubComingSoonClose.focus({ preventScroll: true }));
+    };
 
-      const closeStudyHubComingSoon = ({ returnFocus = true, animate = true } = {}) => {
-        if (studyhubComingSoon.hidden) return;
-        const fromRect = qifreyCredit.getBoundingClientRect();
-        document.body.classList.remove('is-studyhub-coming-soon-open');
-        studyhubComingSoon.hidden = true;
-        collectionShell.inert = false;
-        if (activeCollection) moveQifrey(qifreyHost, { fromRect, animate });
-        if (returnFocus) requestAnimationFrame(() => studyhubLaunch.focus({ preventScroll: true }));
-      };
+    const closeStudyHubComingSoon = ({ returnFocus = true, animate = true } = {}) => {
+      if (studyhubComingSoon.hidden) return;
+      const fromRect = qifreyCredit.getBoundingClientRect();
+      document.body.classList.remove('is-studyhub-coming-soon-open');
+      studyhubComingSoon.hidden = true;
+      collectionShell.inert = false;
+      if (activeCollection) moveQifrey(qifreyHost, { fromRect, animate });
+      if (returnFocus) requestAnimationFrame(() => studyhubLaunch.focus({ preventScroll: true }));
+    };
 
-      studyhubLaunch.addEventListener('click', openStudyHubComingSoon);
-      studyhubComingSoonClose.addEventListener('click', () => closeStudyHubComingSoon());
-      studyhubComingSoon.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') closeStudyHubComingSoon();
-      });
+    studyhubLaunch.addEventListener('click', openStudyHubComingSoon);
+    studyhubComingSoonClose.addEventListener('click', () => closeStudyHubComingSoon());
+    studyhubComingSoon.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeStudyHubComingSoon();
+    });
 
-      const moveQifrey = (target, { fromRect = qifreyCredit.getBoundingClientRect(), animate = true } = {}) => {
-        target.insertBefore(qifreyCredit, target === qifreyHome.parent ? qifreyHome.nextSibling : null);
-        const toRect = qifreyCredit.getBoundingClientRect();
-        if (!animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !fromRect.width || !toRect.width) {
-          qifreyCredit.style.removeProperty('transform');
-          qifreyCredit.style.removeProperty('transform-origin');
-          qifreyCredit.style.removeProperty('transition');
-          return;
-        }
-
-        const offsetX = fromRect.left - toRect.left;
-        const offsetY = fromRect.top - toRect.top;
-        const scaleX = fromRect.width / toRect.width;
-        const scaleY = fromRect.height / toRect.height;
-        qifreyCredit.style.transition = 'none';
-        qifreyCredit.style.transformOrigin = 'top left';
-        qifreyCredit.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scaleX}, ${scaleY})`;
-        void qifreyCredit.offsetWidth;
-        requestAnimationFrame(() => {
-          qifreyCredit.style.transition = 'transform .52s cubic-bezier(.16, 1, .3, 1)';
-          qifreyCredit.style.transform = '';
-        });
-      };
-
-      qifreyCredit.addEventListener('transitionend', (event) => {
-        if (event.propertyName !== 'transform') return;
+    const moveQifrey = (target, { fromRect = qifreyCredit.getBoundingClientRect(), animate = true } = {}) => {
+      target.insertBefore(qifreyCredit, target === qifreyHome.parent ? qifreyHome.nextSibling : null);
+      const toRect = qifreyCredit.getBoundingClientRect();
+      if (!animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !fromRect.width || !toRect.width) {
         qifreyCredit.style.removeProperty('transform');
         qifreyCredit.style.removeProperty('transform-origin');
         qifreyCredit.style.removeProperty('transition');
+        return;
+      }
+
+      const offsetX = fromRect.left - toRect.left;
+      const offsetY = fromRect.top - toRect.top;
+      const scaleX = fromRect.width / toRect.width;
+      const scaleY = fromRect.height / toRect.height;
+      qifreyCredit.style.transition = 'none';
+      qifreyCredit.style.transformOrigin = 'top left';
+      qifreyCredit.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scaleX}, ${scaleY})`;
+      void qifreyCredit.offsetWidth;
+      requestAnimationFrame(() => {
+        qifreyCredit.style.transition = 'transform .52s cubic-bezier(.16, 1, .3, 1)';
+        qifreyCredit.style.transform = '';
       });
+    };
 
-      const sectionFromLocation = () => {
-        const section = location.hash.slice(1);
-        return Object.prototype.hasOwnProperty.call(collectionSections, section) ? section : null;
-      };
+    qifreyCredit.addEventListener('transitionend', (event) => {
+      if (event.propertyName !== 'transform') return;
+      qifreyCredit.style.removeProperty('transform');
+      qifreyCredit.style.removeProperty('transform-origin');
+      qifreyCredit.style.removeProperty('transition');
+    });
 
-      const restoreCollection = () => {
-        if (!activeCollection) return;
-        const { source } = collectionSections[activeCollection];
-        const { parent, nextSibling } = sourceHomes[activeCollection];
-        source.classList.remove('collection-list');
-        source.hidden = true;
-        parent.insertBefore(source, nextSibling);
-        activeCollection = null;
-      };
+    const sectionFromLocation = () => {
+      const section = location.hash.slice(1);
+      return Object.prototype.hasOwnProperty.call(collectionSections, section) ? section : null;
+    };
 
-      const showCollection = (key, { focus = false, animate = true } = {}) => {
-        if (!studyhubComingSoon.hidden && key !== 'projects') closeStudyHubComingSoon({ returnFocus: false, animate });
-        if (key === activeCollection) {
-          if (focus && key) requestAnimationFrame(() => collectionTitle.focus({ preventScroll: true }));
-          return;
-        }
-        if (!key) {
-          const wasCollectionOpen = Boolean(activeCollection);
-          if (wasCollectionOpen) {
-            const fromRect = qifreyCredit.getBoundingClientRect();
-            document.body.classList.remove('is-collection-open');
-            moveQifrey(qifreyHome.parent, { fromRect, animate });
-          }
-          restoreCollection();
-          collectionShell.hidden = true;
+    const restoreCollection = () => {
+      if (!activeCollection) return;
+      const { source } = collectionSections[activeCollection];
+      const { parent, nextSibling } = sourceHomes[activeCollection];
+      source.classList.remove('collection-list');
+      source.hidden = true;
+      parent.insertBefore(source, nextSibling);
+      activeCollection = null;
+    };
+
+    const showCollection = (key, { focus = false, animate = true } = {}) => {
+      if (!studyhubComingSoon.hidden && key !== 'projects') closeStudyHubComingSoon({ returnFocus: false, animate });
+      if (key === activeCollection) {
+        if (focus && key) requestAnimationFrame(() => collectionTitle.focus({ preventScroll: true }));
+        return;
+      }
+      if (!key) {
+        const wasCollectionOpen = Boolean(activeCollection);
+        if (wasCollectionOpen) {
+          const fromRect = qifreyCredit.getBoundingClientRect();
           document.body.classList.remove('is-collection-open');
-          document.body.classList.remove('is-home-returning');
-          if (wasCollectionOpen && animate) {
-            void document.body.offsetWidth;
-            document.body.classList.add('is-home-returning');
-          }
-          document.title = 'peace';
-          return;
+          moveQifrey(qifreyHome.parent, { fromRect, animate });
         }
-        const enteringFromHome = !activeCollection;
-        const qifreyStart = enteringFromHome ? qifreyCredit.getBoundingClientRect() : null;
-        if (activeCollection !== key) restoreCollection();
-        const { title, source } = collectionSections[key];
-        activeCollection = key;
-        collectionTitle.textContent = title;
-        source.classList.add('collection-list');
-        source.hidden = false;
-        collectionContent.replaceChildren(source);
-        collectionShell.hidden = false;
-        document.body.classList.add('is-collection-open');
-        if (enteringFromHome) moveQifrey(qifreyHost, { fromRect: qifreyStart, animate });
-        collectionShell.classList.remove('is-collection-arriving');
-        void collectionShell.offsetWidth;
-        if (animate) collectionShell.classList.add('is-collection-arriving');
-        document.title = `${title} · peace`;
-        if (focus) requestAnimationFrame(() => collectionTitle.focus({ preventScroll: true }));
+        restoreCollection();
+        collectionShell.hidden = true;
+        document.body.classList.remove('is-collection-open');
+        document.body.classList.remove('is-home-returning');
+        if (wasCollectionOpen && animate) {
+          void document.body.offsetWidth;
+          document.body.classList.add('is-home-returning');
+        }
+        document.title = 'peace';
+        return;
+      }
+      const enteringFromHome = !activeCollection;
+      const qifreyStart = enteringFromHome ? qifreyCredit.getBoundingClientRect() : null;
+      if (activeCollection !== key) restoreCollection();
+      const { title, source } = collectionSections[key];
+      activeCollection = key;
+      collectionTitle.textContent = title;
+      source.classList.add('collection-list');
+      source.hidden = false;
+      collectionContent.replaceChildren(source);
+      collectionShell.hidden = false;
+      document.body.classList.add('is-collection-open');
+      if (enteringFromHome) moveQifrey(qifreyHost, { fromRect: qifreyStart, animate });
+      collectionShell.classList.remove('is-collection-arriving');
+      void collectionShell.offsetWidth;
+      if (animate) collectionShell.classList.add('is-collection-arriving');
+      document.title = `${title} · peace`;
+      if (focus) requestAnimationFrame(() => collectionTitle.focus({ preventScroll: true }));
+    };
+
+    let pageTransition = null;
+    let pendingPage = null;
+    let navigationVersion = 0;
+    const navigateCollection = (key, { focus = false, animate = true } = {}) => {
+      if (!animate) { showCollection(key, { focus, animate: false }); return; }
+      if (pageTransition && key === pendingPage) return;
+      if (!pageTransition && key === activeCollection) { showCollection(key, { focus }); return; }
+      const version = ++navigationVersion;
+      pageTransition?.skipTransition();
+      pendingPage = key;
+      const smooth = Boolean(document.startViewTransition) && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const render = () => {
+        if (version !== navigationVersion) return;
+        window.dispatchEvent(new CustomEvent('peace:pagechange', { detail: { page: key || 'home' } }));
+        showCollection(key, { focus, animate: !smooth });
       };
-
-      let pageTransition = null;
-      let pendingPage = null;
-      let navigationVersion = 0;
-      const navigateCollection = (key, { focus = false, animate = true } = {}) => {
-        if (!animate) { showCollection(key, { focus, animate: false }); return; }
-        if (pageTransition && key === pendingPage) return;
-        if (!pageTransition && key === activeCollection) { showCollection(key, { focus }); return; }
-        const version = ++navigationVersion;
-        pageTransition?.skipTransition();
-        pendingPage = key;
-        const smooth = Boolean(document.startViewTransition) && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const render = () => {
-          if (version !== navigationVersion) return;
-          window.dispatchEvent(new CustomEvent('peace:pagechange', { detail: { page: key || 'home' } }));
-          showCollection(key, { focus, animate: !smooth });
-        };
-        if (!smooth) { render(); return; }
-        document.body.classList.add('is-page-transitioning');
-        const transition = document.startViewTransition(render);
-        pageTransition = transition;
-        transition.finished.catch(() => {}).finally(() => {
-          if (pageTransition !== transition) return;
-          pageTransition = null;
-          document.body.classList.remove('is-page-transitioning');
-        });
-      };
-
-      const syncCollectionFromLocation = ({ focus = false, animate = true } = {}) => navigateCollection(sectionFromLocation(), { focus, animate });
-
-      sectionLinks.forEach((link) => {
-        link.addEventListener('click', (event) => {
-          if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0) return;
-          event.preventDefault();
-          const key = link.dataset.section;
-          history.pushState({ peaceSection: key }, '', `#${key}`);
-          navigateCollection(key, { focus: true, animate: true });
-        });
+      if (!smooth) { render(); return; }
+      document.body.classList.add('is-page-transitioning');
+      const transition = document.startViewTransition(render);
+      pageTransition = transition;
+      transition.finished.catch(() => { }).finally(() => {
+        if (pageTransition !== transition) return;
+        pageTransition = null;
+        document.body.classList.remove('is-page-transitioning');
       });
+    };
 
-      collectionBack.addEventListener('click', (event) => {
+    const syncCollectionFromLocation = ({ focus = false, animate = true } = {}) => navigateCollection(sectionFromLocation(), { focus, animate });
+
+    sectionLinks.forEach((link) => {
+      link.addEventListener('click', (event) => {
         if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0) return;
         event.preventDefault();
-        if (history.state?.peaceSection) history.back();
-        else {
-          history.replaceState(null, '', location.pathname + location.search);
-          navigateCollection(null, { animate: true });
-        }
+        const key = link.dataset.section;
+        history.pushState({ peaceSection: key }, '', `#${key}`);
+        navigateCollection(key, { focus: true, animate: true });
       });
+    });
 
-      window.addEventListener('popstate', () => syncCollectionFromLocation({ animate: true }));
-      window.addEventListener('hashchange', () => syncCollectionFromLocation({ animate: true }));
-      document.querySelector('.home-content').addEventListener('animationend', () => document.body.classList.remove('is-home-returning'));
-      syncCollectionFromLocation({ animate: false });
+    collectionBack.addEventListener('click', (event) => {
+      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0) return;
+      event.preventDefault();
+      if (history.state?.peaceSection) history.back();
+      else {
+        history.replaceState(null, '', location.pathname + location.search);
+        navigateCollection(null, { animate: true });
+      }
+    });
 
-      const noteModal = document.querySelector('.note-modal');
-      const noteModalScroll = noteModal.querySelector('.note-modal-scroll');
-      const noteModalAppScrollbar = noteModal.querySelector('.note-modal-app-scrollbar');
-      const noteModalAppScrollbarThumb = noteModal.querySelector('.note-modal-app-scrollbar-thumb');
-      const noteModalMedia = noteModal.querySelector('.note-modal-media');
-      const noteModalMeta = noteModal.querySelector('.note-modal-meta');
-      const noteModalTitle = noteModal.querySelector('#note-modal-title');
-      const noteModalStars = noteModal.querySelector('.note-modal-stars');
-      const noteModalReview = noteModal.querySelector('.note-modal-review');
-      let notePageScroll = null;
-      const lockNoteBackground = () => {
-        if (notePageScroll) return;
-        notePageScroll = { x: window.scrollX, y: window.scrollY };
-        document.body.style.setProperty('--note-page-width', `${document.documentElement.clientWidth}px`);
-        document.body.style.setProperty('--note-scroll-top', `${-notePageScroll.y}px`);
-        document.documentElement.classList.add('is-note-modal-open');
-        document.body.classList.add('is-note-modal-open');
-      };
-      const unlockNoteBackground = () => {
-        if (!notePageScroll) return;
-        const { x, y } = notePageScroll;
-        notePageScroll = null;
-        document.documentElement.classList.remove('is-note-modal-open');
-        document.body.classList.remove('is-note-modal-open');
-        document.body.style.removeProperty('--note-page-width');
-        document.body.style.removeProperty('--note-scroll-top');
-        window.scrollTo(x, y);
-      };
-      const closeNoteModal = noteModal.querySelector('.note-modal-close');
-      const notesCategories = document.querySelector('.notes-categories');
-      let activeNotePreview = null;
-      let isDraggingNoteModalScrollbar = false;
+    window.addEventListener('popstate', () => syncCollectionFromLocation({ animate: true }));
+    window.addEventListener('hashchange', () => syncCollectionFromLocation({ animate: true }));
+    document.querySelector('.home-content').addEventListener('animationend', () => document.body.classList.remove('is-home-returning'));
+    syncCollectionFromLocation({ animate: false });
 
-      const updateNoteModalScrollbar = () => {
-        const maxScroll = Math.max(0, noteModalScroll.scrollHeight - noteModalScroll.clientHeight);
-        const isScrollable = maxScroll > 1;
-        noteModalAppScrollbar.hidden = !isScrollable;
-        if (!isScrollable) return;
+    const noteModal = document.querySelector('.note-modal');
+    const noteModalScroll = noteModal.querySelector('.note-modal-scroll');
+    const noteModalAppScrollbar = noteModal.querySelector('.note-modal-app-scrollbar');
+    const noteModalAppScrollbarThumb = noteModal.querySelector('.note-modal-app-scrollbar-thumb');
+    const noteModalMedia = noteModal.querySelector('.note-modal-media');
+    const noteModalMeta = noteModal.querySelector('.note-modal-meta');
+    const noteModalTitle = noteModal.querySelector('#note-modal-title');
+    const noteModalStars = noteModal.querySelector('.note-modal-stars');
+    const noteModalReview = noteModal.querySelector('.note-modal-review');
+    let notePageScroll = null;
+    const lockNoteBackground = () => {
+      if (notePageScroll) return;
+      notePageScroll = { x: window.scrollX, y: window.scrollY };
+      document.body.style.setProperty('--note-page-width', `${document.documentElement.clientWidth}px`);
+      document.body.style.setProperty('--note-scroll-top', `${-notePageScroll.y}px`);
+      document.documentElement.classList.add('is-note-modal-open');
+      document.body.classList.add('is-note-modal-open');
+    };
+    const unlockNoteBackground = () => {
+      if (!notePageScroll) return;
+      const { x, y } = notePageScroll;
+      notePageScroll = null;
+      document.documentElement.classList.remove('is-note-modal-open');
+      document.body.classList.remove('is-note-modal-open');
+      document.body.style.removeProperty('--note-page-width');
+      document.body.style.removeProperty('--note-scroll-top');
+      window.scrollTo(x, y);
+    };
+    const closeNoteModal = noteModal.querySelector('.note-modal-close');
+    const notesCategories = document.querySelector('.notes-categories');
+    let activeNotePreview = null;
+    let isDraggingNoteModalScrollbar = false;
 
-        const trackHeight = noteModalAppScrollbar.clientHeight;
-        const thumbHeight = Math.max(18, trackHeight * (noteModalScroll.clientHeight / noteModalScroll.scrollHeight));
-        const maxThumbOffset = Math.max(0, trackHeight - thumbHeight);
-        const thumbOffset = maxScroll ? maxThumbOffset * (noteModalScroll.scrollTop / maxScroll) : 0;
-        const progress = maxScroll ? Math.round((noteModalScroll.scrollTop / maxScroll) * 100) : 0;
+    const updateNoteModalScrollbar = () => {
+      const maxScroll = Math.max(0, noteModalScroll.scrollHeight - noteModalScroll.clientHeight);
+      const isScrollable = maxScroll > 1;
+      noteModalAppScrollbar.hidden = !isScrollable;
+      if (!isScrollable) return;
 
-        noteModalAppScrollbarThumb.style.height = `${thumbHeight}px`;
-        noteModalAppScrollbarThumb.style.transform = `translateY(${thumbOffset}px)`;
-        noteModalAppScrollbar.setAttribute('aria-valuemax', String(Math.round(maxScroll)));
-        noteModalAppScrollbar.setAttribute('aria-valuenow', String(Math.round(noteModalScroll.scrollTop)));
-        noteModalAppScrollbar.setAttribute('aria-valuetext', `${progress}% through article, ${100 - progress}% remaining`);
-      };
+      const trackHeight = noteModalAppScrollbar.clientHeight;
+      const thumbHeight = Math.max(18, trackHeight * (noteModalScroll.clientHeight / noteModalScroll.scrollHeight));
+      const maxThumbOffset = Math.max(0, trackHeight - thumbHeight);
+      const thumbOffset = maxScroll ? maxThumbOffset * (noteModalScroll.scrollTop / maxScroll) : 0;
+      const progress = maxScroll ? Math.round((noteModalScroll.scrollTop / maxScroll) * 100) : 0;
 
-      const scrollNoteModalFromPointer = (clientY) => {
-        const trackRect = noteModalAppScrollbar.getBoundingClientRect();
-        const maxScroll = Math.max(0, noteModalScroll.scrollHeight - noteModalScroll.clientHeight);
-        const thumbHeight = noteModalAppScrollbarThumb.getBoundingClientRect().height;
-        const availableTrack = Math.max(1, trackRect.height - thumbHeight);
-        const thumbOffset = Math.min(availableTrack, Math.max(0, clientY - trackRect.top - (thumbHeight / 2)));
-        noteModalScroll.scrollTop = (thumbOffset / availableTrack) * maxScroll;
-      };
+      noteModalAppScrollbarThumb.style.height = `${thumbHeight}px`;
+      noteModalAppScrollbarThumb.style.transform = `translateY(${thumbOffset}px)`;
+      noteModalAppScrollbar.setAttribute('aria-valuemax', String(Math.round(maxScroll)));
+      noteModalAppScrollbar.setAttribute('aria-valuenow', String(Math.round(noteModalScroll.scrollTop)));
+      noteModalAppScrollbar.setAttribute('aria-valuetext', `${progress}% through article, ${100 - progress}% remaining`);
+    };
 
-      const clearNotePreviews = () => {
-        notesCategories.querySelectorAll('.note-item.is-preview-active').forEach((item) => {
-          item.classList.remove('is-preview-active');
-          item.closest('.notes-category')?.classList.remove('is-preview-active');
+    const scrollNoteModalFromPointer = (clientY) => {
+      const trackRect = noteModalAppScrollbar.getBoundingClientRect();
+      const maxScroll = Math.max(0, noteModalScroll.scrollHeight - noteModalScroll.clientHeight);
+      const thumbHeight = noteModalAppScrollbarThumb.getBoundingClientRect().height;
+      const availableTrack = Math.max(1, trackRect.height - thumbHeight);
+      const thumbOffset = Math.min(availableTrack, Math.max(0, clientY - trackRect.top - (thumbHeight / 2)));
+      noteModalScroll.scrollTop = (thumbOffset / availableTrack) * maxScroll;
+    };
+
+    const clearNotePreviews = () => {
+      notesCategories.querySelectorAll('.note-item.is-preview-active').forEach((item) => {
+        item.classList.remove('is-preview-active');
+        item.closest('.notes-category')?.classList.remove('is-preview-active');
+      });
+      activeNotePreview = null;
+    };
+
+    const activateNotePreview = (item) => {
+      if (noteModal.open || notesCategories.classList.contains('is-note-preview-suppressed')) return;
+      clearNotePreviews();
+      activeNotePreview = item;
+      item.classList.add('is-preview-active');
+      item.closest('.notes-category')?.classList.add('is-preview-active');
+    };
+
+    notesCategories.addEventListener('pointerover', (event) => {
+      if (event.pointerType === 'touch') return;
+      const item = event.target.closest('.note-item');
+      if (!item || item.contains(event.relatedTarget)) return;
+      activateNotePreview(item);
+    });
+
+    notesCategories.addEventListener('pointerout', (event) => {
+      const item = event.target.closest('.note-item');
+      if (!item || item.contains(event.relatedTarget)) return;
+      item.classList.remove('is-preview-active');
+      item.closest('.notes-category')?.classList.remove('is-preview-active');
+      if (activeNotePreview === item) activeNotePreview = null;
+    });
+
+    notesCategories.addEventListener('focusin', (event) => {
+      const item = event.target.closest('.note-item');
+      if (item) activateNotePreview(item);
+    });
+
+    notesCategories.addEventListener('focusout', (event) => {
+      const item = event.target.closest('.note-item');
+      if (!item || item.contains(event.relatedTarget)) return;
+      item.classList.remove('is-preview-active');
+      item.closest('.notes-category')?.classList.remove('is-preview-active');
+      if (activeNotePreview === item) activeNotePreview = null;
+    });
+
+    const TYPE_LABELS = {
+      movie: 'Movie',
+      series: 'Series',
+      game: 'Videogame',
+      book: 'Book',
+      manga: 'Manga',
+      album: 'Album',
+      thought: 'Thought',
+      other: '',
+    };
+
+    const STAR_PATH = 'M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z';
+
+    function starIcon(filled) {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('width', '15');
+      svg.setAttribute('height', '15');
+      svg.setAttribute('class', filled ? 'star-icon is-filled' : 'star-icon');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('fill', filled ? 'currentColor' : 'none');
+      svg.setAttribute('stroke', 'currentColor');
+      svg.setAttribute('stroke-width', '1.6');
+      svg.setAttribute('stroke-linecap', 'round');
+      svg.setAttribute('stroke-linejoin', 'round');
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', STAR_PATH);
+      svg.appendChild(path);
+      return svg;
+    }
+
+    function starRow(rating) {
+      const row = document.createElement('span');
+      row.className = 'note-stars';
+      row.style.display = 'inline-flex';
+      row.style.gap = '3px';
+      row.setAttribute('role', 'img');
+      row.setAttribute('aria-label', `${rating} out of 5 stars`);
+      for (let i = 1; i <= 5; i += 1) row.appendChild(starIcon(i <= rating));
+      return row;
+    }
+
+    function noteMeta(note) {
+      const label = TYPE_LABELS[note.type] ?? '';
+      return [label, note.creator].filter(Boolean).join(' · ');
+    }
+
+    /* sizes are set inline too, so a stale stylesheet cannot blow the card up */
+    function modalCard(src, alt, className) {
+      const card = document.createElement('span');
+      card.className = className;
+      card.style.cssText = 'display:block;width:140px;height:190px;padding:8px;overflow:hidden;border-radius:14px;';
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = alt;
+      img.style.cssText = 'display:block;width:100%;height:100%;object-fit:cover;border-radius:8px;';
+      card.appendChild(img);
+      return card;
+    }
+
+    function renderModalMedia(note, images) {
+      noteModalMedia.textContent = '';
+      noteModalMedia.hidden = !images.length;
+      if (!images.length) return;
+
+      if (images.length === 1) {
+        noteModalMedia.appendChild(modalCard(images[0], `${note.title} cover`, 'note-modal-card is-single'));
+        return;
+      }
+
+      const stack = document.createElement('button');
+      stack.type = 'button';
+      stack.className = 'note-modal-stack';
+      stack.style.cssText = 'position:relative;display:block;width:182px;height:216px;padding:0;border:0;background:none;cursor:pointer;';
+
+      const depth = Math.min(images.length, 3);
+      const order = ['note-modal-card-one', 'note-modal-card-two', 'note-modal-card-three'];
+      const offsets = [[4, 0], [22, 12], [40, 24]];
+      const cards = [];
+      for (let layer = depth - 1; layer >= 0; layer -= 1) {
+        const card = modalCard('', '', `note-modal-card ${order[layer]}`);
+        card.style.position = 'absolute';
+        card.style.left = `${offsets[layer][0]}px`;
+        card.style.top = `${offsets[layer][1]}px`;
+        card.style.zIndex = String(3 - layer);
+        cards[layer] = card;
+        stack.appendChild(card);
+      }
+
+      const count = document.createElement('span');
+      count.className = 'note-modal-count';
+
+      let current = 0;
+      const update = () => {
+        cards.forEach((card, layer) => {
+          const src = images[(current + layer) % images.length];
+          const img = card.querySelector('img');
+          img.src = src;
+          img.alt = layer === 0 ? `${note.title} photo ${current + 1}` : '';
         });
-        activeNotePreview = null;
+        count.textContent = `${current + 1} / ${images.length}`;
+        stack.setAttribute('aria-label', `Photo ${current + 1} of ${images.length}. Show the next one.`);
       };
 
-      const activateNotePreview = (item) => {
-        if (noteModal.open || notesCategories.classList.contains('is-note-preview-suppressed')) return;
-        clearNotePreviews();
-        activeNotePreview = item;
-        item.classList.add('is-preview-active');
-        item.closest('.notes-category')?.classList.add('is-preview-active');
-      };
-
-      notesCategories.addEventListener('pointerover', (event) => {
-        if (event.pointerType === 'touch') return;
-        const item = event.target.closest('.note-item');
-        if (!item || item.contains(event.relatedTarget)) return;
-        activateNotePreview(item);
+      stack.addEventListener('click', () => {
+        current = (current + 1) % images.length;
+        update();
+        stack.classList.remove('is-turning');
+        void stack.offsetWidth;
+        stack.classList.add('is-turning');
       });
 
-      notesCategories.addEventListener('pointerout', (event) => {
-        const item = event.target.closest('.note-item');
-        if (!item || item.contains(event.relatedTarget)) return;
-        item.classList.remove('is-preview-active');
-        item.closest('.notes-category')?.classList.remove('is-preview-active');
-        if (activeNotePreview === item) activeNotePreview = null;
+      update();
+      noteModalMedia.appendChild(stack);
+      noteModalMedia.appendChild(count);
+    }
+
+    function openNote(note) {
+      clearNotePreviews();
+      notesCategories.classList.add('is-note-preview-suppressed');
+      noteModalScroll.scrollTop = 0;
+      closeNoteModal.classList.remove('is-dropped');
+      const images = (note.images || []).filter(Boolean);
+      noteModalTitle.textContent = note.title;
+      noteModalMeta.textContent = noteMeta(note);
+      noteModalMeta.hidden = !noteMeta(note);
+      noteModalReview.textContent = '';
+      (note.review || '').split(/\n\s*\n/).forEach((chunk) => {
+        if (!chunk.trim()) return;
+        const p = document.createElement('p');
+        p.textContent = chunk.trim();
+        noteModalReview.appendChild(p);
       });
 
-      notesCategories.addEventListener('focusin', (event) => {
-        const item = event.target.closest('.note-item');
-        if (item) activateNotePreview(item);
-      });
+      const rating = Number(note.rating) || 0;
+      noteModalStars.textContent = '';
+      noteModalStars.hidden = rating < 1;
+      if (rating >= 1) noteModalStars.appendChild(starRow(rating));
 
-      notesCategories.addEventListener('focusout', (event) => {
-        const item = event.target.closest('.note-item');
-        if (!item || item.contains(event.relatedTarget)) return;
-        item.classList.remove('is-preview-active');
-        item.closest('.notes-category')?.classList.remove('is-preview-active');
-        if (activeNotePreview === item) activeNotePreview = null;
-      });
-
-      const TYPE_LABELS = {
-        movie: 'Movie',
-        series: 'Series',
-        game: 'Videogame',
-        book: 'Book',
-        manga: 'Manga',
-        album: 'Album',
-        thought: 'Thought',
-        other: '',
-      };
-
-      const STAR_PATH = 'M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z';
-
-      function starIcon(filled) {
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('viewBox', '0 0 24 24');
-        svg.setAttribute('width', '15');
-        svg.setAttribute('height', '15');
-        svg.setAttribute('class', filled ? 'star-icon is-filled' : 'star-icon');
-        svg.setAttribute('aria-hidden', 'true');
-        svg.setAttribute('fill', filled ? 'currentColor' : 'none');
-        svg.setAttribute('stroke', 'currentColor');
-        svg.setAttribute('stroke-width', '1.6');
-        svg.setAttribute('stroke-linecap', 'round');
-        svg.setAttribute('stroke-linejoin', 'round');
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', STAR_PATH);
-        svg.appendChild(path);
-        return svg;
+      renderModalMedia(note, images);
+      lockNoteBackground();
+      try {
+        if (!noteModal.open) noteModal.showModal();
+      } catch (error) {
+        unlockNoteBackground();
+        throw error;
       }
+      noteModalScroll.scrollTop = 0;
+      requestAnimationFrame(updateNoteModalScrollbar);
+    }
 
-      function starRow(rating) {
-        const row = document.createElement('span');
-        row.className = 'note-stars';
-        row.style.display = 'inline-flex';
-        row.style.gap = '3px';
-        row.setAttribute('role', 'img');
-        row.setAttribute('aria-label', `${rating} out of 5 stars`);
-        for (let i = 1; i <= 5; i += 1) row.appendChild(starIcon(i <= rating));
-        return row;
-      }
+    function renderNotes(data) {
+      notesCategories.textContent = '';
+      const categories = data.categories || [];
+      const notes = data.notes || [];
+      categories.forEach((category) => {
+        const section = document.createElement('section');
+        section.className = 'notes-category';
+        const heading = document.createElement('h3');
+        heading.textContent = category.title;
+        section.appendChild(heading);
 
-      function noteMeta(note) {
-        const label = TYPE_LABELS[note.type] ?? '';
-        return [label, note.creator].filter(Boolean).join(' · ');
-      }
-
-      /* sizes are set inline too, so a stale stylesheet cannot blow the card up */
-      function modalCard(src, alt, className) {
-        const card = document.createElement('span');
-        card.className = className;
-        card.style.cssText = 'display:block;width:140px;height:190px;padding:8px;overflow:hidden;border-radius:14px;';
-        const img = document.createElement('img');
-        img.src = src;
-        img.alt = alt;
-        img.style.cssText = 'display:block;width:100%;height:100%;object-fit:cover;border-radius:8px;';
-        card.appendChild(img);
-        return card;
-      }
-
-      function renderModalMedia(note, images) {
-        noteModalMedia.textContent = '';
-        noteModalMedia.hidden = !images.length;
-        if (!images.length) return;
-
-        if (images.length === 1) {
-          noteModalMedia.appendChild(modalCard(images[0], `${note.title} cover`, 'note-modal-card is-single'));
+        const items = notes.filter((note) => note.categoryId === category.id);
+        if (!items.length) {
+          const empty = document.createElement('p');
+          empty.className = 'notes-empty';
+          empty.textContent = category.emptyText || 'Nothing here yet.';
+          section.appendChild(empty);
+          notesCategories.appendChild(section);
           return;
         }
 
-        const stack = document.createElement('button');
-        stack.type = 'button';
-        stack.className = 'note-modal-stack';
-        stack.style.cssText = 'position:relative;display:block;width:182px;height:216px;padding:0;border:0;background:none;cursor:pointer;';
+        const list = document.createElement('div');
+        list.className = 'note-list';
+        items.forEach((note) => {
+          const article = document.createElement('article');
+          article.className = 'note-item';
 
-        const depth = Math.min(images.length, 3);
-        const order = ['note-modal-card-one', 'note-modal-card-two', 'note-modal-card-three'];
-        const offsets = [[4, 0], [22, 12], [40, 24]];
-        const cards = [];
-        for (let layer = depth - 1; layer >= 0; layer -= 1) {
-          const card = modalCard('', '', `note-modal-card ${order[layer]}`);
-          card.style.position = 'absolute';
-          card.style.left = `${offsets[layer][0]}px`;
-          card.style.top = `${offsets[layer][1]}px`;
-          card.style.zIndex = String(3 - layer);
-          cards[layer] = card;
-          stack.appendChild(card);
-        }
+          const trigger = document.createElement('button');
+          trigger.type = 'button';
+          trigger.className = 'note-trigger';
+          trigger.textContent = note.title;
+          trigger.addEventListener('click', () => openNote(note));
+          article.appendChild(trigger);
 
-        const count = document.createElement('span');
-        count.className = 'note-modal-count';
-
-        let current = 0;
-        const update = () => {
-          cards.forEach((card, layer) => {
-            const src = images[(current + layer) % images.length];
-            const img = card.querySelector('img');
-            img.src = src;
-            img.alt = layer === 0 ? `${note.title} photo ${current + 1}` : '';
-          });
-          count.textContent = `${current + 1} / ${images.length}`;
-          stack.setAttribute('aria-label', `Photo ${current + 1} of ${images.length}. Show the next one.`);
-        };
-
-        stack.addEventListener('click', () => {
-          current = (current + 1) % images.length;
-          update();
-          stack.classList.remove('is-turning');
-          void stack.offsetWidth;
-          stack.classList.add('is-turning');
-        });
-
-        update();
-        noteModalMedia.appendChild(stack);
-        noteModalMedia.appendChild(count);
-      }
-
-      function openNote(note) {
-        clearNotePreviews();
-        notesCategories.classList.add('is-note-preview-suppressed');
-        noteModalScroll.scrollTop = 0;
-        closeNoteModal.classList.remove('is-dropped');
-        const images = (note.images || []).filter(Boolean);
-        noteModalTitle.textContent = note.title;
-        noteModalMeta.textContent = noteMeta(note);
-        noteModalMeta.hidden = !noteMeta(note);
-        noteModalReview.textContent = '';
-        (note.review || '').split(/\n\s*\n/).forEach((chunk) => {
-          if (!chunk.trim()) return;
-          const p = document.createElement('p');
-          p.textContent = chunk.trim();
-          noteModalReview.appendChild(p);
-        });
-
-        const rating = Number(note.rating) || 0;
-        noteModalStars.textContent = '';
-        noteModalStars.hidden = rating < 1;
-        if (rating >= 1) noteModalStars.appendChild(starRow(rating));
-
-        renderModalMedia(note, images);
-        lockNoteBackground();
-        try {
-          if (!noteModal.open) noteModal.showModal();
-        } catch (error) {
-          unlockNoteBackground();
-          throw error;
-        }
-        noteModalScroll.scrollTop = 0;
-        requestAnimationFrame(updateNoteModalScrollbar);
-      }
-
-      function renderNotes(data) {
-        notesCategories.textContent = '';
-        const categories = data.categories || [];
-        const notes = data.notes || [];
-        categories.forEach((category) => {
-          const section = document.createElement('section');
-          section.className = 'notes-category';
-          const heading = document.createElement('h3');
-          heading.textContent = category.title;
-          section.appendChild(heading);
-
-          const items = notes.filter((note) => note.categoryId === category.id);
-          if (!items.length) {
-            const empty = document.createElement('p');
-            empty.className = 'notes-empty';
-            empty.textContent = category.emptyText || 'Nothing here yet.';
-            section.appendChild(empty);
-            notesCategories.appendChild(section);
-            return;
+          const images = (note.images || []).filter(Boolean).slice(0, 3);
+          if (images.length) {
+            const preview = document.createElement('div');
+            preview.className = images.length > 1 ? 'note-preview note-preview-stack' : 'note-preview';
+            preview.setAttribute('aria-hidden', 'true');
+            const order = ['note-card-one', 'note-card-two', 'note-card-three'];
+            images
+              .map((src, index) => ({ src, cls: images.length > 1 ? order[index] : 'note-card-front' }))
+              .reverse()
+              .forEach(({ src, cls }) => {
+                const card = document.createElement('div');
+                card.className = `note-card ${cls}`;
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = '';
+                img.loading = 'lazy';
+                card.appendChild(img);
+                preview.appendChild(card);
+              });
+            article.appendChild(preview);
           }
 
-          const list = document.createElement('div');
-          list.className = 'note-list';
-          items.forEach((note) => {
-            const article = document.createElement('article');
-            article.className = 'note-item';
-
-            const trigger = document.createElement('button');
-            trigger.type = 'button';
-            trigger.className = 'note-trigger';
-            trigger.textContent = note.title;
-            trigger.addEventListener('click', () => openNote(note));
-            article.appendChild(trigger);
-
-            const images = (note.images || []).filter(Boolean).slice(0, 3);
-            if (images.length) {
-              const preview = document.createElement('div');
-              preview.className = images.length > 1 ? 'note-preview note-preview-stack' : 'note-preview';
-              preview.setAttribute('aria-hidden', 'true');
-              const order = ['note-card-one', 'note-card-two', 'note-card-three'];
-              images
-                .map((src, index) => ({ src, cls: images.length > 1 ? order[index] : 'note-card-front' }))
-                .reverse()
-                .forEach(({ src, cls }) => {
-                  const card = document.createElement('div');
-                  card.className = `note-card ${cls}`;
-                  const img = document.createElement('img');
-                  img.src = src;
-                  img.alt = '';
-                  img.loading = 'lazy';
-                  card.appendChild(img);
-                  preview.appendChild(card);
-                });
-              article.appendChild(preview);
-            }
-
-            list.appendChild(article);
-          });
-          section.appendChild(list);
-          notesCategories.appendChild(section);
+          list.appendChild(article);
         });
+        section.appendChild(list);
+        notesCategories.appendChild(section);
+      });
+    }
+
+    const draftPreview = new URLSearchParams(location.search).get('preview') === 'draft';
+    const draft = draftPreview ? localStorage.getItem('peace-notes-draft') : null;
+    if (draft) {
+      try {
+        renderNotes(JSON.parse(draft));
+      } catch (error) {
+        notesCategories.innerHTML = '<p class="notes-empty">Draft in local storage is not valid JSON.</p>';
       }
+    } else {
+      fetch('notes.json', { cache: 'no-cache' })
+        .then((response) => {
+          if (!response.ok) throw new Error(response.status);
+          return response.json();
+        })
+        .then(renderNotes)
+        .catch(() => {
+          notesCategories.innerHTML = '<p class="notes-empty">Notes could not be loaded.</p>';
+        });
+    }
 
-      const draftPreview = new URLSearchParams(location.search).get('preview') === 'draft';
-      const draft = draftPreview ? localStorage.getItem('peace-notes-draft') : null;
-      if (draft) {
-        try {
-          renderNotes(JSON.parse(draft));
-        } catch (error) {
-          notesCategories.innerHTML = '<p class="notes-empty">Draft in local storage is not valid JSON.</p>';
-        }
-      } else {
-        fetch('notes.json', { cache: 'no-cache' })
-          .then((response) => {
-            if (!response.ok) throw new Error(response.status);
-            return response.json();
-          })
-          .then(renderNotes)
-          .catch(() => {
-            notesCategories.innerHTML = '<p class="notes-empty">Notes could not be loaded.</p>';
-          });
-      }
+    closeNoteModal.addEventListener('click', () => noteModal.close());
+    noteModalScroll.addEventListener('scroll', () => {
+      closeNoteModal.classList.toggle('is-dropped', noteModalScroll.scrollTop > 0);
+      updateNoteModalScrollbar();
+    }, { passive: true });
+    noteModalAppScrollbar.addEventListener('pointerdown', (event) => {
+      isDraggingNoteModalScrollbar = true;
+      noteModalAppScrollbar.setPointerCapture(event.pointerId);
+      scrollNoteModalFromPointer(event.clientY);
+    });
+    noteModalAppScrollbar.addEventListener('pointermove', (event) => {
+      if (isDraggingNoteModalScrollbar) scrollNoteModalFromPointer(event.clientY);
+    });
+    noteModalAppScrollbar.addEventListener('pointerup', (event) => {
+      isDraggingNoteModalScrollbar = false;
+      noteModalAppScrollbar.releasePointerCapture(event.pointerId);
+    });
+    noteModalAppScrollbar.addEventListener('keydown', (event) => {
+      const step = Math.max(48, noteModalScroll.clientHeight * .12);
+      const page = noteModalScroll.clientHeight * .85;
+      const keySteps = { ArrowDown: step, ArrowUp: -step, PageDown: page, PageUp: -page, End: Infinity, Home: -Infinity };
+      if (!(event.key in keySteps)) return;
+      event.preventDefault();
+      const change = keySteps[event.key];
+      noteModalScroll.scrollTop = change === Infinity ? noteModalScroll.scrollHeight : change === -Infinity ? 0 : noteModalScroll.scrollTop + change;
+    });
+    window.addEventListener('resize', () => {
+      if (notePageScroll) document.body.style.setProperty('--note-page-width', `${document.documentElement.clientWidth}px`);
+      updateNoteModalScrollbar();
+    });
+    noteModal.addEventListener('close', () => {
+      unlockNoteBackground();
+      clearNotePreviews();
+      notesCategories.classList.remove('is-note-preview-suppressed');
+    });
+    noteModal.addEventListener('click', (event) => {
+      if (event.target === noteModal) noteModal.close();
+    });
 
-      closeNoteModal.addEventListener('click', () => noteModal.close());
-      noteModalScroll.addEventListener('scroll', () => {
-        closeNoteModal.classList.toggle('is-dropped', noteModalScroll.scrollTop > 0);
-        updateNoteModalScrollbar();
-      }, { passive: true });
-      noteModalAppScrollbar.addEventListener('pointerdown', (event) => {
-        isDraggingNoteModalScrollbar = true;
-        noteModalAppScrollbar.setPointerCapture(event.pointerId);
-        scrollNoteModalFromPointer(event.clientY);
-      });
-      noteModalAppScrollbar.addEventListener('pointermove', (event) => {
-        if (isDraggingNoteModalScrollbar) scrollNoteModalFromPointer(event.clientY);
-      });
-      noteModalAppScrollbar.addEventListener('pointerup', (event) => {
-        isDraggingNoteModalScrollbar = false;
-        noteModalAppScrollbar.releasePointerCapture(event.pointerId);
-      });
-      noteModalAppScrollbar.addEventListener('keydown', (event) => {
-        const step = Math.max(48, noteModalScroll.clientHeight * .12);
-        const page = noteModalScroll.clientHeight * .85;
-        const keySteps = { ArrowDown: step, ArrowUp: -step, PageDown: page, PageUp: -page, End: Infinity, Home: -Infinity };
-        if (!(event.key in keySteps)) return;
-        event.preventDefault();
-        const change = keySteps[event.key];
-        noteModalScroll.scrollTop = change === Infinity ? noteModalScroll.scrollHeight : change === -Infinity ? 0 : noteModalScroll.scrollTop + change;
-      });
-      window.addEventListener('resize', () => {
-        if (notePageScroll) document.body.style.setProperty('--note-page-width', `${document.documentElement.clientWidth}px`);
-        updateNoteModalScrollbar();
-      });
-      noteModal.addEventListener('close', () => {
-        unlockNoteBackground();
-        clearNotePreviews();
-        notesCategories.classList.remove('is-note-preview-suppressed');
-      });
-      noteModal.addEventListener('click', (event) => {
-        if (event.target === noteModal) noteModal.close();
-      });
-
-      const artCredit = document.querySelector('.art-credit');
-      const tooltip = artCredit.querySelector('.tooltip');
-      const artButton = artCredit.querySelector('.art-link');
-      let creditHoldTimer = null;
-      let creditHoldOrigin = null;
-      const cancelCreditHold = () => {
-        clearTimeout(creditHoldTimer);
+    const artCredit = document.querySelector('.art-credit');
+    const tooltip = artCredit.querySelector('.tooltip');
+    const artButton = artCredit.querySelector('.art-link');
+    let creditHoldTimer = null;
+    let creditHoldOrigin = null;
+    const cancelCreditHold = () => {
+      clearTimeout(creditHoldTimer);
+      creditHoldTimer = null;
+      creditHoldOrigin = null;
+    };
+    const hideCredit = () => {
+      cancelCreditHold();
+      tooltip.hidden = true;
+      artButton.setAttribute('aria-expanded', 'false');
+    };
+    const startCreditHold = () => {
+      cancelCreditHold();
+      creditHoldTimer = setTimeout(() => {
+        tooltip.hidden = false;
+        artButton.setAttribute('aria-expanded', 'true');
         creditHoldTimer = null;
-        creditHoldOrigin = null;
-      };
-      const hideCredit = () => {
-        cancelCreditHold();
-        tooltip.hidden = true;
-        artButton.setAttribute('aria-expanded', 'false');
-      };
-      const startCreditHold = () => {
-        cancelCreditHold();
-        creditHoldTimer = setTimeout(() => {
-          tooltip.hidden = false;
-          artButton.setAttribute('aria-expanded', 'true');
-          creditHoldTimer = null;
-        }, 5000);
-      };
-      artButton.addEventListener('pointerdown', (event) => {
-        if (event.button !== 0 || !event.isPrimary) return;
-        startCreditHold();
-        creditHoldOrigin = { x: event.clientX, y: event.clientY };
-      });
-      artButton.addEventListener('pointermove', (event) => {
-        if (creditHoldOrigin && Math.hypot(event.clientX - creditHoldOrigin.x, event.clientY - creditHoldOrigin.y) > 12) cancelCreditHold();
-      });
-      ['pointerup', 'pointerleave', 'pointercancel', 'lostpointercapture'].forEach((type) => {
-        artButton.addEventListener(type, cancelCreditHold);
-      });
-      artButton.addEventListener('contextmenu', (event) => event.preventDefault());
-      artButton.addEventListener('keydown', (event) => {
-        if (event.key !== ' ' && event.key !== 'Enter') return;
-        event.preventDefault();
-        if (!event.repeat) startCreditHold();
-      });
-      artButton.addEventListener('keyup', (event) => {
-        if (event.key === ' ' || event.key === 'Enter') cancelCreditHold();
-      });
-      artButton.addEventListener('blur', cancelCreditHold);
-      artCredit.addEventListener('focusout', (event) => {
-        if (!artCredit.contains(event.relatedTarget)) hideCredit();
-      });
-      document.addEventListener('pointerdown', (event) => {
-        if (!artCredit.contains(event.target)) hideCredit();
-      });
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') hideCredit();
-      });
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) hideCredit();
-      });
-      window.addEventListener('blur', hideCredit);
-      window.addEventListener('hashchange', hideCredit);
+      }, 5000);
+    };
+    artButton.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0 || !event.isPrimary) return;
+      startCreditHold();
+      creditHoldOrigin = { x: event.clientX, y: event.clientY };
+    });
+    artButton.addEventListener('pointermove', (event) => {
+      if (creditHoldOrigin && Math.hypot(event.clientX - creditHoldOrigin.x, event.clientY - creditHoldOrigin.y) > 12) cancelCreditHold();
+    });
+    ['pointerup', 'pointerleave', 'pointercancel', 'lostpointercapture'].forEach((type) => {
+      artButton.addEventListener(type, cancelCreditHold);
+    });
+    artButton.addEventListener('contextmenu', (event) => event.preventDefault());
+    artButton.addEventListener('keydown', (event) => {
+      if (event.key !== ' ' && event.key !== 'Enter') return;
+      event.preventDefault();
+      if (!event.repeat) startCreditHold();
+    });
+    artButton.addEventListener('keyup', (event) => {
+      if (event.key === ' ' || event.key === 'Enter') cancelCreditHold();
+    });
+    artButton.addEventListener('blur', cancelCreditHold);
+    artCredit.addEventListener('focusout', (event) => {
+      if (!artCredit.contains(event.relatedTarget)) hideCredit();
+    });
+    document.addEventListener('pointerdown', (event) => {
+      if (!artCredit.contains(event.target)) hideCredit();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') hideCredit();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) hideCredit();
+    });
+    window.addEventListener('blur', hideCredit);
+    window.addEventListener('hashchange', hideCredit);
 
-      const themeToggle = document.querySelector('.theme-toggle');
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
-      const holdDelay = 600;
-      let holdTimer = null;
-      let heldToAuto = false;
+    const themeToggle = document.querySelector('.theme-toggle');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const holdDelay = 600;
+    let holdTimer = null;
+    let heldToAuto = false;
 
-      const isAuto = () => !document.documentElement.dataset.theme;
+    const isAuto = () => !document.documentElement.dataset.theme;
 
-      const isDark = () => {
-        const choice = document.documentElement.dataset.theme;
-        return choice ? choice === 'dark' : systemDark.matches;
-      };
+    const isDark = () => {
+      const choice = document.documentElement.dataset.theme;
+      return choice ? choice === 'dark' : systemDark.matches;
+    };
 
-      const favicon = document.querySelector('link[rel="icon"]');
-      const faviconSource = favicon.getAttribute('href');
-      let faviconMarkup = null;
+    const favicon = document.querySelector('link[rel="icon"]');
+    const faviconSource = favicon.getAttribute('href');
+    let faviconMarkup = null;
 
-      // The icon file carries its own prefers-color-scheme rule for the no-JS case; this
-      // appends a later rule so a manual choice wins over the device setting too.
-      const paintFavicon = async () => {
-        try {
-          if (!faviconMarkup) faviconMarkup = await (await fetch(faviconSource)).text();
-          const ink = isDark() ? '#f3f1ed' : '#111';
-          const themed = faviconMarkup.replace('</style>', `path:not(.background) { fill: ${ink}; }</style>`);
-          favicon.href = `data:image/svg+xml,${encodeURIComponent(themed)}`;
-        } catch (error) {}
-      };
+    // The icon file carries its own prefers-color-scheme rule for the no-JS case; this
+    // appends a later rule so a manual choice wins over the device setting too.
+    const paintFavicon = async () => {
+      try {
+        if (!faviconMarkup) faviconMarkup = await (await fetch(faviconSource)).text();
+        const ink = isDark() ? '#f3f1ed' : '#111';
+        const themed = faviconMarkup.replace('</style>', `path:not(.background) { fill: ${ink}; }</style>`);
+        favicon.href = `data:image/svg+xml,${encodeURIComponent(themed)}`;
+      } catch (error) { }
+    };
 
-      const syncToggle = () => {
-        const dark = isDark();
-        themeToggle.setAttribute('aria-pressed', String(dark));
-        themeToggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
-        paintFavicon();
-      };
+    const syncToggle = () => {
+      const dark = isDark();
+      themeToggle.setAttribute('aria-pressed', String(dark));
+      themeToggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+      paintFavicon();
+    };
 
-      // Passing null clears the manual choice and hands the theme back to the device.
-      const setTheme = (value) => {
-        if (value) document.documentElement.dataset.theme = value;
-        else delete document.documentElement.dataset.theme;
-        try {
-          if (value) localStorage.setItem('theme', value);
-          else localStorage.removeItem('theme');
-        } catch (error) {}
-        syncToggle();
-      };
-
-      const startHold = () => {
-        heldToAuto = false;
-        clearTimeout(holdTimer);
-        holdTimer = setTimeout(() => {
-          heldToAuto = true;
-          setTheme(null);
-          themeToggle.classList.remove('is-auto-flash');
-          void themeToggle.offsetWidth;
-          themeToggle.classList.add('is-auto-flash');
-        }, holdDelay);
-      };
-
-      const cancelHold = () => clearTimeout(holdTimer);
-
-      themeToggle.addEventListener('animationend', () => themeToggle.classList.remove('is-auto-flash'));
-      themeToggle.addEventListener('pointerdown', startHold);
-      ['pointerup', 'pointerleave', 'pointercancel'].forEach((type) => {
-        themeToggle.addEventListener(type, cancelHold);
-      });
-
-      themeToggle.addEventListener('keydown', (event) => {
-        if (event.repeat || (event.key !== ' ' && event.key !== 'Enter')) return;
-        startHold();
-      });
-      themeToggle.addEventListener('keyup', cancelHold);
-      themeToggle.addEventListener('blur', cancelHold);
-
-      // A completed hold already switched to auto, so the trailing click must not flip it back.
-      themeToggle.addEventListener('click', () => {
-        if (heldToAuto) {
-          heldToAuto = false;
-          return;
-        }
-        setTheme(isDark() ? 'light' : 'dark');
-      });
-
-      themeToggle.addEventListener('contextmenu', (event) => event.preventDefault());
-
-      // Follow the device while no manual choice is stored.
-      systemDark.addEventListener('change', () => {
-        if (isAuto()) syncToggle();
-      });
-
+    // Passing null clears the manual choice and hands the theme back to the device.
+    const setTheme = (value) => {
+      if (value) document.documentElement.dataset.theme = value;
+      else delete document.documentElement.dataset.theme;
+      try {
+        if (value) localStorage.setItem('theme', value);
+        else localStorage.removeItem('theme');
+      } catch (error) { }
       syncToggle();
-    </script>
-  </body>
+    };
+
+    const startHold = () => {
+      heldToAuto = false;
+      clearTimeout(holdTimer);
+      holdTimer = setTimeout(() => {
+        heldToAuto = true;
+        setTheme(null);
+        themeToggle.classList.remove('is-auto-flash');
+        void themeToggle.offsetWidth;
+        themeToggle.classList.add('is-auto-flash');
+      }, holdDelay);
+    };
+
+    const cancelHold = () => clearTimeout(holdTimer);
+
+    themeToggle.addEventListener('animationend', () => themeToggle.classList.remove('is-auto-flash'));
+    themeToggle.addEventListener('pointerdown', startHold);
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach((type) => {
+      themeToggle.addEventListener(type, cancelHold);
+    });
+
+    themeToggle.addEventListener('keydown', (event) => {
+      if (event.repeat || (event.key !== ' ' && event.key !== 'Enter')) return;
+      startHold();
+    });
+    themeToggle.addEventListener('keyup', cancelHold);
+    themeToggle.addEventListener('blur', cancelHold);
+
+    // A completed hold already switched to auto, so the trailing click must not flip it back.
+    themeToggle.addEventListener('click', () => {
+      if (heldToAuto) {
+        heldToAuto = false;
+        return;
+      }
+      setTheme(isDark() ? 'light' : 'dark');
+    });
+
+    themeToggle.addEventListener('contextmenu', (event) => event.preventDefault());
+
+    // Follow the device while no manual choice is stored.
+    systemDark.addEventListener('change', () => {
+      if (isAuto()) syncToggle();
+    });
+
+    syncToggle();
+  </script>
+</body>
+
 </html>

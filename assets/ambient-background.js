@@ -15,6 +15,16 @@ let noteColors = null;
 let noteImageSource = null;
 let notePaletteRequest = 0;
 
+const pongWinPalettes = {
+  dark: ['#064e3b', '#10b981', '#047857', '#34d399'],
+  light: ['#059669', '#34d399', '#10b981', '#6ee7b7']
+};
+const pongLosePalettes = {
+  dark: ['#4c0519', '#f43f5e', '#be123c', '#fb7185'],
+  light: ['#be123c', '#fb7185', '#e11d48', '#fda4af']
+};
+let pongOutcome = null; // 'win' | 'lose' | null
+
 // Hour anchors use the visitor's clock. Interpolation keeps dawn and dusk gradual.
 const palettes = [
   { hour: 0, name: 'night', dark: ['#304ab8', '#8badff', '#597eea', '#a5dcff'], light: ['#2724cb', '#6397ff', '#415bff', '#2ebdff'] },
@@ -100,16 +110,17 @@ const syncAppearance = () => {
   const choice = document.documentElement.dataset.theme;
   const dark = choice === 'dark' || (choice !== 'light' && systemDark.matches);
   const mode = dark ? 'dark' : 'light';
-  const brazil = !noteColors && currentPage === 'home' && (countryHovered || countryFocused);
+  const pongColors = pongOutcome ? (pongOutcome === 'win' ? (dark ? pongWinPalettes.dark : pongWinPalettes.light) : (dark ? pongLosePalettes.dark : pongLosePalettes.light)) : null;
+  const brazil = !pongColors && !noteColors && currentPage === 'home' && (countryHovered || countryFocused);
   const weather = localWeather.current();
   const atmosphere = weatherStyle(brazil ? null : weather, dark);
   const timeColors = start[mode].map((color, i) => mixColor(color, end[mode][i], progress));
-  const colors = noteColors || (brazil ? brazilColors : timeColors.map((color, i) => atmosphere.colors ? mixColor(color, atmosphere.colors[i], atmosphere.strength) : color));
+  const colors = pongColors || noteColors || (brazil ? brazilColors : timeColors.map((color, i) => atmosphere.colors ? mixColor(color, atmosphere.colors[i], atmosphere.strength) : color));
   currentSettings = { colors: displayedColors || colors, flagMix: displayedFlagMix, repeatText: 'brasil', repeatReveal: displayedRepeatReveal, lightMode: !dark, speed: atmosphere.speed, grain: atmosphere.grain, flicker: 0, density: 1, glyphOpacity: .65, softness: atmosphere.softness, flow: atmosphere.flow, glow: 0, message: pageMessages[currentPage] };
   container.dataset.timeOfDay = start.name;
   container.dataset.mode = mode;
   container.dataset.weather = weather?.kind || 'unknown';
-  container.dataset.palette = noteColors ? 'note' : brazil ? 'brazil' : 'time';
+  container.dataset.palette = pongColors ? `pong-${pongOutcome}` : noteColors ? 'note' : brazil ? 'brazil' : 'time';
   renderer?.update(currentSettings);
   transitionColors(colors, brazil ? 1 : 0);
 };
@@ -144,6 +155,31 @@ noteObserver.observe(noteModal, { attributes: true, attributeFilter: ['open', 's
 noteModal.addEventListener('load', event => { if (event.target === frontNoteImage()) syncNotePalette(true); }, true);
 noteModal.addEventListener('close', () => syncNotePalette());
 syncNotePalette();
+
+const pongDialog = document.querySelector('#pong-dialog');
+if (pongDialog) {
+  const syncPongOpen = () => {
+    container.classList.toggle('is-pong-open', pongDialog.open);
+    if (!pongDialog.open) {
+      pongOutcome = null;
+      syncAppearance();
+    }
+  };
+  const pongObserver = new MutationObserver(syncPongOpen);
+  pongObserver.observe(pongDialog, { attributes: true, attributeFilter: ['open'] });
+  pongDialog.addEventListener('close', syncPongOpen);
+  syncPongOpen();
+}
+
+window.addEventListener('peace:pong-finish', (event) => {
+  pongOutcome = event.detail?.won ? 'win' : 'lose';
+  syncAppearance();
+});
+
+window.addEventListener('peace:pong-reset', () => {
+  pongOutcome = null;
+  syncAppearance();
+});
 
 window.addEventListener('peace:pagechange', (event) => {
   currentPage = Object.hasOwn(pageMessages, event.detail?.page) ? event.detail.page : 'home';

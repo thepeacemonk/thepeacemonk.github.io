@@ -1,0 +1,429 @@
+.pong-secret {
+  display: inline; padding: 0; border: 0; border-radius: 3px; background: none; color: inherit;
+  font: inherit; text-align: inherit; cursor: pointer;
+  text-decoration: underline; text-decoration-color: transparent; text-underline-offset: .18em;
+  transition: text-decoration-color .2s ease;
+}
+.pong-secret:hover, .pong-secret:focus-visible { text-decoration-color: currentColor; }
+.pong-dialog, .pong-history-dialog {
+  position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: none; max-height: none;
+  margin: 0; padding: 20px; border: 0; background: transparent; color: var(--ink);
+  overflow: auto; overscroll-behavior: contain; scrollbar-color: var(--link) var(--page);
+}
+.pong-dialog[open], .pong-history-dialog[open] { display: grid; place-items: center; }
+.pong-dialog::backdrop { background: var(--modal-backdrop); }
+.pong-history-dialog::backdrop { background: color-mix(in srgb, var(--page) 65%, transparent); }
+html:has(.pong-dialog[open]) { overflow: hidden; }
+.pong-frame {
+  position: relative; width: min(100%, 700px); padding: 22px 26px;
+  background: var(--page); flex-shrink: 0; border-radius: 24px;
+}
+.pong-frame-corner { position: absolute; width: 30px; height: 30px; pointer-events: none; }
+.pong-frame-corner svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.pong-frame-corner path { fill: none; stroke: var(--ink); stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+.pong-frame-corner:nth-child(1) { top: 0; left: 0; }
+.pong-frame-corner:nth-child(2) { top: 0; right: 0; transform: rotate(90deg); }
+.pong-frame-corner:nth-child(3) { bottom: 0; right: 0; transform: rotate(180deg); }
+.pong-frame-corner:nth-child(4) { bottom: 0; left: 0; transform: rotate(270deg); }
+.pong-heading, .pong-score, .pong-actions, .pong-tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pong-heading h2 { margin: 0; font-size: 24px; font-weight: 400; letter-spacing: -.03em; }
+.pong-dialog button, .pong-history-dialog button { font: inherit; color: inherit; cursor: pointer; }
+.pong-close, .pong-icon { display: grid; place-items: center; width: 38px; height: 38px; padding: 0; background: none; border: 0; border-radius: 50%; flex-shrink: 0; }
+.pong-close:hover, .pong-icon:hover { background: color-mix(in srgb, var(--ink) 7%, transparent); }
+.pong-tools { gap: 8px; }
+/* ── Pong control bar: Segmented Dock Menu ─────────────────
+   Adapted from Bencho's GlassDock: single glass pill surface
+   with two sub-sections (control mode & audio/stats) divided by
+   a subtle separator, distance-based glyph magnification, and a
+   single traveling tip pill. Zero diffuse outer shadow smudges. */
+.pong-dock-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 4px;
+  background: var(--pane);
+  -webkit-backdrop-filter:
+    blur(var(--g-blur, 4px)) saturate(var(--g-sat, 150%)) brightness(var(--g-bright, 100%));
+  backdrop-filter:
+    blur(var(--g-blur, 4px)) saturate(var(--g-sat, 150%)) brightness(var(--g-bright, 100%));
+  border-radius: 999px;
+  isolation: isolate;
+  color: var(--ink);
+  touch-action: pan-y;
+  box-shadow: none;
+}
+
+.pong-dock-menu::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(
+      142deg,
+      rgba(255, 255, 255, var(--g-edge-hi, 0.25)) 0%,
+      rgba(255, 255, 255, var(--g-edge-lo, 0.05)) 26%,
+      rgba(255, 255, 255, var(--g-edge-lo, 0.05)) 62%,
+      rgba(255, 255, 255, var(--g-edge-far, 0.12)) 100%
+    ) border-box;
+  -webkit-mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.pong-dock-section {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.pong-dock-sep {
+  width: 1px;
+  height: 16px;
+  margin: 0 4px;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.pong-dock-btn {
+  position: relative;
+  width: 32px;
+  height: 30px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  opacity: 0.48;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+  transition: opacity 220ms ease, background 180ms ease, color 180ms ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pong-dock-menu button,
+.pong-dock-menu button:focus,
+.pong-dock-menu button:focus-visible,
+.pong-dock-btn,
+.pong-dock-btn:focus,
+.pong-dock-btn:focus-visible {
+  outline: none;
+}
+
+.pong-dock-btn:focus-visible {
+  opacity: 0.95;
+}
+
+.pong-dock-btn:hover {
+  opacity: 0.9;
+}
+
+.pong-dock-btn[data-near="1"] { opacity: 0.72; }
+.pong-dock-btn[data-near="0"] { opacity: 1; }
+
+.pong-dock-btn.is-active {
+  opacity: 1;
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.pong-mode-glyph {
+  display: grid;
+  place-items: center;
+  transform-origin: center bottom;
+  transition: transform 380ms cubic-bezier(0.24, 1.34, 0.38, 1);
+  pointer-events: none;
+}
+
+.pong-mode-glyph svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+.pong-mode-dot {
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  width: 3px;
+  height: 3px;
+  margin-left: -1.5px;
+  border-radius: 50%;
+  background: var(--ink);
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 220ms ease, transform 420ms cubic-bezier(0.24, 1.34, 0.38, 1);
+  pointer-events: none;
+}
+
+.pong-dock-btn.is-active .pong-mode-dot {
+  opacity: 0.8;
+  transform: scale(1);
+}
+
+/* ONE tip for the whole dock (after Bencho / transitions.dev) */
+.pong-mode-tip {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--fill-on, var(--ink));
+  color: var(--fill-slab, var(--on-ink));
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 26px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(var(--shadow-rgb, 0, 0, 0), 0.18);
+  transition:
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 160ms cubic-bezier(0.22, 1, 0.36, 1);
+  letter-spacing: 0.01em;
+}
+
+.pong-mode-tip > span {
+  flex: none;
+}
+
+.pong-mode-tip:not([data-ready]) {
+  transition: opacity 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pong-mode-tip[data-on="true"] {
+  opacity: 1;
+}
+.pong-sound-muted, .pong-sound[aria-pressed="true"] .pong-sound-waves { display: none; }
+.pong-sound[aria-pressed="true"] .pong-sound-muted { display: block; }
+.pong-score { justify-content: center; gap: 20px; margin: 8px 0 18px; font-size: 12px; }
+.pong-score > span { display: flex; align-items: center; gap: 12px; }
+.pong-score strong { font-size: 27px; font-weight: 400; font-variant-numeric: tabular-nums; line-height: 1; }
+.pong-score-rule { color: var(--collection-muted); }
+.pong-court { position: relative; border: 1px solid color-mix(in srgb, var(--ink) 12%, var(--page)); border-radius: 16px; overflow: hidden; }
+.pong-canvas { display: block; width: 100%; aspect-ratio: 9 / 5; touch-action: none; border-radius: inherit; }
+.pong-canvas:focus-visible { outline: none; }
+.pong-court:focus-within { border-color: color-mix(in srgb, var(--ink) 28%, var(--page)); }
+.pong-overlay { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; padding: 20px 30px; pointer-events: none; border-radius: inherit; background: color-mix(in srgb, var(--page) 86%, transparent); }
+.pong-overlay[hidden] { display: none; }
+.pong-overlay p { margin: 0; }
+.pong-overlay-title { font-size: clamp(20px, 4vw, 30px); letter-spacing: -.03em; }
+.pong-comment { min-height: 2.8em; margin: 14px 0 8px; font-size: 13px; line-height: 1.4; color: var(--collection-muted); }
+.pong-play { border: 1px solid var(--ink); border-radius: 50px; padding: 8px 22px; background: var(--ink); color: var(--page) !important; min-width: 100px; font-size: 14px !important; }
+.pong-play:hover { background: var(--page); color: var(--ink) !important; }
+.pong-play:disabled { opacity: .5; cursor: wait; }
+.pong-flight { position: fixed; inset: 0; pointer-events: none; mix-blend-mode: difference; color: white; }
+.pong-flight-corner { position: absolute; top: 0; left: 0; width: 10px; height: 10px; transform-origin: 0 0; }
+.pong-flight-corner svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.pong-flight-corner path { vector-effect: non-scaling-stroke; stroke: currentColor; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; fill: none; }
+.pong-flight-dot { position: absolute; top: 0; left: 0; width: 8px; height: 8px; background: white; border-radius: 50%; }
+.pong-morphing .target-cursor { opacity: 0 !important; }
+.pong-dialog.is-opening .pong-content, .pong-dialog.is-opening .pong-frame-corner { visibility: hidden; }
+
+/* ══ Wake slider ══════════════════════════════════════════
+   Thin bars, the reading beside them. The bars are data marks,
+   so they take the ink strengths: ink when lit, faint after the
+   value. Heights are written by the component.
+   Bencho's fill-on and fill-slab map directly to ink and page. */
+.wks { display: flex; align-items: center; gap: 16px; width: 100%; max-width: 330px; padding: 8px 0; color: var(--ink); }
+.wks-track { display: flex; align-items: center; justify-content: space-between; gap: 2px; flex: 1; min-width: 130px; height: 52px; cursor: ew-resize; touch-action: none; user-select: none; -webkit-user-select: none; border-radius: 6px; }
+.wks-track:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; }
+.wks-bar { flex: none; width: 3px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 25%, var(--page)); transform-origin: 50% 50%; transition: background-color 160ms ease; }
+.wks-bar[data-on] { background: var(--ink); }
+.wks-value { min-width: 104px; font-size: 12px; letter-spacing: -.01em; color: var(--collection-muted); }
+.wks[data-disabled] { opacity: .5; }
+.wks[data-disabled] .wks-track { cursor: default; }
+
+/* ══ Stacked bars ══════════════════════════════════════════
+   Native DOM adaptation of Bencho's StackedBars.
+   Component-local shades map to the site's ink and ground. */
+.stb {
+  --stb-win: var(--ink);
+  --stb-loss: color-mix(in srgb, var(--ink) 32%, var(--page));
+  --stb-r: 3px; --stb-rr: 6px;
+  position: relative; display: flex; flex-direction: column; gap: 20px;
+  width: min(100%, 360px); padding: 22px; border-radius: 22px;
+  background: var(--page); color: var(--ink); font: inherit; font-size: 12px;
+  box-shadow: 0 12px 45px var(--modal-shadow-color); user-select: none; -webkit-user-select: none;
+}
+.stb-head, .stb-summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.stb-head { margin-bottom: -10px; }
+.stb-head h3 { margin: 0; font-size: 15px; font-weight: 400; letter-spacing: -.01em; }
+.stb-head .pong-icon { width: 32px; height: 32px; margin-right: -6px; }
+.stb-figure { display: flex; align-items: baseline; gap: 6px; }
+.stb-num { font-size: 30px; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.stb-unit { color: var(--collection-muted); font-size: 11px; }
+.stb-seg-ctl { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 2px; border-radius: 10px; background: color-mix(in srgb, var(--ink) 6%, var(--page)); }
+.stb-thumb { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc(50% - 2px); border-radius: 8px; background: var(--page); transition: transform 220ms cubic-bezier(.22, 1, .36, 1); }
+.stb-seg-ctl[data-mode="Week"] .stb-thumb { transform: translateX(100%); }
+.stb-tab { position: relative; border: 0; border-radius: 8px; background: none; padding: 6px 10px; font-size: 11px !important; color: var(--collection-muted) !important; }
+.stb-tab[aria-pressed="true"] { color: var(--ink) !important; }
+.stb-tab:focus-visible { outline-offset: 0; }
+/* the plot: absolutely placed columns, each segment its own rounded box */
+.stb-plot { position: relative; width: 100%; height: 130px; touch-action: none; border-radius: 6px; }
+.stb-base { position: absolute; top: 126px; left: 0; right: 0; height: 1px; border-radius: 1px; background: color-mix(in srgb, var(--ink) 12%, var(--page)); }
+.stb-col { position: absolute; top: 0; height: 126px; }
+.stb-bar { position: absolute; left: 0; right: 0; border-radius: var(--stb-r); transition: height 600ms cubic-bezier(.22, 1, .36, 1) calc(var(--i) * 14ms), bottom 600ms cubic-bezier(.22, 1, .36, 1) calc(var(--i) * 14ms), background-color 160ms ease; }
+.stb-win { background: var(--stb-win); }
+.stb-loss { background: var(--stb-loss); }
+/* scrubbing: the others step back by mixing toward the slab */
+.stb[data-scrub] .stb-col:not([data-on]) .stb-win { background: color-mix(in srgb, var(--stb-win) 38%, var(--page)); }
+.stb[data-scrub] .stb-col:not([data-on]) .stb-loss { background: color-mix(in srgb, var(--stb-loss) 38%, var(--page)); }
+.stb-ring { position: absolute; top: 0; left: 0; box-sizing: border-box; border: 1.5px solid var(--collection-muted); border-radius: var(--stb-rr); pointer-events: none; opacity: 0; transition: opacity 160ms ease; }
+/* the tooltip: beside the column, gliding on a spring */
+.stb-tip { position: absolute; top: 0; left: 0; width: 144px; padding: 9px 10px; border-radius: 10px; background: var(--page); border: 1px solid color-mix(in srgb, var(--ink) 15%, var(--page)); font-size: 10px; line-height: 1.8; pointer-events: none; opacity: 0; transition: opacity 160ms ease; }
+.stb-tip-head { color: var(--collection-muted); margin-bottom: 3px; }
+.stb[data-scrub] .stb-tip, .stb[data-scrub] .stb-ring { opacity: 1; }
+.stb-empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--collection-muted); font-size: 12px; }
+.stb-empty[hidden] { display: none; }
+/* one tiny footer: first and last date */
+.stb-axis { display: flex; justify-content: space-between; margin-top: -14px; font-size: 10px; color: var(--collection-muted); font-variant-numeric: tabular-nums; }
+.stb-legend { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; }
+.stb-legend > span { display: flex; align-items: center; gap: 7px; }
+.stb-legend i { width: 8px; height: 8px; border-radius: 3px; background: var(--stb-win); }
+.stb-legend > span + span i { background: var(--stb-loss); }
+.stb-storage { margin: 0; color: var(--collection-muted); font-size: 11px; }
+@media (max-width: 520px) {
+  .pong-dialog, .pong-history-dialog { padding: 12px; }
+  .pong-frame { padding: 16px 18px; }
+  .pong-heading h2 { font-size: 22px; }
+  .pong-comment { font-size: 12px; min-height: 3em; }
+  .wks { max-width: 100%; }
+  .pong-mode-btn span { display: none; }
+  .pong-mode-btn { padding: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wks-bar, .stb-bar, .stb-thumb, .stb-tip, .stb-ring { transition: none; }
+}
+
+/* Outside the court the cursor is the pong ball itself.
+   Solid black in light mode, solid white in dark mode. */
+html.pong-active .target-cursor,
+html.pong-active .target-cursor * {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+html.pong-active:not(.pong-court),
+html.pong-active *:not(.pong-court, .pong-court *),
+html.has-target-cursor.pong-active:not(.pong-court),
+html.has-target-cursor.pong-active *:not(.pong-court, .pong-court *) {
+  cursor: url("pong-ball.svg?v=3") 8 8, crosshair !important;
+}
+
+html[data-theme="dark"].pong-active:not(.pong-court),
+html[data-theme="dark"].pong-active *:not(.pong-court, .pong-court *),
+html[data-theme="dark"].has-target-cursor.pong-active:not(.pong-court),
+html[data-theme="dark"].has-target-cursor.pong-active *:not(.pong-court, .pong-court *) {
+  cursor: url("pong-ball-dark.svg?v=3") 8 8, crosshair !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]).pong-active:not(.pong-court),
+  html:not([data-theme="light"]).pong-active *:not(.pong-court, .pong-court *),
+  html:not([data-theme="light"]).has-target-cursor.pong-active:not(.pong-court),
+  html:not([data-theme="light"]).has-target-cursor.pong-active *:not(.pong-court, .pong-court *) {
+    cursor: url("pong-ball-dark.svg?v=3") 8 8, crosshair !important;
+  }
+}
+
+/* While liquid particles are flying outward to form the external cursor,
+   hide the native pointer so only the assembling liquid droplet is visible. */
+html.pong-active.is-gooey-leaving,
+html.pong-active.is-gooey-leaving *,
+html.has-target-cursor.pong-active.is-gooey-leaving,
+html.has-target-cursor.pong-active.is-gooey-leaving * {
+  cursor: none !important;
+}
+
+/* Inside the arena/court and active buffer zone: cursor is hidden */
+.pong-court,
+.pong-court *,
+.pong-canvas,
+.pong-canvas *,
+html.pong-active .pong-court,
+html.pong-active .pong-court *,
+html.pong-active .pong-canvas,
+html.pong-active .pong-canvas *,
+html.pong-active .pong-dialog.in-arena-buffer,
+html.pong-active .pong-dialog.in-arena-buffer *:not(button, button *, .pong-control-mode, .pong-control-mode *, [role=slider], [role=slider] *),
+html.has-target-cursor.pong-active .pong-court,
+html.has-target-cursor.pong-active .pong-court *,
+html[data-theme="dark"].pong-active .pong-court,
+html[data-theme="dark"].pong-active .pong-court *,
+html:not([data-theme="light"]).pong-active .pong-court,
+html:not([data-theme="light"]).pong-active .pong-court * {
+  cursor: none !important;
+}
+.pong-side-hint { position: absolute; right: 6.8%; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--ink); pointer-events: none; }
+.pong-side-hint[hidden] { display: none; }
+.pong-dialog[data-state="countdown"] .pong-overlay { background: transparent; }
+.pong-dialog[data-state="countdown"] .pong-overlay-title { font-size: 38px; font-variant-numeric: tabular-nums; }
+
+/* Brief edge feedback: reacts on goals (green on player right, red on bot left) */
+.pong-feedback {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  z-index: 2;
+}
+
+/* Gol do jogador: verde do lado do jogador (lado direito da arena) */
+.pong-feedback[data-result="player-goal"],
+.pong-feedback[data-result="win"] {
+  background:
+    radial-gradient(ellipse 75% 95% at 100% 50%, rgba(34, 197, 94, 0.44) 0%, rgba(34, 197, 94, 0.18) 42%, transparent 75%);
+  box-shadow: inset -12px 0 26px rgba(34, 197, 94, 0.32);
+}
+
+/* Gol do bot: vermelho do lado do bot (lado esquerdo da arena) */
+.pong-feedback[data-result="bot-goal"],
+.pong-feedback[data-result="lose"] {
+  background:
+    radial-gradient(ellipse 75% 95% at 0% 50%, rgba(239, 68, 68, 0.44) 0%, rgba(239, 68, 68, 0.18) 42%, transparent 75%);
+  box-shadow: inset 12px 0 26px rgba(239, 68, 68, 0.32);
+}
+
+/* Liquid cursor ⇄ court morph (WebGL2). Fullscreen overlay inside the dialog. */
+.pong-gooey { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; visibility: hidden; z-index: 25; }
+
+/* Animated cursor-to-paddle morph avatar (fallback without WebGL2) */
+.pong-paddle-avatar {
+  position: absolute;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 5;
+  overflow: visible;
+  display: none;
+  will-change: transform, width, height, opacity;
+  transform-origin: 0 0;
+}
+.pong-paddle-avatar-path {
+  fill: var(--ink);
+  stroke: var(--page);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
