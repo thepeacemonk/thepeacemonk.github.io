@@ -1,6 +1,7 @@
 import { createGradientASCII, INTRO_SECONDS } from './gradient-ascii.js?v=22';
 
 import { createLocalWeather, weatherStyle } from './local-weather.js?v=7';
+import { imagePalette } from './note-image-colors.js?v=1';
 
 const localWeather = createLocalWeather();
 const container = document.querySelector('.ambient-background');
@@ -10,6 +11,9 @@ const brazilColors = ['#1938a5', '#ffdc00', '#00ad50', '#00ad50'];
 const country = document.querySelector('.country-wrap');
 let countryHovered = false;
 let countryFocused = false;
+let noteColors = null;
+let noteImageSource = null;
+let notePaletteRequest = 0;
 
 // Hour anchors use the visitor's clock. Interpolation keeps dawn and dusk gradual.
 const palettes = [
@@ -96,16 +100,16 @@ const syncAppearance = () => {
   const choice = document.documentElement.dataset.theme;
   const dark = choice === 'dark' || (choice !== 'light' && systemDark.matches);
   const mode = dark ? 'dark' : 'light';
-  const brazil = currentPage === 'home' && (countryHovered || countryFocused);
+  const brazil = !noteColors && currentPage === 'home' && (countryHovered || countryFocused);
   const weather = localWeather.current();
   const atmosphere = weatherStyle(brazil ? null : weather, dark);
   const timeColors = start[mode].map((color, i) => mixColor(color, end[mode][i], progress));
-  const colors = brazil ? brazilColors : timeColors.map((color, i) => atmosphere.colors ? mixColor(color, atmosphere.colors[i], atmosphere.strength) : color);
+  const colors = noteColors || (brazil ? brazilColors : timeColors.map((color, i) => atmosphere.colors ? mixColor(color, atmosphere.colors[i], atmosphere.strength) : color));
   currentSettings = { colors: displayedColors || colors, flagMix: displayedFlagMix, repeatText: 'brasil', repeatReveal: displayedRepeatReveal, lightMode: !dark, speed: atmosphere.speed, grain: atmosphere.grain, flicker: 0, density: 1, glyphOpacity: .65, softness: atmosphere.softness, flow: atmosphere.flow, glow: 0, message: pageMessages[currentPage] };
   container.dataset.timeOfDay = start.name;
   container.dataset.mode = mode;
   container.dataset.weather = weather?.kind || 'unknown';
-  container.dataset.palette = brazil ? 'brazil' : 'time';
+  container.dataset.palette = noteColors ? 'note' : brazil ? 'brazil' : 'time';
   renderer?.update(currentSettings);
   transitionColors(colors, brazil ? 1 : 0);
 };
@@ -113,6 +117,34 @@ const syncAppearance = () => {
 localWeather.subscribe(syncAppearance);
 syncAppearance();
 renderer = createGradientASCII(container, currentSettings);
+
+const noteModal = document.querySelector('.note-modal');
+const frontNoteImage = () => noteModal.querySelector('.note-modal-card-one img, .note-modal-card.is-single img');
+const syncNotePalette = async (force = false) => {
+  const image = noteModal.open ? frontNoteImage() : null;
+  const source = image?.getAttribute('src') || null;
+  container.classList.toggle('is-note-open', noteModal.open);
+  if (!force && source === noteImageSource) return;
+  noteImageSource = source;
+  const request = ++notePaletteRequest;
+  if (!image) {
+    noteColors = null;
+    delete container.dataset.noteImage;
+    syncAppearance();
+    return;
+  }
+  const colors = await imagePalette(image);
+  if (request !== notePaletteRequest || !noteModal.open || frontNoteImage() !== image || image.getAttribute('src') !== source) return;
+  noteColors = colors;
+  container.dataset.noteImage = source;
+  syncAppearance();
+};
+const noteObserver = new MutationObserver(() => syncNotePalette());
+noteObserver.observe(noteModal, { attributes: true, attributeFilter: ['open', 'src'], childList: true, subtree: true });
+noteModal.addEventListener('load', event => { if (event.target === frontNoteImage()) syncNotePalette(true); }, true);
+noteModal.addEventListener('close', () => syncNotePalette());
+syncNotePalette();
+
 window.addEventListener('peace:pagechange', (event) => {
   currentPage = Object.hasOwn(pageMessages, event.detail?.page) ? event.detail.page : 'home';
   countryHovered = false;

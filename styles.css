@@ -51,7 +51,71 @@
   }
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Own the focus treatment so mobile browsers never supply a blue rectangle. */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+/* Navigation focuses this heading for screen readers, not as a control. */
+.collection-title:focus { outline: none; }
+
+/* React Bits reticle: the native pointer is hidden only while this is visible. */
+.target-cursor {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  background: transparent;
+  z-index: 2147483647;
+  pointer-events: none;
+  mix-blend-mode: difference;
+  color: #fff;
+  opacity: 0;
+}
+.target-cursor::backdrop { background: transparent; pointer-events: none; }
+.target-cursor__corner,
+.target-cursor__dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform, opacity;
+}
+.target-cursor__corner {
+  width: var(--cursor-corner);
+  height: var(--cursor-corner);
+  transform-origin: 0 0;
+}
+.target-cursor__corner svg { display: block; height: 100%; width: 100%; overflow: visible; }
+.target-cursor__corner path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--cursor-thickness);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.target-cursor__dot {
+  width: var(--cursor-dot);
+  height: var(--cursor-dot);
+  border-radius: 50%;
+  background: currentColor;
+}
+@media (hover: hover) and (pointer: fine) {
+  html.has-target-cursor,
+  html.has-target-cursor * { cursor: none !important; }
+}
+@media (hover: none), (pointer: coarse) {
+  .target-cursor { display: none; }
+}
 
 body {
   margin: 0;
@@ -63,7 +127,22 @@ body {
   transition: background-color .45s ease, color .45s ease;
 }
 
-.home-page { isolation: isolate; min-height: 100svh; position: relative; }
+.home-page {
+  isolation: isolate;
+  min-height: 100svh;
+  position: relative;
+  -webkit-user-select: none;
+  user-select: none;
+}
+html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
+.home-page.is-note-modal-open {
+  position: fixed;
+  top: var(--note-scroll-top);
+  left: 0;
+  width: var(--note-page-width);
+  overflow: hidden;
+}
+.home-page.is-note-modal-open main { opacity: .16; }
 
 /* The sky remains live while the page crossfades and Qifrey travels between positions. */
 :root { view-transition-name: none; }
@@ -100,6 +179,15 @@ body {
 
 .ambient-background.has-renderer { background: none; }
 .ambient-background[data-mode="light"] { opacity: .65; }
+.ambient-background.is-note-open {
+  position: fixed;
+  height: 100vh;
+  height: 100dvh;
+  opacity: .78;
+  mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
+}
+.ambient-background.is-note-open[data-mode="light"] { opacity: .72; }
 .gradient-ascii-canvas { display: block; height: 100%; width: 100%; }
 
 h1,
@@ -150,6 +238,7 @@ main {
   width: min(640px, calc(100% - 48px));
   margin: 0 auto;
   padding: clamp(150px, 19vh, 250px) 0 120px;
+  transition: opacity .18s ease;
 }
 
 header { margin-bottom: 20px; position: relative; }
@@ -195,14 +284,14 @@ header { margin-bottom: 20px; position: relative; }
   display: flex;
   font-size: 12px;
   gap: 4px;
-  left: 0;
+  left: calc(100% + 12px);
   line-height: 1;
   opacity: 0;
   padding: 9px 12px;
   pointer-events: none;
   position: absolute;
-  top: 100%;
-  transform: translateY(8px);
+  top: 50%;
+  transform: translateY(-50%);
   transition: opacity .18s ease, transform .18s ease;
   white-space: nowrap;
   z-index: 1;
@@ -654,6 +743,9 @@ section p { margin: 0 0 12px; }
   border-radius: 18px;
   box-shadow: 0 18px 60px color-mix(in srgb, var(--ink) 22%, transparent);
   color: var(--ink);
+  inset: 0;
+  margin: auto;
+  height: fit-content;
   max-height: calc(100vh - 32px);
   max-height: calc(100dvh - 32px);
   overflow: visible;
@@ -662,7 +754,7 @@ section p { margin: 0 0 12px; }
   width: min(640px, calc(100% - 48px));
 }
 
-.note-modal::backdrop { background: var(--modal-backdrop); }
+.note-modal::backdrop { background: color-mix(in srgb, var(--page) 20%, transparent); }
 .note-modal[open] { animation: note-modal-in .18s ease both; }
 .note-modal-scroll {
   max-height: calc(100vh - 32px);
@@ -863,12 +955,41 @@ section p { margin: 0 0 12px; }
 .note-modal-meta { color: var(--muted); font-size: 12px; margin: 0 0 3px; }
 .note-modal h2 { font-size: 20px; font-weight: 400; line-height: 1.3; margin: 0 0 14px; }
 .note-modal-review { font-size: 14px; line-height: 1.65; margin: 0; }
+.note-modal-review {
+  position: relative;
+  isolation: isolate;
+}
+.note-modal-review,
+.note-modal-review p {
+  -webkit-user-select: text;
+  user-select: text;
+}
+.note-modal-review::selection,
+.note-modal-review *::selection {
+  background: color-mix(in srgb, var(--ink) 18%, var(--page));
+  color: var(--ink);
+}
+.note-modal-review.has-custom-selection::selection,
+.note-modal-review.has-custom-selection *::selection { background: transparent; }
+.text-selection-highlight {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.text-selection-highlight > span {
+  position: absolute;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--ink) 18%, var(--page));
+}
 .note-modal-review p { margin: 0 0 12px; }
 .note-modal-review p:last-child { margin-bottom: 0; }
 
 @keyframes note-modal-in {
-  from { opacity: 0; transform: translateY(8px) scale(.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: scale(.98); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes float {
@@ -883,9 +1004,12 @@ section p { margin: 0 0 12px; }
   .qifrey { width: 120px; height: 120px; }
   .note-modal-close.is-dropped { right: -16px; }
   .tooltip {
-    left: var(--cursor-x, 50%);
-    top: var(--cursor-y, calc(100% + 8px));
-    transform: translate(14px, 14px);
+    border-radius: 16px;
+    flex-wrap: wrap;
+    line-height: 1.4;
+    max-width: calc(100vw - 100% - 60px);
+    white-space: normal;
+    width: max-content;
   }
 }
 

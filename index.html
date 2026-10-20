@@ -10,8 +10,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300&display=swap" />
-    <link rel="stylesheet" href="styles.css?v=54" />
-    <script type="module" src="assets/ambient-background.js?v=31"></script>
+    <link rel="stylesheet" href="styles.css?v=63" />
+    <script type="module" src="assets/ambient-background.js?v=32"></script>
+    <script type="module" src="assets/target-cursor.js?v=8"></script>
     <script>
       // Applied before paint: a stored choice wins, otherwise the device decides via CSS.
       try {
@@ -51,7 +52,8 @@
       <header>
         <div class="art-credit">
           <button class="art-link" type="button" aria-label="Qifrey. Hold for 5 seconds to reveal artist credits" aria-expanded="false" aria-controls="qifrey-credits">
-            <img class="qifrey" src="assets/illustrations/qifrey-floating.png" alt="Qifrey floating" draggable="false" />
+            <!-- Corners measured from the PNG's opaque silhouette: TL, TR, BR, BL. -->
+            <img class="qifrey" src="assets/illustrations/qifrey-floating.png" alt="Qifrey floating" draggable="false" data-cursor-corners="0.095376,0.336765 0.761561,0.141176 0.747471,0.91875 0.187861,0.814706" />
           </button>
           <span class="tooltip" id="qifrey-credits" role="group" aria-label="Artist credits" hidden>Art by <a href="https://iclaimthisname.itch.io/" target="_blank" rel="noreferrer">iclaimthisname</a></span>
         </div>
@@ -449,6 +451,25 @@
       const noteModalTitle = noteModal.querySelector('#note-modal-title');
       const noteModalStars = noteModal.querySelector('.note-modal-stars');
       const noteModalReview = noteModal.querySelector('.note-modal-review');
+      let notePageScroll = null;
+      const lockNoteBackground = () => {
+        if (notePageScroll) return;
+        notePageScroll = { x: window.scrollX, y: window.scrollY };
+        document.body.style.setProperty('--note-page-width', `${document.documentElement.clientWidth}px`);
+        document.body.style.setProperty('--note-scroll-top', `${-notePageScroll.y}px`);
+        document.documentElement.classList.add('is-note-modal-open');
+        document.body.classList.add('is-note-modal-open');
+      };
+      const unlockNoteBackground = () => {
+        if (!notePageScroll) return;
+        const { x, y } = notePageScroll;
+        notePageScroll = null;
+        document.documentElement.classList.remove('is-note-modal-open');
+        document.body.classList.remove('is-note-modal-open');
+        document.body.style.removeProperty('--note-page-width');
+        document.body.style.removeProperty('--note-scroll-top');
+        window.scrollTo(x, y);
+      };
       const closeNoteModal = noteModal.querySelector('.note-modal-close');
       const notesCategories = document.querySelector('.notes-categories');
       let activeNotePreview = null;
@@ -666,7 +687,14 @@
         if (rating >= 1) noteModalStars.appendChild(starRow(rating));
 
         renderModalMedia(note, images);
-        noteModal.showModal();
+        lockNoteBackground();
+        try {
+          if (!noteModal.open) noteModal.showModal();
+        } catch (error) {
+          unlockNoteBackground();
+          throw error;
+        }
+        noteModalScroll.scrollTop = 0;
         requestAnimationFrame(updateNoteModalScrollbar);
       }
 
@@ -779,8 +807,12 @@
         const change = keySteps[event.key];
         noteModalScroll.scrollTop = change === Infinity ? noteModalScroll.scrollHeight : change === -Infinity ? 0 : noteModalScroll.scrollTop + change;
       });
-      window.addEventListener('resize', updateNoteModalScrollbar);
+      window.addEventListener('resize', () => {
+        if (notePageScroll) document.body.style.setProperty('--note-page-width', `${document.documentElement.clientWidth}px`);
+        updateNoteModalScrollbar();
+      });
       noteModal.addEventListener('close', () => {
+        unlockNoteBackground();
         clearNotePreviews();
         notesCategories.classList.remove('is-note-preview-suppressed');
       });
