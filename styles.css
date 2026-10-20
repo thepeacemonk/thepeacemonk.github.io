@@ -112,7 +112,7 @@ h1,
   align-items: center;
   background: transparent;
   border: 0;
-  border-radius: 50%;
+  border-radius: 0;
   color: var(--ink);
   cursor: pointer;
   display: flex;
@@ -126,7 +126,7 @@ h1,
   width: 38px;
 }
 
-.theme-toggle:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); transform: rotate(12deg); }
+.theme-toggle:hover { transform: rotate(12deg); }
 .theme-toggle.is-auto-flash { animation: theme-auto-pulse .55s ease-out; }
 
 @keyframes theme-auto-pulse {
@@ -367,6 +367,8 @@ section p { margin: 0 0 12px; }
 /* Geometry and palette from Study Hub's own companion favicon. */
 .studyhub-logo path { fill: var(--studyhub-icon-body); }
 .studyhub-logo rect { fill: var(--studyhub-icon-eyes); }
+.studyhub-logo,
+.future-app-logo { filter: blur(5px); }
 .studyhub-item .studyhub-logo {
   height: 36px;
   left: calc(100% + 2px);
@@ -917,7 +919,7 @@ section p { margin: 0 0 12px; }
   appearance: none;
   background: transparent;
   border: 0;
-  border-radius: 999px;
+  border-radius: 0;
   color: var(--ink);
   cursor: pointer;
   display: flex;
@@ -927,16 +929,61 @@ section p { margin: 0 0 12px; }
   line-height: 1.4;
   min-height: 38px;
   padding: 0 10px;
-  transition: color .45s ease, background-color .3s ease;
+  transition: color .45s ease;
   white-space: nowrap;
 }
 .local-clock { min-width: 36px; text-align: center; }
-.clock-toggle:hover,
-.weather-button:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
 .clock-toggle:focus,
 .weather-button:focus { outline: none; }
-.clock-toggle:focus-visible,
-.weather-button:focus-visible { text-decoration: underline; text-underline-offset: 4px; }
+.clock-toggle:focus-visible .local-clock,
+.weather-button:focus-visible .weather-value { text-decoration: underline; text-underline-offset: 4px; }
+
+.clock-toggle,
+.weather-button,
+.theme-toggle { position: relative; isolation: isolate; }
+.local-clock,
+.weather-value { position: relative; z-index: 1; }
+.control-hover-shape {
+  align-items: center;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity .2s ease;
+  z-index: -1;
+}
+/* Stroke the original contours directly; preserve concave curves and crisp edges. */
+.control-text-contour { height: 100%; width: 100%; overflow: visible; }
+.control-text-contour text {
+  fill: currentColor;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke fill;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: calc(var(--control-outline-gap) * 2);
+}
+.control-hover-shape .theme-icon {
+  fill: currentColor;
+  overflow: visible;
+  stroke-width: calc(1.8px + var(--control-outline-gap) * 8 / 3);
+}
+.is-filled-contour {
+  background: currentColor;
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+}
+.control-hover-shape .control-icon-contour { height: 24px; width: 24px; }
+.header-controls button:hover .control-hover-shape,
+.header-controls button:focus-visible .control-hover-shape { opacity: .16; }
+@media (prefers-reduced-motion: reduce) {
+  .control-hover-shape { transition: none; }
+}
 .elsewhere {
   align-items: center;
   display: flex;
@@ -1000,6 +1047,7 @@ section p { margin: 0 0 12px; }
 }
 
 .header-controls {
+  --control-outline-gap: 3px;
   align-items: center;
   display: flex;
   gap: 8px;

@@ -9,12 +9,14 @@ const CLICK_LIFE = 1.2;
 const TRAIL_LIFE = 0.7;
 const TRAIL_STEP = 0.015;
 export const INTRO_SECONDS = 2.4;
-const ATLAS_CELL_W = 60;
-const ATLAS_CELL_H = 100;
+const ATLAS_SCALE = 2;
+const ATLAS_CELL_W = 60 * ATLAS_SCALE;
+const ATLAS_CELL_H = 100 * ATLAS_SCALE;
+const MAX_RENDER_PIXELS = 8_000_000;
 const ATLAS_COLUMNS = 16;
 const FONT_SCALE = 0.78;
 const DEFAULT_COLORS = ['#1e3fd8', '#f6f8ff', '#a5d8ff', '#38bdf8'];
-const DEFAULT_CHARACTERS = ' =+xX0S8#@';
+const DEFAULT_CHARACTERS = ' .,:;-+=*0123456789ilrtfxnouczLCQOahkbdpqwmMW#%&@$';
 const DEFAULT_FONT = '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
 const SHAPES = { horizon: 0, pinch: 1, rise: 2, eclipse: 3 };
 const CLICK_EFFECTS = { none: 0, wave: 1, burst: 2 };
@@ -203,6 +205,7 @@ const GLYPHS = `
 uniform sampler2D uField;
 uniform sampler2D uAux;
 uniform sampler2D uAtlas;
+uniform sampler2D uChoices;
 uniform vec2 uResolution;
 uniform vec2 uCell;
 uniform vec2 uOffset;
@@ -238,13 +241,24 @@ float sampleGlyph(float index, vec2 local, vec2 coord, float soft) {
   float scale = exp2(soft);
   return textureGrad(uAtlas, atlasUv, dFdx(continuous) * scale, dFdy(continuous) * scale).a;
 }
+float boldGreetingGlyph(float index, vec2 local, vec2 coord) {
+  float center = sampleGlyph(index, local, coord, 0.0);
+  // Keep the dilation inside this character's atlas cell so nearby glyphs never bleed in.
+  float left = sampleGlyph(index, clamp(local + vec2(-0.035, 0.0), vec2(0.02, 0.0), vec2(0.98, 1.0)), coord, 0.0);
+  float right = sampleGlyph(index, clamp(local + vec2(0.035, 0.0), vec2(0.02, 0.0), vec2(0.98, 1.0)), coord, 0.0);
+  return max(center, max(left, right));
+}
 
 vec4 glyphAt(vec2 px) {
   vec2 coord = (px - uOffset) / uCell;
   vec2 cell = floor(coord);
   vec2 local = coord - cell;
   vec2 uv = clamp(((cell + 0.5) * uCell + uOffset) / uResolution, vec2(0.0), vec2(1.0));
-  vec4 field = texture(uField, uv);
+  // Average the source over the character cell, as when resizing an image to an ASCII grid.
+  vec2 quarterCell = uCell / uResolution * 0.25;
+  vec4 field = (texture(uField, uv + quarterCell) + texture(uField, uv - quarterCell)
+    + texture(uField, uv + vec2(quarterCell.x, -quarterCell.y))
+    + texture(uField, uv + vec2(-quarterCell.x, quarterCell.y))) * 0.25;
   vec4 aux = texture(uAux, uv);
   vec3 visible = uLight > 0.5 ? field.rgb + (1.0 - field.a) : field.rgb;
   float luma = dot(visible, vec3(0.2126, 0.7152, 0.0722));
@@ -252,9 +266,11 @@ vec4 glyphAt(vec2 px) {
   float pick = hash12(cell + uSeedValue * 7.31);
   float level = hash12(cell * 1.73 + 4.1 + uSeedValue);
   float tick = floor(uGlyphTime * 9.0 + level * 9.0);
-  float wobble = (hash12(cell * 2.31 + tick * 17.7) - 0.5) * uFlicker * 0.4 + (level - 0.5) * 0.1;
-  float tone = clamp(pow(value, 0.75) + wobble, 0.0, 1.0);
-  float index = floor(tone * (uCount - 1.0) + 0.5);
+  float wobble = (hash12(cell * 2.31 + tick * 17.7) - 0.5) * uFlicker * 0.4;
+  float tone = smoothstep(0.06, 0.94, clamp(value + wobble, 0.0, 1.0));
+  // A stable, density-matched tile also limits repeated symbols along each row.
+  float variant = (mod(cell.y, 4.0) * 16.0 + mod(cell.x, 16.0) + 0.5) / 64.0;
+  float index = floor(texture(uChoices, vec2(tone, variant)).r * 255.0 + 0.5);
   float decode = max(aux.g, 1.0 - aux.r);
   if (decode > 0.02) {
     float frame = floor(uGlyphTime * 20.0);
@@ -265,24 +281,29 @@ vec4 glyphAt(vec2 px) {
   bool messageCell = cell.y == uMessageStart.y && letter >= 0.0 && letter < uMessageLength;
   float previousLetter = cell.x - uPreviousStart.x;
   bool previousCell = cell.y == uPreviousStart.y && previousLetter >= 0.0 && previousLetter < uPreviousLength;
-  float present = step(pick, uDensity * mix(1.0, 0.3 + tone * 1.1, 0.55));
+  float present = step(pick, uDensity);
   float cutoff = smoothstep(0.03, 0.1, value);
   float focus = step(hash12(cell * 0.71 + 9.2 + uSeedValue), uDepth);
   float coverage = sampleGlyph(index, local, coord, focus * 1.2);
-  float alpha = uOpacity * present * cutoff * coverage * mix(1.0, 0.35 + 0.65 * level, 0.55) * (1.0 - focus * 0.5);
+  float alpha = uOpacity * present * cutoff * coverage * (1.0 - focus * 0.5);
   float nextAlpha = alpha;
   float previousAlpha = alpha;
-  if (messageCell && uMessageReveal >= (letter + 1.0) / uMessageLength && decode < 0.35) {
-    nextAlpha = uOpacity * cutoff * sampleGlyph(uMessage[int(letter)], local, coord, 0.0) * 0.9;
+  bool currentGreeting = messageCell && uMessageReveal >= (letter + 1.0) / uMessageLength && decode < 0.35;
+  bool previousGreeting = previousCell && decode < 0.35;
+  if (currentGreeting) {
+    nextAlpha = max(uOpacity, 0.94) * max(cutoff, 0.92) * boldGreetingGlyph(uMessage[int(letter)], local, coord);
   }
-  if (previousCell && decode < 0.35) {
-    previousAlpha = uOpacity * cutoff * sampleGlyph(uPreviousMessage[int(previousLetter)], local, coord, 0.0) * 0.9;
+  if (previousGreeting) {
+    previousAlpha = max(uOpacity, 0.94) * max(cutoff, 0.92) * boldGreetingGlyph(uPreviousMessage[int(previousLetter)], local, coord);
   }
   alpha = mix(previousAlpha, nextAlpha, uMessageTransition);
+  // The old greeting's emphasis must leave with its letters, including its wider edges.
+  float greetingEmphasis = mix(float(previousGreeting), float(currentGreeting), uMessageTransition);
   vec2 cellPosition = (uv - 0.5) * vec2(uResolution.x / uResolution.y, 1.0);
   if (uPointer.z > 0.5 && distance(cellPosition, uPointer.xy) < uPointerRadius) {
     // Hover replaces the complete cell, including greeting letters, with an actual zero.
     alpha = uOpacity * present * cutoff * sampleGlyph(uZeroGlyph, local, coord, 0.0) * 0.9;
+    greetingEmphasis = 0.0;
   }
   if (uRepeatLength > 0.0 && uRepeatReveal > 0.0) {
     // Decode the entire grid into adjacent words, including the greeting and cursor cells.
@@ -292,12 +313,14 @@ vec4 glyphAt(vec2 px) {
     float revealed = smoothstep(threshold - 0.05, threshold + 0.05, uRepeatReveal);
     float repeatedAlpha = uOpacity * cutoff * sampleGlyph(uRepeatText[int(repeatIndex)], local, coord, 0.0) * 0.9;
     alpha = mix(alpha, repeatedAlpha, revealed);
+    greetingEmphasis *= 1.0 - revealed;
   }
   if (uLight < 0.5) {
-    vec3 light = field.rgb * 0.55 + vec3(0.03) * field.a;
-    return vec4(light * alpha, 0.6 * field.a * alpha);
+    vec3 light = mix(field.rgb * 0.55 + vec3(0.03) * field.a, vec3(0.96), greetingEmphasis);
+    float outputAlpha = mix(0.6 * field.a * alpha, alpha, greetingEmphasis);
+    return vec4(light * alpha, outputAlpha);
   }
-  vec3 ink = visible * 0.8;
+  vec3 ink = mix(visible * 0.8, vec3(0.12), greetingEmphasis);
   return vec4(ink * alpha, alpha);
 }
 `;
@@ -435,7 +458,91 @@ const sizeTarget = (gl, target, width, height) => {
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 };
 
-const buildAtlas = (gl, characters, fontFamily) => {
+// A conventional brightness ramp, calibrated to this font's actual ink coverage.
+// Ordered dithering sets the tone; nearby-density alternatives prevent repetitive rows.
+export function buildDensityChoices(entries) {
+  const sorted = (entries.length ? entries : [{ index: 0, density: 0 }]).slice().sort((a, b) => a.density - b.density);
+  const bands = [];
+  for (const entry of sorted) {
+    const previous = bands.at(-1);
+    if (previous && previous.tone === entry.density) previous.members.push(entry);
+    else bands.push({ members: [entry], tone: entry.density });
+  }
+  const minimum = bands[0].tone;
+  const span = bands.at(-1).tone - minimum || 1;
+  bands.forEach(band => { band.tone = (band.tone - minimum) / span; });
+  const width = 1024;
+  const height = 16;
+  const pixels = new Uint8Array(width * height);
+  for (let x = 0; x < width; x++) {
+    const tone = x / (width - 1);
+    let upper = bands.findIndex(band => band.tone >= tone);
+    if (upper < 0) upper = bands.length - 1;
+    const lower = Math.max(0, upper - 1);
+    const distance = bands[upper].tone - bands[lower].tone;
+    const mix = distance > 0 ? (tone - bands[lower].tone) / distance : 0;
+    for (let y = 0; y < height; y++) {
+      const quantile = (y + .5) / height;
+      const useUpper = mix > 0 && quantile >= 1 - mix;
+      const band = bands[useUpper ? upper : lower];
+      const within = useUpper ? (quantile - (1 - mix)) / mix : quantile / (1 - mix || 1);
+      const member = band.members[Math.min(band.members.length - 1, Math.floor(within * band.members.length))];
+      pixels[y * width + x] = member.index;
+    }
+  }
+  const bayer = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+  const density = new Map(sorted.map(entry => [entry.index, entry.density]));
+  const alternatives = new Map(sorted.map(entry => [entry.index,
+    sorted.filter(other => other.index !== entry.index)
+      .sort((a, b) => Math.abs(a.density - entry.density) - Math.abs(b.density - entry.density))
+      .slice(0, 8).map(other => other.index)
+  ]));
+  const tileHeight = 64;
+  const choices = new Uint8Array(width * tileHeight);
+  for (let x = 0; x < width; x++) {
+    const target = minimum + x / (width - 1) * span;
+    for (let row = 0; row < 4; row++) {
+      const line = new Uint8Array(16);
+      const counts = new Uint8Array(256);
+      let error = 0;
+      const choose = (original, candidates, replacing = false) => candidates.slice().sort((a, b) =>
+        Math.abs(error + density.get(a) - (replacing ? density.get(original) : target)) - Math.abs(error + density.get(b) - (replacing ? density.get(original) : target))
+        || Math.abs(density.get(a) - density.get(original)) - Math.abs(density.get(b) - density.get(original))
+      )[0];
+      for (let column = 0; column < 16; column++) {
+        const base = pixels[bayer[row * 4 + column % 4] * width + x];
+        const blank = density.get(base) === 0;
+        const valid = candidate => counts[candidate] < 4
+          && !(column > 1 && line[column - 1] === candidate && line[column - 2] === candidate);
+        const candidates = (alternatives.get(base) || []).filter(valid);
+        const selected = blank || valid(base) || !candidates.length ? base : choose(base, candidates);
+        line[column] = selected;
+        counts[selected]++;
+        error += density.get(selected) - target;
+      }
+      // Repair tile seams too, so a repeating tile cannot join two runs together.
+      for (let column = 0; column < 16; column++) {
+        const original = line[column];
+        if (density.get(original) === 0 || line[(column + 15) % 16] !== original || line[(column + 1) % 16] !== original) continue;
+        const candidates = (alternatives.get(original) || []).filter(candidate => {
+          if (counts[candidate] >= 4) return false;
+          const a = line[(column + 14) % 16], b = line[(column + 15) % 16];
+          const c = line[(column + 1) % 16], d = line[(column + 2) % 16];
+          return !(a === candidate && b === candidate) && !(b === candidate && c === candidate) && !(c === candidate && d === candidate);
+        });
+        if (!candidates.length) continue;
+        const replacement = choose(original, candidates, true);
+        counts[original]--; counts[replacement]++;
+        error += density.get(replacement) - density.get(original);
+        line[column] = replacement;
+      }
+      for (let column = 0; column < 16; column++) choices[(row * 16 + column) * width + x] = line[column];
+    }
+  }
+  return { pixels: choices, width, height: tileHeight, bands };
+}
+
+const buildAtlas = (gl, characters, fontFamily, fieldCharacters) => {
   const list = [...new Set([...characters].filter(char => char !== '\n' && char !== '\r'))];
   if (!list.length) list.push(' ');
   const font = `300 ${Math.round(ATLAS_CELL_H * FONT_SCALE)}px ${fontFamily}`;
@@ -444,7 +551,8 @@ const buildAtlas = (gl, characters, fontFamily) => {
   const canvas = document.createElement('canvas');
   canvas.width = ATLAS_CELL_W * columns;
   canvas.height = ATLAS_CELL_H * rows;
-  const context = canvas.getContext('2d');
+  const context = canvas.getContext('2d', { willReadFrequently: true });
+  const coverage = new Float32Array(list.length);
   if (context) {
     context.font = font;
     context.textAlign = 'center';
@@ -453,9 +561,24 @@ const buildAtlas = (gl, characters, fontFamily) => {
     list.forEach((char, index) => {
       const column = index % columns;
       const row = Math.floor(index / columns);
-      context.fillText(char, column * ATLAS_CELL_W + ATLAS_CELL_W / 2, row * ATLAS_CELL_H + ATLAS_CELL_H / 2 + 3);
+      context.fillText(char, column * ATLAS_CELL_W + ATLAS_CELL_W / 2, row * ATLAS_CELL_H + ATLAS_CELL_H / 2 + 3 * ATLAS_SCALE);
+    });
+    const rgba = context.getImageData(0, 0, canvas.width, canvas.height).data;
+    list.forEach((char, index) => {
+      const left = index % columns * ATLAS_CELL_W;
+      const top = Math.floor(index / columns) * ATLAS_CELL_H;
+      let ink = 0;
+      for (let y = top; y < top + ATLAS_CELL_H; y++) {
+        const start = (y * canvas.width + left) * 4 + 3;
+        for (let pixel = start; pixel < start + ATLAS_CELL_W * 4; pixel += 4) ink += rgba[pixel];
+      }
+      coverage[index] = ink / (255 * ATLAS_CELL_W * ATLAS_CELL_H);
     });
   }
+  const choices = buildDensityChoices([...new Set(fieldCharacters)].filter(char => char !== '\n' && char !== '\r').map(char => {
+    const index = list.indexOf(char);
+    return { index, density: coverage[index] };
+  }));
   const texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
@@ -465,7 +588,14 @@ const buildAtlas = (gl, characters, fontFamily) => {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  return { texture, characters: list, grid: [columns, rows] };
+  const choicesTexture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, choicesTexture);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, choices.width, choices.height, 0, gl.RED, gl.UNSIGNED_BYTE, choices.pixels);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return { texture, choicesTexture, characters: list, grid: [columns, rows] };
 };
 
 
@@ -496,7 +626,7 @@ function normaliseSettings({
   lightMode = false,
   flagMix = 0,
   fontFamily = DEFAULT_FONT,
-  dpr = 1.5,
+  dpr = 0,
 } = {}) {
   const palette = (Array.isArray(colors) && colors.length ? colors : DEFAULT_COLORS).slice(0, MAX_COLORS);
   return {
@@ -579,6 +709,7 @@ export function createGradientASCII(container, options = {}) {
     const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
     let reduce = motionPreference.matches;
     const view = { width: 1, height: 1, ratio: 1 };
+    const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
     const ramp = new Float32Array(MAX_COLORS * 3);
     const clickData = new Float32Array(MAX_CLICKS * 4);
     const clicks = [];
@@ -610,13 +741,13 @@ export function createGradientASCII(container, options = {}) {
       const key = `${s.fontFamily}|${[...new Set(alphabet)].join('')}`;
       if (key === atlasKey && atlas) return;
       atlasKey = key;
-      if (atlas) gl.deleteTexture(atlas.texture);
-      atlas = buildAtlas(gl, alphabet, s.fontFamily);
+      if (atlas) { gl.deleteTexture(atlas.texture); gl.deleteTexture(atlas.choicesTexture); }
+      atlas = buildAtlas(gl, alphabet, s.fontFamily, s.characters);
       document.fonts?.load?.(`300 64px ${s.fontFamily}`, s.characters).then(
         () => {
           if (disposed || atlasKey !== key) return;
-          if (atlas) gl.deleteTexture(atlas.texture);
-          atlas = buildAtlas(gl, alphabet, s.fontFamily);
+          if (atlas) { gl.deleteTexture(atlas.texture); gl.deleteTexture(atlas.choicesTexture); }
+          atlas = buildAtlas(gl, alphabet, s.fontFamily, s.characters);
           draw();
         },
         () => {}
@@ -646,6 +777,9 @@ export function createGradientASCII(container, options = {}) {
       gl.activeTexture(gl.TEXTURE2);
       gl.bindTexture(gl.TEXTURE_2D, atlas.texture);
       gl.uniform1i(u.uAtlas, 2);
+      gl.activeTexture(gl.TEXTURE4);
+      gl.bindTexture(gl.TEXTURE_2D, atlas.choicesTexture);
+      gl.uniform1i(u.uChoices, 4);
       gl.uniform2f(u.uResolution, width, height);
       gl.uniform2f(u.uCell, cellW, cellH);
       gl.uniform2f(
@@ -654,7 +788,7 @@ export function createGradientASCII(container, options = {}) {
         (height - Math.ceil(height / cellH) * cellH) / 2
       );
       gl.uniform2f(u.uAtlasGrid, atlas.grid[0], atlas.grid[1]);
-      // Extra letters belong only to the greeting; the random field keeps its original alphabet.
+      // Greetings use their own letters; the shaded field samples only the measured ASCII palette.
       gl.uniform1f(u.uCount, new Set([...s.characters].filter(char => char !== '\n' && char !== '\r')).size || 1);
       const message = [...s.message];
       messageData.fill(0);
@@ -764,9 +898,13 @@ export function createGradientASCII(container, options = {}) {
       const s = settingsRef.current;
       view.width = Math.max(1, container.clientWidth);
       view.height = Math.max(1, container.clientHeight);
-      view.ratio = Math.min(s.dpr || window.devicePixelRatio || 1, 2);
-      canvas.width = Math.max(1, Math.round(view.width * view.ratio));
-      canvas.height = Math.max(1, Math.round(view.height * view.ratio));
+      const requestedRatio = s.dpr > 0 ? s.dpr : Math.max(2, window.devicePixelRatio || 1) * Math.max(1, window.visualViewport?.scale || 1);
+      // Keep glyphs at display/zoom resolution while bounding GPU memory on large screens.
+      view.ratio = Math.min(requestedRatio, Math.sqrt(MAX_RENDER_PIXELS / (view.width * view.height)), maxTextureSize / Math.max(view.width, view.height));
+      const pixelWidth = Math.max(1, Math.round(view.width * view.ratio));
+      const pixelHeight = Math.max(1, Math.round(view.height * view.ratio));
+      if (canvas.width !== pixelWidth) canvas.width = pixelWidth;
+      if (canvas.height !== pixelHeight) canvas.height = pixelHeight;
       sizeTarget(
         gl,
         fieldTarget,
@@ -779,6 +917,14 @@ export function createGradientASCII(container, options = {}) {
       sizeTarget(gl, haloB, haloWidth, haloHeight);
       draw();
       wake();
+    };
+
+    let resolutionQuery;
+    const watchResolution = () => {
+      resolutionQuery?.removeEventListener('change', watchResolution);
+      resolutionQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+      resolutionQuery.addEventListener('change', watchResolution);
+      resize();
     };
 
     const updateInput = dt => {
@@ -919,7 +1065,9 @@ export function createGradientASCII(container, options = {}) {
     window.addEventListener('blur', clearHover);
     window.addEventListener('scroll', clearHover, { passive: true });
     document.addEventListener('visibilitychange', onVisibility);
-    resize();
+    window.addEventListener('resize', resize, { passive: true });
+    window.visualViewport?.addEventListener('resize', resize, { passive: true });
+    watchResolution();
     wakeRef.current = wake;
     replayRef.current = () => {
       previousMessage = activeMessage;
@@ -942,13 +1090,16 @@ export function createGradientASCII(container, options = {}) {
       window.removeEventListener('blur', clearHover);
       window.removeEventListener('scroll', clearHover);
       document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('resize', resize);
+      window.visualViewport?.removeEventListener('resize', resize);
+      resolutionQuery?.removeEventListener('change', watchResolution);
       motionPreference.removeEventListener('change', onMotionChange);
       container.classList.remove('has-renderer');
       [fieldTarget, haloA, haloB].forEach(target => {
         target.textures.forEach(texture => gl.deleteTexture(texture));
         gl.deleteFramebuffer(target.framebuffer);
       });
-      if (atlas) gl.deleteTexture(atlas.texture);
+      if (atlas) { gl.deleteTexture(atlas.texture); gl.deleteTexture(atlas.choicesTexture); }
       gl.deleteVertexArray(vao);
       [field, halo, blur, composite].forEach(item => gl.deleteProgram(item.program));
     };

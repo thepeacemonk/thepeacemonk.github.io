@@ -1,6 +1,6 @@
-import { createGradientASCII, INTRO_SECONDS } from './gradient-ascii.js?v=11';
+import { createGradientASCII, INTRO_SECONDS } from './gradient-ascii.js?v=22';
 
-import { createLocalWeather, weatherStyle } from './local-weather.js?v=3';
+import { createLocalWeather, weatherStyle } from './local-weather.js?v=7';
 
 const localWeather = createLocalWeather();
 const container = document.querySelector('.ambient-background');
@@ -101,7 +101,7 @@ const syncAppearance = () => {
   const atmosphere = weatherStyle(brazil ? null : weather, dark);
   const timeColors = start[mode].map((color, i) => mixColor(color, end[mode][i], progress));
   const colors = brazil ? brazilColors : timeColors.map((color, i) => atmosphere.colors ? mixColor(color, atmosphere.colors[i], atmosphere.strength) : color);
-  currentSettings = { colors: displayedColors || colors, flagMix: displayedFlagMix, repeatText: 'brasil', repeatReveal: displayedRepeatReveal, lightMode: !dark, speed: atmosphere.speed, grain: atmosphere.grain, flicker: atmosphere.flicker, softness: atmosphere.softness, flow: atmosphere.flow, glow: .12, message: pageMessages[currentPage] };
+  currentSettings = { colors: displayedColors || colors, flagMix: displayedFlagMix, repeatText: 'brasil', repeatReveal: displayedRepeatReveal, lightMode: !dark, speed: atmosphere.speed, grain: atmosphere.grain, flicker: 0, density: 1, glyphOpacity: .65, softness: atmosphere.softness, flow: atmosphere.flow, glow: 0, message: pageMessages[currentPage] };
   container.dataset.timeOfDay = start.name;
   container.dataset.mode = mode;
   container.dataset.weather = weather?.kind || 'unknown';

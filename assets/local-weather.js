@@ -1,3 +1,5 @@
+import { syncControlContour, initIconContours } from './control-contours.js?v=2';
+
 // Weather uses only an approximate network location; no device-location prompt.
 // Data sources: Open-Meteo (https://open-meteo.com/) and GeoJS (https://www.geojs.io/).
 const CACHE_KEY = 'peace-local-weather-v2';
@@ -63,6 +65,7 @@ export function createLocalWeather() {
   const widget = document.querySelector('.weather-widget');
   const button = widget.querySelector('.weather-button');
   const value = widget.querySelector('.weather-value');
+  initIconContours(document.querySelector('.theme-toggle'));
   const listeners = new Set();
   let weather = null;
   let busy = false;
@@ -79,6 +82,7 @@ export function createLocalWeather() {
     const now = new Date();
     // Recreate the formatter so changes to the computer's time zone take effect.
     clock.textContent = formatLocalTime(now, twelveHour);
+    syncControlContour(clockButton, clock);
     clock.dateTime = now.toISOString();
     clockButton.setAttribute('aria-label', `Your local time, ${clock.textContent}. Switch to ${twelveHour ? '24-hour' : 'AM/PM'} format`);
     clockButton.setAttribute('aria-pressed', String(twelveHour));
@@ -87,6 +91,7 @@ export function createLocalWeather() {
   const render = () => {
     const current = fresh();
     value.textContent = current ? formatTemperature(current.temperature, fahrenheit) : busy ? '…' : 'Weather';
+    syncControlContour(button, value);
     button.setAttribute('aria-label', current ? `${current.label}, ${value.textContent}. Switch to ${fahrenheit ? 'Celsius' : 'Fahrenheit'}` : busy ? `Loading local weather. Switch to ${fahrenheit ? 'Celsius' : 'Fahrenheit'}` : `Weather unavailable. Switch to ${fahrenheit ? 'Celsius' : 'Fahrenheit'} and retry`);
     button.setAttribute('aria-busy', String(busy));
     button.setAttribute('aria-pressed', String(fahrenheit));
@@ -145,6 +150,7 @@ export function createLocalWeather() {
   window.addEventListener('pageshow', () => { updateClock(); render(); emit(); if (!fresh()) refresh(); });
   window.addEventListener('focus', updateClock);
   window.addEventListener('online', refresh);
+  document.fonts.ready.then(() => { syncControlContour(clockButton, clock); syncControlContour(button, value); });
   setInterval(() => {
     if (document.hidden) return;
     render(); emit();
