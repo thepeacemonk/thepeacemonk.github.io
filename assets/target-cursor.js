@@ -265,6 +265,19 @@ export function createTargetCursor() {
   listen(window, 'scroll', refresh, { passive: true, capture: true });
   listen(window, 'resize', refresh, { passive: true });
   listen(window, 'peace:pagechange', refresh);
+  listen(window, 'peace:cursor-return', event => {
+    pointer.x = event.detail.x; pointer.y = event.detail.y;
+    pointer.pressed = false; pointer.inside = true; pointer.seen = true;
+    press.x = press.v = 0;
+    target = null;
+    corners.forEach((corner, i) => {
+      corner.x.x = pointer.x + OFFSETS[i][0] * SETTINGS.size / 2;
+      corner.y.x = pointer.y + OFFSETS[i][1] * SETTINGS.size / 2;
+      corner.angle.x = i * 90;
+      corner.x.v = corner.y.v = corner.angle.v = 0;
+    });
+    wake();
+  });
   listen(document, 'keydown', event => { if (event.key === 'Tab') leave(); });
   listen(fine, 'change', () => { leave(); syncLayer(); });
   listen(reduced, 'change', refresh);

@@ -798,7 +798,8 @@ export function createGradientASCII(container, options = {}) {
       const columns = Math.ceil(width / cellW);
       const offsetY = (height - Math.ceil(height / cellH) * cellH) / 2;
       gl.uniform2f(u.uMessageStart, Math.floor((columns - message.length) / 2), Math.floor((height * .8 - offsetY) / cellH));
-      const previous = [...previousMessage];
+      // An explicitly empty greeting also clears its transition predecessor.
+      const previous = s.message ? [...previousMessage] : [];
       previousMessageData.fill(0);
       previous.forEach((char, i) => { previousMessageData[i] = atlas.characters.indexOf(char); });
       gl.uniform1fv(u.uPreviousMessage, previousMessageData);

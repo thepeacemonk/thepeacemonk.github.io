@@ -226,7 +226,6 @@ html:has(.pong-dialog[open]) { overflow: hidden; }
 .pong-overlay[hidden] { display: none; }
 .pong-overlay p { margin: 0; }
 .pong-overlay-title { font-size: clamp(20px, 4vw, 30px); letter-spacing: -.03em; }
-.pong-comment { min-height: 2.8em; margin: 14px 0 8px; font-size: 13px; line-height: 1.4; color: var(--collection-muted); }
 .pong-play { border: 1px solid var(--ink); border-radius: 50px; padding: 8px 22px; background: var(--ink); color: var(--page) !important; min-width: 100px; font-size: 14px !important; }
 .pong-play:hover { background: var(--page); color: var(--ink) !important; }
 .pong-play:disabled { opacity: .5; cursor: wait; }
@@ -305,7 +304,6 @@ html:has(.pong-dialog[open]) { overflow: hidden; }
   .pong-dialog, .pong-history-dialog { padding: 12px; }
   .pong-frame { padding: 16px 18px; }
   .pong-heading h2 { font-size: 22px; }
-  .pong-comment { font-size: 12px; min-height: 3em; }
   .wks { max-width: 100%; }
   .pong-mode-btn span { display: none; }
   .pong-mode-btn { padding: 6px; }
@@ -427,3 +425,93 @@ html:not([data-theme="light"]).pong-active .pong-court * {
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
 }
+
+/* Reserve both names' width, so the ASCII reveal cannot reflow the quote. */
+.pong-secret { display: inline-grid; vertical-align: baseline; white-space: nowrap; }
+.pong-secret-measure, .pong-secret-word { grid-area: 1 / 1; }
+.pong-secret-measure { visibility: hidden; }
+.pong-secret-word { min-width: 0; width: 0; text-align: left; }
+
+/* ══ Eye tracker — Wu ══════════════════════════════════════
+   Adapted from Bencho. Like its mark variant, the body takes
+   this site's ink and the eyes its ground. Speech uses the
+   island's own surface; no Bencho tokens leak into globals. */
+.pong-heading { align-items: flex-start; }
+.wu-host { position: relative; display: flex; align-items: flex-start; gap: 12px; flex: 1; min-width: 0; }
+.wu-avatar { flex: none; display: grid; place-items: center; width: 68px; height: 68px; margin: -4px 0 0 -4px; padding: 0; background: none; border: 0; border-radius: 22px; transform-origin: center; transition: scale 420ms cubic-bezier(.24, 1.34, .38, 1); }
+/* a press gives a little under the finger and springs back out */
+.wu-avatar:active { scale: .96; transition-duration: 160ms; transition-timing-function: ease; }
+.eyt-ball { width: 100%; height: 100%; overflow: visible; }
+.eyt-body { fill: var(--ink); }
+.eyt-eye { fill: var(--page); }
+.eyt-expression { fill: none; stroke: var(--page); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.wu-host[data-mood="victory"] .eyt-expression { fill: var(--page); stroke-width: 1; }
+.wu-copy { flex: 1; min-width: 0; padding-top: 2px; }
+.wu-speech-space { min-height: 58px; margin-top: 8px; }
+/* A chat bubble's rounded corner points back at the face. It
+   types a line, holds it, and folds away without shifting play. */
+.eyt-say { display: inline-block; max-width: 100%; text-align: left; padding: 7px 11px; border-radius: 6px 14px 14px 14px; background: var(--page); color: var(--ink); font: inherit; font-size: 12px; line-height: 1.5; vertical-align: top; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 160ms ease, background-color 220ms ease; }
+.eyt-say[data-on] { opacity: 1; visibility: visible; }
+.eyt-caret { display: inline-block; width: 1.5px; height: .85em; border-radius: 1px; margin-left: 2px; background: var(--ink); vertical-align: -.05em; animation: wu-caret 1s steps(1) infinite; }
+.wu-announcement { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.pong-dialog:not([open]) .eyt-caret { animation-play-state: paused; }
+.pong-actions { margin-top: 18px; }
+@keyframes wu-caret { 50% { opacity: 0; } }
+@media (max-width: 520px) {
+  .pong-heading { position: relative; justify-content: center; }
+  .pong-heading > .pong-close { position: absolute; top: 0; right: 0; }
+  .wu-host { flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+  .wu-avatar { width: 62px; height: 62px; margin: 0; }
+  .wu-copy { width: 100%; padding-top: 0; text-align: center; }
+  .wu-speech-space { min-height: 66px; margin-top: 8px; }
+  .eyt-say { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wu-avatar, .eyt-say { transition: none; }
+  .eyt-caret { animation: none; }
+}
+
+/* Wu lives beside the island, never on its paper surface. */
+.pong-stage { position: relative; width: min(100%, 700px); margin-top: 0; }
+.pong-stage > .pong-frame { width: 100%; }
+.pong-stage > .wu-host { position: absolute; right: calc(100% + 4px); top: -72px; width: 68px; flex-direction: column; align-items: flex-end; gap: 4px; }
+.pong-stage .wu-avatar { margin: 0; }
+.pong-stage .wu-copy { position: absolute; left: calc(100% + 12px); top: 0; flex: none; width: 260px; padding: 0; text-align: left; }
+.pong-stage .wu-speech-space { margin: 0; min-height: 0; }
+.pong-stage .eyt-say { border-radius: 6px 14px 14px 14px; padding: 10px 13px; }
+@media (max-width: 1179px) {
+  .pong-stage { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 0; }
+  .pong-stage > .wu-host { position: relative; inset: auto; width: min(100%, 360px); align-items: center; gap: 0; }
+  .pong-stage .wu-avatar { width: 62px; height: 62px; }
+  .pong-stage .wu-copy { position: static; inset: auto; width: 100%; text-align: center; }
+  .pong-stage .wu-speech-space { min-height: 58px; margin-top: 6px; }
+  .pong-stage .eyt-say { border-radius: 12px; }
+}
+
+.pong-dialog.is-opening .wu-host { visibility: hidden; }
+
+/* Wupong keeps the live sky, but hides every other page surface.
+   Visibility preserves the page geometry, scroll position and cursor origin. */
+.home-page:has(#pong-dialog[open]) > :not(.ambient-background, #pong-dialog, #pong-history),
+.home-page:has(#pong-dialog[open]) > :not(.ambient-background, #pong-dialog, #pong-history) * {
+  visibility: hidden !important;
+}
+
+/* Game controls and Wu's speech are interactive surfaces, not selectable text. */
+.pong-dialog, .pong-dialog *, .pong-history-dialog, .pong-history-dialog * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+}
+
+/* Wu forms in the liquid overlay before his live face takes over. */
+.pong-dialog.wu-forming .wu-host { visibility: hidden; pointer-events: none; }
+
+.pong-dialog.is-closing .pong-frame-corner,
+.pong-dialog.is-closing .pong-court { visibility: hidden; }
+.pong-dialog.is-closing .pong-stage { pointer-events: none; }
+html.has-target-cursor.pong-active.pong-morphing,
+html.has-target-cursor.pong-active.pong-morphing *,
+html.pong-active.pong-morphing,
+html.pong-active.pong-morphing * { cursor: none !important; }

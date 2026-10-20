@@ -165,7 +165,6 @@ html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
 .ambient-background {
   --ambient-edge: #7ea6c9;
   --ambient-sky: #c9e4ed;
-  background: radial-gradient(ellipse at 50% 0%, var(--ambient-sky), var(--ambient-edge) 48%, transparent 80%);
   height: clamp(380px, 60vh, 600px);
   inset: 0 0 auto;
   mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
@@ -177,6 +176,11 @@ html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
   z-index: -1;
 }
 
+/* Keep the page surface while modules load; the renderer has its own entrance.
+   The static gradient is only for unavailable/lost graphics contexts. */
+.ambient-background.is-fallback {
+  background: radial-gradient(ellipse at 50% 0%, var(--ambient-sky), var(--ambient-edge) 48%, transparent 80%);
+}
 .ambient-background.has-renderer { background: none; }
 .ambient-background[data-mode="light"] { opacity: .65; }
 .ambient-background.is-note-open,

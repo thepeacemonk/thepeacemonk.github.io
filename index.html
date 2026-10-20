@@ -11,11 +11,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=63" />
-  <script type="module" src="assets/ambient-background.js?v=32"></script>
-  <script type="module" src="assets/target-cursor.js?v=8"></script>
-  <link rel="stylesheet" href="assets/pong.css?v=7" />
-  <script type="module" src="assets/pong.js?v=6"></script>
+  <link rel="stylesheet" href="styles.css?v=64" />
+  <script type="module" src="assets/ambient-background.js?v=34"></script>
+  <script type="module" src="assets/target-cursor.js?v=9"></script>
+  <link rel="stylesheet" href="assets/pong.css?v=18" />
+  <script type="module" src="assets/pong.js?v=18"></script>
   <script>
     // Applied before paint: a stored choice wins, otherwise the device decides via CSS.
     try {
@@ -90,9 +90,8 @@
 
       <section aria-label="About peace">
         <blockquote class="quote">
-          <p>&ldquo;That&rsquo;s <button class="pong-secret" type="button" aria-haspopup="dialog"
-              aria-controls="pong-dialog" aria-label="Truly difficult. Play a secret game of Pong">truly
-              difficult</button>,&rdquo; said Wukong, &ldquo;truly difficult!&rdquo; &ldquo;Nothing in the world is
+          <p>&ldquo;That&rsquo;s truly difficult,&rdquo; said <button class="pong-secret" type="button" aria-haspopup="dialog"
+              aria-controls="pong-dialog" aria-label="Wukong. Play Wupong"><span class="pong-secret-measure" aria-hidden="true">Wukong</span><span class="pong-secret-measure" aria-hidden="true">Wupong</span><span class="pong-secret-word" aria-hidden="true">Wukong</span></button>, &ldquo;truly difficult!&rdquo; &ldquo;Nothing in the world is
             difficult,&rdquo; said the Patriarch; &ldquo;only the mind makes it so.&rdquo;</p>
           <footer>Anthony Yu, <cite>The Journey to the West</cite> (西遊記)</footer>
         </blockquote>
@@ -345,6 +344,14 @@
     <button class="studyhub-coming-soon-close" type="button">Back to My apps</button>
   </section>
   <dialog class="pong-dialog" id="pong-dialog" aria-labelledby="pong-title">
+    <div class="pong-stage">
+          <div class="wu-host eyt" data-mood="neutral">
+            <button class="wu-avatar" type="button" aria-label="Wu"></button>
+            <div class="wu-copy">
+              <div class="wu-speech-space"><span class="eyt-say" aria-hidden="true"><span class="wu-line"></span><span class="eyt-caret"></span></span></div>
+              <span class="wu-announcement" role="status" aria-live="polite"></span>
+            </div>
+          </div>
     <div class="pong-frame">
       <span class="pong-frame-corner" aria-hidden="true"><svg viewBox="0 0 30 30">
           <path d="M1.25 28.75V24A22.75 22.75 0 0 1 24 1.25H28.75" />
@@ -357,18 +364,18 @@
         </svg></span>
       <div class="pong-content">
         <div class="pong-heading">
-          <h2 id="pong-title">Truly difficult?</h2><button class="pong-close" type="button" aria-label="Close Pong"><svg
+          <h2 id="pong-title">Wupong</h2><button class="pong-close" type="button" aria-label="Close Wupong"><svg
               viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"
               stroke-linecap="round" aria-hidden="true">
               <path d="m6 6 12 12M18 6 6 18" />
             </svg></button>
         </div>
         <div class="pong-levels"></div>
-        <div class="pong-score" aria-label="Current match score"><span>Bot <strong id="pong-bot">0</strong></span><span
+        <div class="pong-score" aria-label="Current match score"><span>Wu <strong id="pong-bot">0</strong></span><span
             class="pong-score-rule" aria-hidden="true">:</span><span><strong id="pong-you">0</strong> You</span></div>
         <div class="pong-court">
           <canvas class="pong-canvas" width="720" height="400" tabindex="0"
-            aria-label="Pong court. Use up and down arrows, W and S, or move your mouse or finger to control your paddle on the right."></canvas>
+            aria-label="Wupong court. Use the up and down arrow keys, mouse or touch to control your paddle on the right."></canvas>
           <div class="pong-overlay" hidden>
             <p class="pong-overlay-title" role="status" aria-live="polite"></p>
           </div>
@@ -378,7 +385,6 @@
             <path class="pong-paddle-avatar-path" d="" />
           </svg>
         </div>
-        <p class="pong-comment" role="status" aria-live="polite"></p>
         <div class="pong-actions">
           <button class="pong-play" type="button" aria-keyshortcuts="Space">Play</button>
           <div class="pong-tools">
@@ -411,7 +417,7 @@
               </div>
               <div class="pong-dock-sep" aria-hidden="true"></div>
               <div class="pong-dock-section pong-dock-actions">
-                <button class="pong-dock-btn pong-sound" type="button" aria-label="Mute game sounds" aria-pressed="false" data-tip="Sound">
+                <button class="pong-dock-btn pong-sound" type="button" aria-label="Mute game sounds" aria-keyshortcuts="m" aria-pressed="false" data-tip="Sound">
                   <span class="pong-mode-glyph">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-volume-2">
                       <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" />
@@ -443,6 +449,7 @@
       </div>
     </div>
     <canvas class="pong-gooey" aria-hidden="true"></canvas>
+    </div>
     <div class="pong-flight" aria-hidden="true"></div>
   </dialog>
   <dialog class="pong-history-dialog" id="pong-history" aria-labelledby="pong-history-title">

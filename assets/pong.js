@@ -1,11 +1,46 @@
 import { WakeSlider } from './components/WakeSlider.js';
 import { StackedBars } from './components/StackedBars.js';
-import { PongSound } from './components/PongSound.js';
-import { GooeyMorph } from './components/GooeyMorph.js';
+import { PongSound } from './components/PongSound.js?v=3';
+import { GooeyMorph } from './components/GooeyMorph.js?v=3';
+import { EyeTracker } from './components/EyeTracker.js';
+import { advanceBall } from './components/PongPhysics.js?v=3';
 
 // The secret court is self-contained; only completed matches affect its local record.
 const dialog = document.querySelector('#pong-dialog');
 const trigger = document.querySelector('.pong-secret');
+// The same glyph palette as the ambient ASCII background, resolved left to right.
+const secretWord = trigger.querySelector('.pong-secret-word');
+const secretGlyphs = '.,:;-+=*0123456789ilrtfxnouczLCQOahkbdpqwmMW#%&@$';
+const secretMotion = matchMedia('(prefers-reduced-motion: reduce)');
+let secretFrame = 0, secretHover = false, secretFocus = false;
+function revealSecretName() {
+  cancelAnimationFrame(secretFrame);
+  const target = secretHover || secretFocus ? 'Wupong' : 'Wukong';
+  if (secretMotion.matches || document.hidden) { secretWord.textContent = target; return; }
+  const from = secretWord.textContent, start = performance.now();
+  let previousStep = -1;
+  const animate = now => {
+    const progress = Math.min(1, (now - start) / 540);
+    const step = Math.floor((now - start) / 42);
+    if (step !== previousStep || progress === 1) {
+      previousStep = step;
+      secretWord.textContent = [...target].map((letter, i) => {
+        const local = progress * 1.5 - i / target.length * .5;
+        if (local >= .75) return letter;
+        if (local <= 0) return from[i] || letter;
+        return secretGlyphs[Math.floor(Math.random() * secretGlyphs.length)];
+      }).join('');
+    }
+    if (progress < 1) secretFrame = requestAnimationFrame(animate);
+    else { secretWord.textContent = target; secretFrame = 0; }
+  };
+  secretFrame = requestAnimationFrame(animate);
+}
+trigger.addEventListener('pointerenter', event => { if (event.pointerType !== 'touch') { secretHover = true; revealSecretName(); } });
+trigger.addEventListener('pointerleave', () => { secretHover = false; revealSecretName(); });
+trigger.addEventListener('focus', () => { secretFocus = true; revealSecretName(); });
+trigger.addEventListener('blur', () => { secretFocus = false; revealSecretName(); });
+secretMotion.addEventListener('change', revealSecretName);
 const canvas = dialog.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const play = dialog.querySelector('.pong-play');
@@ -23,8 +58,11 @@ let paddleActive = false;
 let glide = 0, glideLast = 0;
 const PADDLE_SPEED = 480;
 let avatarAnimation, pathAnimation;
-const comment = dialog.querySelector('.pong-comment');
 const historyDialog = document.querySelector('#pong-history');
+for (const surface of [dialog, historyDialog]) {
+  surface.addEventListener('selectstart', event => event.preventDefault());
+  surface.addEventListener('dragstart', event => event.preventDefault());
+}
 const root = document.documentElement;
 const KEY = 'peace.pong.records.v1';
 const MATCH_KEY = 'peace.pong.matches.v1';
@@ -48,11 +86,44 @@ const modes = {
   hard: { speed: 455, paddle: 410, reaction: .10, error: 16 },
 };
 const lines = {
-  point: ['That was a warm-up. Obviously.', 'A tactical miss. Very advanced stuff.', 'Your paddle has suspiciously good Wi-Fi.', 'Okay, that one was kind of beautiful.'],
-  miss: ['A tiny donation to the bot community. Thank you.', 'My training data finally paid off.', 'Nothing is difficult. Except that return.', 'One point closer to my robot retirement.'],
-  win: ['I demand a rematch. And a larger paddle.', 'You mastered it. I’m going to stare at a wall.', 'Defeated by someone with actual homework. Humbling.', 'Fine. The Patriarch was right about you.'],
-  lose: ['Truly difficult, said the human. Play again?', 'I won! Adding this to my very small résumé.', 'You let me win, right? ...Right?', 'The secret is practice. Also being a computer.'],
+  point: [
+    'That was a warm-up. Obviously.', 'A tactical miss. Very advanced stuff.',
+    'Your paddle has suspiciously good Wi-Fi.', 'Okay, that one was kind of beautiful.',
+    "My paddle blinked. That's my story.", 'That point had your name on it.',
+    "I'm choosing to call that research.", 'A small setback for a very small square.',
+    'Okay. Respectfully: rude.', 'You found the gap in my confidence.',
+    'I saw that coming. Emotionally, I was elsewhere.', 'My comeback is buffering.',
+    'One point to you. A deep sigh to me.', 'That was annoyingly elegant.',
+  ],
+  miss: [
+    'A tiny donation to the Wu appreciation club. Thank you.', 'My training data finally paid off.',
+    'Nothing is difficult. Except that return.', 'One point closer to my robot retirement.',
+    'Wu-hoo. That one counts.', 'A round of applause for this square.',
+    'I meant to do that. This time.', 'Another point for the tiny rectangle.',
+    'Did you see that? I have witnesses.', 'Please admire my very modest celebration.',
+    'My two eyes are smiling. Both of them.', 'A little point. A lot of joy.',
+    'That bounce deserves a tiny trophy.', 'Confidence level: slightly unreasonable.',
+  ],
+  win: [
+    'I demand a rematch. And a larger paddle.', 'You mastered it. I’m going to stare at a wall.',
+    'Defeated by someone with actual homework. Humbling.', 'Fine. The Patriarch was right about you.',
+    'You win. My dramatic exit is loading.', 'Five points. Zero mercy. Impressive.',
+    'I need a minute and a software update.', 'Your victory. My character development.',
+    'You beat me fair and square. Mostly square.', 'Please be gentle in the match history.',
+    'I shall return. After a very small nap.', 'My eyes are Xs. My respect is real.',
+    'You earned that. I earned a snack break.', 'The student has defeated the little square.',
+  ],
+  lose: [
+    'Truly difficult, said the human. Play again?', 'I won! Adding this to my very small résumé.',
+    'You let me win, right? ...Right?', 'The secret is practice. Also being a computer.',
+    'Small square. Big scoreboard.', 'Five points. One very proud Wu.',
+    'My victory speech is bigger than I am.', 'I would take a bow, but I might roll away.',
+    'Behold: your tiny undefeated-looking rival.', 'I won the match. You won my respect.',
+    'Wu: one. Humility: temporarily unavailable.', 'The trophy goes right beside my imaginary sofa.',
+    'Same time next rematch?', 'Today, the square gets the happy ending.',
+  ],
 };
+
 let stats = Object.fromEntries(Object.keys(modes).map(key => [key, { wins: 0, losses: 0 }]));
 let storageOK = true;
 try {
@@ -81,6 +152,7 @@ const history = new StackedBars(historyDialog.querySelector('.pong-history-card'
   getTotals: () => Object.values(stats).reduce((total, item) => ({ wins: total.wins + item.wins, losses: total.losses + item.losses }), { wins: 0, losses: 0 }),
 });
 const sound = new PongSound(dialog.querySelector('.pong-sound'), () => dialog.open && !historyDialog.open);
+const wu = new EyeTracker(dialog.querySelector('.wu-host'), { frame: dialog.querySelector('.pong-frame'), isVisible: () => dialog.open && !historyDialog.open && !document.hidden });
 const gooeyCanvas = dialog.querySelector('.pong-gooey');
 const gooey = new GooeyMorph(gooeyCanvas, {
   getInk: () => getComputedStyle(dialog).color || ink,
@@ -94,6 +166,34 @@ const gooey = new GooeyMorph(gooeyCanvas, {
     }
   },
 });
+
+const wuHost = dialog.querySelector('.wu-host');
+const wuBirthCanvas = document.createElement('canvas');
+wuBirthCanvas.className = 'pong-gooey wu-birth';
+wuBirthCanvas.setAttribute('aria-hidden', 'true');
+dialog.append(wuBirthCanvas);
+const revealWu = () => {
+  dialog.classList.remove('wu-forming');
+  if (dialog.open) wu.start();
+};
+const wuBirth = new GooeyMorph(wuBirthCanvas, {
+  getInk: () => getComputedStyle(dialog).color || ink,
+  onSettle: revealWu,
+});
+function birthWu() {
+  const path = dialog.querySelector('.pong-frame-corner path');
+  const matrix = path.getScreenCTM();
+  const length = path.getTotalLength();
+  // Sample the actual stroke, including its curve, in viewport coordinates.
+  const points = Array.from({ length: 14 }, (_, i) => {
+    const point = path.getPointAtLength(length * (i + .5) / 14);
+    return new DOMPoint(point.x, point.y).matrixTransform(matrix);
+  });
+  const face = wuHost.querySelector('.wu-avatar').getBoundingClientRect();
+  if (!wuBirth.birth(points, {
+    x: face.left + face.width / 2, y: face.top + face.height / 2, r: face.width * .44,
+  })) revealWu();
+}
 
 function getCourtScreen() {
   const rect = canvas.getBoundingClientRect();
@@ -118,7 +218,7 @@ const keyMovement = () => (keys.has('arrowdown') ? 1 : 0) - (keys.has('arrowup')
 function say(kind) {
   const options = lines[kind].filter(line => line !== previousComment);
   previousComment = options[Math.floor(Math.random() * options.length)];
-  comment.textContent = `Bot: “${previousComment}”`;
+  wu.react(({ point: 'sad', miss: 'happy', win: 'defeat', lose: 'victory' })[kind], previousComment, kind === 'win' || kind === 'lose');
 }
 function showRecord() {
   historyDialog.querySelector('.stb-storage').hidden = storageOK;
@@ -170,7 +270,7 @@ function score() {
   const controlHint = controlMode === 'keyboard'
     ? 'Use the up and down arrow keys to move your paddle on the right.'
     : 'Use your cursor, mouse or touch to move your paddle on the right.';
-  canvas.setAttribute('aria-label', `Pong court. You ${you}, bot ${bot}. ${controlHint}`);
+  canvas.setAttribute('aria-label', `Wupong court. You ${you}, Wu ${bot}. ${controlHint}`);
 }
 function draw() {
   ctx.clearRect(0, 0, W, H);
@@ -203,7 +303,7 @@ function reset() {
   ball = { x: W / 2, y: H / 2, vx: 0, vy: 0 };
   difficulty.setDisabled(false); play.textContent = 'Play'; score();
   overlay.hidden = true;
-  comment.textContent = ''; 
+  wu.reset();
   showRecord(); draw();
   window.dispatchEvent(new CustomEvent('peace:pong-reset'));
 }
@@ -224,8 +324,8 @@ function finish() {
   } catch { storageOK = false; }
   sound.play(won ? 'win' : 'lose');
   showRecord(); say(won ? 'win' : 'lose');
-  showOverlay(won ? 'You win.' : 'Bot wins.');
-  play.textContent = 'Play again';
+  showOverlay(won ? 'You win.' : 'Wu wins.');
+  play.textContent = won ? 'Rematch?' : 'Try again';
   window.dispatchEvent(new CustomEvent('peace:pong-finish', { detail: { won } }));
 }
 function point(playerScored) {
@@ -245,6 +345,7 @@ function rebound(paddleY, direction) {
   ball.vx = direction * speed * Math.cos(angle); ball.vy = speed * Math.sin(angle);
 }
 function step(dt) {
+  const previousPlayerY = playerY, previousWuY = botY;
   playerY = clamp(playerY + keyMovement() * PADDLE_SPEED * dt, MIN_Y, MAX_Y);
   if (serve > 0) { serve -= dt; return; }
   const settings = modes[mode];
@@ -258,16 +359,16 @@ function step(dt) {
     reaction = settings.reaction;
   }
   botY = clamp(botY + clamp(targetY - botY, -settings.paddle * dt, settings.paddle * dt), MIN_Y, MAX_Y);
-  const oldX = ball.x;
-  ball.x += ball.vx * dt; ball.y += ball.vy * dt;
-  if (ball.y < R) { ball.y = 2 * R - ball.y; ball.vy = Math.abs(ball.vy); sound.play('wall'); }
-  if (ball.y > H - R) { ball.y = 2 * (H - R) - ball.y; ball.vy = -Math.abs(ball.vy); sound.play('wall'); }
-  if (ball.vx < 0 && oldX >= 36 + R && ball.x <= 36 + R && Math.abs(ball.y - botY) <= HALF + R) {
-    ball.x = 36 + R; rebound(botY, 1);
-  } else if (ball.vx > 0 && oldX <= W - 36 - R && ball.x >= W - 36 - R && Math.abs(ball.y - playerY) <= HALF + R) {
-    ball.x = W - 36 - R; rebound(playerY, -1);
-  }
-  if (ball.x < -R) point(true); else if (ball.x > W + R) point(false);
+  const goal = advanceBall(ball, dt, {
+    width: W, height: H, radius: R,
+    paddles: [
+      { x: 31, startY: previousWuY, endY: botY, width: 10, halfHeight: HALF, direction: 1 },
+      { x: W - 31, startY: previousPlayerY, endY: playerY, width: 10, halfHeight: HALF, direction: -1 },
+    ],
+    onPaddleHit: (paddle, impactY) => rebound(impactY, paddle.direction),
+    onWallHit: () => sound.play('wall'),
+  });
+  if (goal) point(goal === 'left');
 }
 function tick(now) {
   frame = 0;
@@ -309,14 +410,14 @@ function pause() {
   play.textContent = 'Resume'; showOverlay('Paused.'); sound.sleep();
 }
 function action() {
-  if (dialog.classList.contains('is-opening')) return;
+  if ((dialog.classList.contains('is-opening') || dialog.classList.contains('is-closing'))) return;
   if (state === 'playing' || state === 'countdown') { pause(); return; }
   if (state !== 'paused') reset();
   state = 'countdown'; dialog.dataset.state = state; countdown = 3; sideHint.hidden = !paddleActive && keys.size === 0; showOverlay('3'); difficulty.setDisabled(true); play.textContent = 'Pause'; sound.unlock();
   canvas.focus({ preventScroll: true }); run();
 }
 function enterCourt(event) {
-  if (!dialog.open || dialog.classList.contains('is-opening') || historyDialog.open) return;
+  if (!dialog.open || (dialog.classList.contains('is-opening') || dialog.classList.contains('is-closing')) || historyDialog.open) return;
   if (exitTimer) { clearTimeout(exitTimer); exitTimer = 0; }
   root.classList.remove('is-gooey-leaving');
   dialog.classList.add('in-arena-buffer');
@@ -386,7 +487,7 @@ function enterCourt(event) {
   }).catch(() => {});
 }
 function leaveCourt(event) {
-  if (!dialog.open || dialog.classList.contains('is-opening') || historyDialog.open) return;
+  if (!dialog.open || (dialog.classList.contains('is-opening') || dialog.classList.contains('is-closing')) || historyDialog.open) return;
   if (exitTimer) { clearTimeout(exitTimer); exitTimer = 0; }
   dialog.classList.remove('in-arena-buffer');
   if (controlMode === 'keyboard') return;
@@ -483,7 +584,7 @@ function triggerLeave(event, immediate = false) {
   leaveCourt(event || lastPointerPos);
 }
 function handlePointer(event) {
-  if (!dialog.open || dialog.classList.contains('is-opening') || historyDialog.open) return;
+  if (!dialog.open || (dialog.classList.contains('is-opening') || dialog.classList.contains('is-closing')) || historyDialog.open) return;
   if (event.pointerType !== 'mouse' && !canvas.hasPointerCapture(event.pointerId)) return;
 
   lastPointerPos = { clientX: event.clientX, clientY: event.clientY };
@@ -577,16 +678,18 @@ document.addEventListener('mouseleave', event => {
 });
 play.addEventListener('click', action);
 function openStats() {
-  if (!dialog.open || historyDialog.open || dialog.classList.contains('is-opening')) return;
-  pause(); sound.sleep(); historyDialog.showModal(); history.render();
+  if (!dialog.open || historyDialog.open || (dialog.classList.contains('is-opening') || dialog.classList.contains('is-closing'))) return;
+  pause(); sound.sleep(); wu.stop(); historyDialog.showModal(); history.render();
 }
 dialog.querySelector('.pong-history-open').addEventListener('click', openStats);
 historyDialog.querySelector('.pong-history-close').addEventListener('click', () => historyDialog.close());
 historyDialog.addEventListener('click', event => { if (event.target === historyDialog) historyDialog.close(); });
-historyDialog.addEventListener('close', () => { history.stop(); if (dialog.open) dialog.querySelector('.pong-history-open').focus({ preventScroll: true }); });
-dialog.querySelector('.pong-close').addEventListener('click', () => dialog.close());
-dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+historyDialog.addEventListener('close', () => { history.stop(); if (dialog.open) { wu.start(); dialog.querySelector('.pong-history-open').focus({ preventScroll: true }); } });
+dialog.querySelector('.pong-close').addEventListener('click', closeToCursor);
+dialog.addEventListener('click', event => { if (event.target === dialog) closeToCursor(event); });
+dialog.addEventListener('cancel', event => { event.preventDefault(); closeToCursor(); });
 dialog.addEventListener('keydown', event => {
+  if (dialog.classList.contains('is-closing')) return;
   const key = event.key.toLowerCase();
   if (['arrowup', 'arrowdown', 'w'].includes(key)) {
     if (event.target.closest('.pong-control-mode, [role=slider]')) return;
@@ -600,15 +703,16 @@ dialog.addEventListener('keydown', event => {
 // Capture before focused buttons handle Space, so it always controls the match
 // instead of accidentally toggling sound, selecting a mode, or closing Pong.
 document.addEventListener('keydown', event => {
-  if (!dialog.open || historyDialog.open || dialog.classList.contains('is-opening')) return;
+  if (!dialog.open || historyDialog.open || (dialog.classList.contains('is-opening') || dialog.classList.contains('is-closing'))) return;
   if (event.altKey || event.ctrlKey || event.metaKey || event.isComposing) return;
   if (event.target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])')) return;
   const key = event.key.toLowerCase();
-  if (![' ', 'k', 'c', 's'].includes(key)) return;
+  if (![' ', 'k', 'c', 's', 'm'].includes(key)) return;
   event.preventDefault(); event.stopPropagation();
   if (event.repeat) return;
   if (key === ' ') action();
   else if (key === 's') openStats();
+  else if (key === 'm') dialog.querySelector('.pong-sound').click();
   else {
     keys.clear();
     setControlMode(key === 'k' ? 'keyboard' : 'cursor');
@@ -617,19 +721,91 @@ document.addEventListener('keydown', event => {
 }, { capture: true });
 window.addEventListener('keyup', event => keys.delete(event.key.toLowerCase()));
 window.addEventListener('blur', () => { pause(); sound.sleep(); });
-window.addEventListener('resize', () => { if (historyDialog.open) history.render(); });
+window.addEventListener('resize', () => {
+  if (wuBirth.active) { wuBirth.cancel(); revealWu(); }
+  if (historyDialog.open) history.render();
+});
 dialog.addEventListener('focusout', event => { if (!dialog.contains(event.relatedTarget)) keys.clear(); });
-document.addEventListener('visibilitychange', () => { if (document.hidden) { pause(); sound.sleep(); } });
+document.addEventListener('visibilitychange', () => { if (document.hidden) { pause(); sound.sleep(); wu.stop(); } else if (dialog.open && !historyDialog.open) wu.start(); });
+async function closeToCursor(event) {
+  if (!dialog.open || dialog.classList.contains('is-closing')) return;
+  const destination = event?.detail ? { x: event.clientX, y: event.clientY }
+    : { x: lastPointerPos.clientX || innerWidth / 2, y: lastPointerPos.clientY || innerHeight / 2 };
+  const token = ++morph;
+  clearOpening();
+  pause(); sound.sleep(); wu.stop(); wuBirth.cancel(); gooey.cancel();
+  clearTimeout(exitTimer); exitTimer = 0;
+  cancelAnimationFrame(frame); frame = 0;
+  avatar.style.display = 'none';
+  const panel = dialog.querySelector('.pong-frame');
+  const stage = dialog.querySelector('.pong-stage');
+  const rect = panel.getBoundingClientRect();
+  const court = getCourtScreen();
+  dialog.classList.add('is-closing');
+  dialog.classList.remove('wu-forming');
+  root.classList.add('pong-morphing');
+  const duration = secretMotion.matches ? 0 : 680;
+  const timing = { duration, easing: 'cubic-bezier(.65, 0, .2, 1)', fill: 'both' };
+  const flight = dialog.querySelector('.pong-flight');
+  const corners = [...panel.querySelectorAll('.pong-frame-corner')];
+  const offsets = [[-1,-1],[1,-1],[1,1],[-1,1]];
+  const starts = [[rect.left,rect.top],[rect.right,rect.top],[rect.right,rect.bottom],[rect.left,rect.bottom]];
+  const retarget = [];
+  corners.forEach((original, i) => {
+    const corner = document.createElement('span');
+    corner.className = 'pong-flight-corner';
+    corner.append(original.querySelector('svg').cloneNode(true));
+    // Normalize the SVG viewBox so its path can morph into the cursor glyph.
+    corner.querySelector('svg').setAttribute('viewBox', '0 0 10 10');
+    const path = corner.querySelector('path');
+    path.setAttribute('d', 'M.416667 9.583333V8A7.583333 7.583333 0 0 1 8 .416667H9.583333');
+    flight.append(corner);
+    const from = { width:'30px', height:'30px', transform:`translate(${starts[i][0]}px, ${starts[i][1]}px) rotate(${i*90}deg)` };
+    const frames = () => [from, { width:'10px', height:'10px', transform:`translate(${destination.x+offsets[i][0]*18}px, ${destination.y+offsets[i][1]*18}px) rotate(${i*90}deg)` }];
+    const animation = corner.animate(frames(), timing);
+    openingAnimations.push(animation, path.animate([
+      { d: "path('M.416667 9.583333V8A7.583333 7.583333 0 0 1 8 .416667H9.583333')" },
+      { d: "path('M1.25 8.75V3.25A2 2 0 0 1 3.25 1.25H8.75')" },
+    ], timing));
+    retarget.push(() => animation.effect.setKeyframes(frames()));
+  });
+  const dot = document.createElement('span'); dot.className = 'pong-flight-dot'; flight.append(dot);
+  const dotFrames = () => [
+    { width:`${court.ball.r*2}px`, height:`${court.ball.r*2}px`, transform:`translate(${court.ball.x}px, ${court.ball.y}px) translate(-50%, -50%)` },
+    { width:'7.5px', height:'7.5px', transform:`translate(${destination.x}px, ${destination.y}px) translate(-50%, -50%)` },
+  ];
+  const dotAnimation = dot.animate(dotFrames(), timing);
+  openingAnimations.push(dotAnimation);
+  retarget.push(() => dotAnimation.effect.setKeyframes(dotFrames()));
+  const stageRect = stage.getBoundingClientRect();
+  const stageFrames = () => [
+    { transform:'translate(0, 0) scale(1)', opacity:1 },
+    { transform:`translate(${destination.x-stageRect.left}px, ${destination.y-stageRect.top}px) scale(0)`, opacity:0 },
+  ];
+  const stageAnimation = stage.animate(stageFrames(), timing);
+  stage.style.transformOrigin = '0 0';
+  openingAnimations.push(stageAnimation);
+  retarget.push(() => stageAnimation.effect.setKeyframes(stageFrames()));
+  const follow = e => { if (e.pointerType === 'mouse') { destination.x=e.clientX; destination.y=e.clientY; retarget.forEach(update=>update()); } };
+  window.addEventListener('pointermove', follow);
+  await Promise.all(openingAnimations.map(animation=>animation.finished.catch(()=>{})));
+  window.removeEventListener('pointermove', follow);
+  stage.style.transformOrigin = '';
+  if (token !== morph || !dialog.open) return;
+  dialog.close();
+  window.dispatchEvent(new CustomEvent('peace:cursor-return', { detail: destination }));
+}
+
 function clearOpening() {
   openingAnimations.forEach(animation => animation.cancel()); openingAnimations = [];
   dialog.querySelector('.pong-flight').replaceChildren();
-  dialog.classList.remove('is-opening'); root.classList.remove('pong-morphing');
+  dialog.classList.remove('is-opening', 'is-closing'); root.classList.remove('pong-morphing');
   play.disabled = false;
 }
 dialog.addEventListener('close', () => {
   if (exitTimer) { clearTimeout(exitTimer); exitTimer = 0; }
   dialog.classList.remove('in-arena-buffer');
-  morph++; clearOpening(); feedbackAnimation?.cancel(); avatarAnimation?.cancel(); pathAnimation?.cancel(); gooey.cancel(); avatar.style.display = 'none'; paddleActive = false; ballInCourt = false; root.classList.remove('pong-active', 'is-gooey-leaving'); window.dispatchEvent(new Event('peace:pagechange')); sound.sleep(); difficulty.stop(); if (historyDialog.open) historyDialog.close(); cancelAnimationFrame(frame); frame = 0; last = 0; keys.clear(); state = 'idle'; dialog.dataset.state = state; sideHint.hidden = true;
+  morph++; clearOpening(); wuBirth.cancel(); dialog.classList.remove('wu-forming'); wu.stop(); feedbackAnimation?.cancel(); avatarAnimation?.cancel(); pathAnimation?.cancel(); gooey.cancel(); avatar.style.display = 'none'; paddleActive = false; ballInCourt = false; root.classList.remove('pong-active', 'is-gooey-leaving'); window.dispatchEvent(new Event('peace:pagechange')); sound.sleep(); difficulty.stop(); if (historyDialog.open) historyDialog.close(); cancelAnimationFrame(frame); frame = 0; last = 0; keys.clear(); state = 'idle'; dialog.dataset.state = state; sideHint.hidden = true;
   trigger.focus({ preventScroll: true });
 });
 trigger.addEventListener('click', async event => {
@@ -641,6 +817,7 @@ trigger.addEventListener('click', async event => {
   const starts = existing.map(corner => getComputedStyle(corner).transform);
   const useCursor = matchMedia('(pointer: fine)').matches && existing.length === 4 && root.classList.contains('has-target-cursor');
   dialog.classList.add('is-opening'); root.classList.add('pong-morphing', 'pong-active');
+  dialog.classList.add('wu-forming');
   dialog.showModal(); play.disabled = true;
   ink = getComputedStyle(dialog).color; reset();
   const panel = dialog.querySelector('.pong-frame');
@@ -680,6 +857,7 @@ trigger.addEventListener('click', async event => {
   await Promise.all(openingAnimations.map(animation => animation.finished.catch(() => {})));
   if (token !== morph || !dialog.open) return;
   clearOpening();
+  birthWu();
   setControlMode(controlMode);
   play.focus({ preventScroll: true });
 });

@@ -1,10 +1,11 @@
-import { createGradientASCII, INTRO_SECONDS } from './gradient-ascii.js?v=22';
+import { createGradientASCII, INTRO_SECONDS } from './gradient-ascii.js?v=23';
 
 import { createLocalWeather, weatherStyle } from './local-weather.js?v=7';
 import { imagePalette } from './note-image-colors.js?v=1';
 
-const localWeather = createLocalWeather();
+let localWeather = null;
 const container = document.querySelector('.ambient-background');
+const pongDialog = document.querySelector('#pong-dialog');
 const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 const brazilColors = ['#1938a5', '#ffdc00', '#00ad50', '#00ad50'];
@@ -111,12 +112,12 @@ const syncAppearance = () => {
   const dark = choice === 'dark' || (choice !== 'light' && systemDark.matches);
   const mode = dark ? 'dark' : 'light';
   const pongColors = pongOutcome ? (pongOutcome === 'win' ? (dark ? pongWinPalettes.dark : pongWinPalettes.light) : (dark ? pongLosePalettes.dark : pongLosePalettes.light)) : null;
-  const brazil = !pongColors && !noteColors && currentPage === 'home' && (countryHovered || countryFocused);
-  const weather = localWeather.current();
+  const brazil = !pongDialog?.open && !pongColors && !noteColors && currentPage === 'home' && (countryHovered || countryFocused);
+  const weather = localWeather?.current();
   const atmosphere = weatherStyle(brazil ? null : weather, dark);
   const timeColors = start[mode].map((color, i) => mixColor(color, end[mode][i], progress));
   const colors = pongColors || noteColors || (brazil ? brazilColors : timeColors.map((color, i) => atmosphere.colors ? mixColor(color, atmosphere.colors[i], atmosphere.strength) : color));
-  currentSettings = { colors: displayedColors || colors, flagMix: displayedFlagMix, repeatText: 'brasil', repeatReveal: displayedRepeatReveal, lightMode: !dark, speed: atmosphere.speed, grain: atmosphere.grain, flicker: 0, density: 1, glyphOpacity: .65, softness: atmosphere.softness, flow: atmosphere.flow, glow: 0, message: pageMessages[currentPage] };
+  currentSettings = { colors: displayedColors || colors, flagMix: displayedFlagMix, repeatText: pongDialog?.open ? '' : 'brasil', repeatReveal: displayedRepeatReveal, lightMode: !dark, speed: atmosphere.speed, grain: atmosphere.grain, flicker: 0, density: 1, glyphOpacity: .65, softness: atmosphere.softness, flow: atmosphere.flow, glow: 0, message: pongDialog?.open ? '' : pageMessages[currentPage] };
   container.dataset.timeOfDay = start.name;
   container.dataset.mode = mode;
   container.dataset.weather = weather?.kind || 'unknown';
@@ -125,9 +126,14 @@ const syncAppearance = () => {
   transitionColors(colors, brazil ? 1 : 0);
 };
 
-localWeather.subscribe(syncAppearance);
 syncAppearance();
 renderer = createGradientASCII(container, currentSettings);
+container.classList.toggle('is-fallback', !renderer);
+
+// Start with the time palette; weather loading must not gate the background.
+localWeather = createLocalWeather();
+localWeather.subscribe(syncAppearance);
+syncAppearance();
 
 const noteModal = document.querySelector('.note-modal');
 const frontNoteImage = () => noteModal.querySelector('.note-modal-card-one img, .note-modal-card.is-single img');
@@ -156,14 +162,11 @@ noteModal.addEventListener('load', event => { if (event.target === frontNoteImag
 noteModal.addEventListener('close', () => syncNotePalette());
 syncNotePalette();
 
-const pongDialog = document.querySelector('#pong-dialog');
 if (pongDialog) {
   const syncPongOpen = () => {
     container.classList.toggle('is-pong-open', pongDialog.open);
-    if (!pongDialog.open) {
-      pongOutcome = null;
-      syncAppearance();
-    }
+    if (!pongDialog.open) pongOutcome = null;
+    syncAppearance();
   };
   const pongObserver = new MutationObserver(syncPongOpen);
   pongObserver.observe(pongDialog, { attributes: true, attributeFilter: ['open'] });
@@ -231,8 +234,10 @@ const canvas = container.querySelector('canvas');
 canvas.addEventListener('webglcontextlost', (event) => {
   event.preventDefault();
   container.classList.remove('has-renderer');
+  container.classList.add('is-fallback');
 });
 canvas.addEventListener('webglcontextrestored', () => {
   renderer?.destroy();
   renderer = createGradientASCII(container, currentSettings);
+  container.classList.toggle('is-fallback', !renderer);
 });

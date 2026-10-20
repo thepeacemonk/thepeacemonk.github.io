@@ -61,7 +61,15 @@ void main() {
   vec2 p = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y) / uRatio;
   float d = 1e5;
   if (uPaddle.z > 0.0) d = smin(d, sdPill(p, uPaddle), uSmooth);
-  if (uBall.z > 0.0) d = smin(d, sdCircle(p, uBall.xy, uBall.z), uSmooth);
+  if (uBall.z > 0.0) {
+    float ballDistance = sdCircle(p, uBall.xy, uBall.z);
+    if (uBall.w > 0.0) {
+      float radius = uBall.z * uBall.w;
+      vec2 q = abs(p - uBall.xy) - uBall.z + radius;
+      ballDistance = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
+    }
+    d = smin(d, ballDistance, uSmooth);
+  }
   if (uCursor.z > 0.0) d = smin(d, sdCircle(p, uCursor.xy, uCursor.z), uSmooth);
 
   for (int i = 0; i < ${MAX_DROPS}; i++) {
@@ -244,6 +252,24 @@ export class GooeyMorph {
     return true;
   }
 
+  /** Reuse the court's liquid simulation to grow Wu from the island corner. */
+  birth(points, face) {
+    if (!this.supported || this.reduced()) return false;
+    this.cancel();
+    this.measure();
+    this.mode = 'to_wu';
+    // The visible SVG stroke is the source; never draw a circular source node.
+    this.nodes.set('stroke', this.makeNode('stroke', 0, 0, {
+      points, mass: 1, scale: 1,
+    }));
+    this.nodes.set('ball', this.makeNode('ball', face.x, face.y, {
+      r: face.r, rounding: 24 / 44,
+    }));
+    this.emit('stroke', 'ball', points.length, performance.now());
+    this.wake();
+    return true;
+  }
+
   emit(fromId, toId, count, now) {
     const source = this.nodes.get(fromId);
     if (!source) return;
@@ -265,16 +291,17 @@ export class GooeyMorph {
       const spreadX = isPaddle ? 4 : (source.r || 8) * 0.8;
       const spreadY = isPaddle ? source.hh * 1.3 : (source.r || 8) * 0.8;
 
+      const strokePoint = source.points?.[i % source.points.length];
       this.drops.push({
-        x: source.x + (Math.random() - 0.5) * spreadX,
-        y: source.y + (Math.random() - 0.5) * spreadY,
+        x: strokePoint ? strokePoint.x : source.x + (Math.random() - 0.5) * spreadX,
+        y: strokePoint ? strokePoint.y : source.y + (Math.random() - 0.5) * spreadY,
         vx: 0, vy: 0,
         mass,
         given: 0,
-        size: 0.8 + Math.random() * 0.4,
+        size: strokePoint ? 0.5 + Math.random() * 0.22 : 0.8 + Math.random() * 0.4,
         source: fromId,
         index: toId,
-        leave: now + Math.random() * window * 1000,
+        leave: now + (strokePoint ? i / count * 420 : Math.random() * window * 1000),
         emerged: 0,
         absorbed: 0,
         state: 'waiting',
@@ -388,7 +415,13 @@ export class GooeyMorph {
     }
 
     // Check completion
-    if (this.mode === 'to_cursor') {
+    if (this.mode === 'to_wu') {
+      const face = this.nodes.get('ball');
+      if (!this.drops.length && face && Math.abs(face.mass - face.scale) < 0.01) {
+        this.finish('wu');
+        return;
+      }
+    } else if (this.mode === 'to_cursor') {
       const cursor = this.nodes.get('cursor');
       const resting = !this.drops.length && cursor && Math.abs(cursor.mass - cursor.scale) < 0.04;
       if (resting) {
@@ -446,7 +479,7 @@ export class GooeyMorph {
     const ball = this.nodes.get('ball');
     if (ball && ball.scale > 0.002) {
       const a = Math.max(0, ball.scale);
-      ballData = [ball.x, ball.y, ball.r * a, 0];
+      ballData = [ball.x, ball.y, ball.r * a, ball.rounding || 0];
     }
 
     const cursor = this.nodes.get('cursor');
