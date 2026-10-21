@@ -929,7 +929,7 @@
     function renderNotes(data) {
       notesCategories.textContent = '';
       const categories = data.categories || [];
-      const notes = data.notes || [];
+      const notes = (data.notes || []).filter((note) => note.archived !== true);
       categories.forEach((category) => {
         const section = document.createElement('section');
         section.className = 'notes-category';

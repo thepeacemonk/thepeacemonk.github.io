@@ -6,6 +6,13 @@ const MAX_IMAGE_SIDE = 900;
 
 const dom = {
   categoryList: document.querySelector('.category-list'),
+  search: document.querySelector('.note-search'),
+  activeCount: document.querySelector('.active-count'),
+  archivedCount: document.querySelector('.archived-count'),
+  categoryHeading: document.querySelector('.category-heading'),
+  editorCategory: document.querySelector('.editor-category'),
+  editorTitle: document.querySelector('.editor-title'),
+  archiveButton: document.querySelector('.archive-button'),
   form: document.querySelector('.note-form'),
   emptyState: document.querySelector('.empty-state'),
   starInput: document.querySelector('.star-input'),
@@ -30,6 +37,7 @@ const dom = {
 let state = { version: 1, categories: [], notes: [] };
 let selectedId = null;
 let toastTimer = null;
+let listView = 'active';
 
 /* ---------- helpers ---------- */
 
@@ -105,6 +113,7 @@ function normalize(data) {
       rating: Number(note.rating) || 0,
       images: (note.images || []).filter(Boolean),
       review: note.review || '',
+      archived: note.archived === true,
     })),
   };
 }
@@ -139,42 +148,62 @@ async function boot() {
 
 function renderSidebar() {
   dom.categoryList.textContent = '';
+  const archived = listView === 'archived';
+  const query = dom.search.value.trim().toLocaleLowerCase();
+  dom.activeCount.textContent = state.notes.filter((note) => !note.archived).length;
+  dom.archivedCount.textContent = state.notes.filter((note) => note.archived).length;
+  dom.categoryHeading.hidden = archived;
+  document.querySelectorAll('.list-tab').forEach((tab) => {
+    const active = tab.dataset.view === listView;
+    tab.classList.toggle('is-active', active);
+    tab.setAttribute('aria-pressed', String(active));
+  });
+  let shown = 0;
   state.categories.forEach((category, categoryIndex) => {
+    const notes = state.notes.filter((note) => note.categoryId === category.id && note.archived === archived
+      && (!query || `${note.title} ${note.creator} ${note.review}`.toLocaleLowerCase().includes(query)));
+    if ((archived || query) && !notes.length) return;
+    shown += notes.length;
     const box = document.createElement('div');
     box.className = 'category';
 
     const head = document.createElement('div');
     head.className = 'category-head';
 
-    const title = document.createElement('input');
+    const title = archived ? document.createElement('span') : document.createElement('input');
     title.className = 'category-title';
-    title.type = 'text';
-    title.value = category.title;
-    title.addEventListener('input', () => {
-      category.title = title.value;
-      persist();
-    });
+    if (archived) title.textContent = category.title;
+    else {
+      title.type = 'text';
+      title.value = category.title;
+      title.setAttribute('aria-label', 'Category name');
+      title.addEventListener('input', () => {
+        category.title = title.value;
+        persist();
+      });
+    }
     head.appendChild(title);
 
-    head.appendChild(miniButton('↑', 'Move category up', categoryIndex === 0, () => {
-      moveInArray(state.categories, categoryIndex, categoryIndex - 1);
-      persist();
-      render();
-    }));
-    head.appendChild(miniButton('↓', 'Move category down', categoryIndex === state.categories.length - 1, () => {
-      moveInArray(state.categories, categoryIndex, categoryIndex + 1);
-      persist();
-      render();
-    }));
-    head.appendChild(miniButton('✕', 'Delete category', false, () => deleteCategory(category), 'remove'));
+    if (!archived) {
+      head.appendChild(miniButton('↑', 'Move category up', categoryIndex === 0, () => {
+        moveInArray(state.categories, categoryIndex, categoryIndex - 1);
+        persist();
+        render();
+      }));
+      head.appendChild(miniButton('↓', 'Move category down', categoryIndex === state.categories.length - 1, () => {
+        moveInArray(state.categories, categoryIndex, categoryIndex + 1);
+        persist();
+        render();
+      }));
+      head.appendChild(miniButton('✕', 'Delete category', false, () => deleteCategory(category), 'remove'));
+    }
 
     box.appendChild(head);
 
-    const notes = state.notes.filter((note) => note.categoryId === category.id);
     if (!notes.length) {
       const empty = document.createElement('p');
       empty.className = 'note-empty';
-      empty.textContent = 'No notes yet.';
+      empty.textContent = query ? 'No matches.' : 'No notes yet.';
       box.appendChild(empty);
     } else {
       const list = document.createElement('div');
@@ -193,16 +222,18 @@ function renderSidebar() {
         });
         row.appendChild(select);
 
-        row.appendChild(miniButton('↑', 'Move note up', noteIndex === 0, () => {
-          moveNote(note, -1);
-          persist();
-          render();
-        }));
-        row.appendChild(miniButton('↓', 'Move note down', noteIndex === notes.length - 1, () => {
-          moveNote(note, 1);
-          persist();
-          render();
-        }));
+        if (!archived && !query) {
+          row.appendChild(miniButton('↑', 'Move note up', noteIndex === 0, () => {
+            moveNote(note, -1);
+            persist();
+            render();
+          }));
+          row.appendChild(miniButton('↓', 'Move note down', noteIndex === notes.length - 1, () => {
+            moveNote(note, 1);
+            persist();
+            render();
+          }));
+        }
 
         list.appendChild(row);
       });
@@ -211,13 +242,37 @@ function renderSidebar() {
 
     dom.categoryList.appendChild(box);
   });
+  if (!shown && (archived || query)) {
+    const empty = document.createElement('p');
+    empty.className = 'list-empty';
+    empty.textContent = query ? 'No notes match your search.' : 'No archived notes yet.';
+    dom.categoryList.appendChild(empty);
+  }
 }
 
 function miniButton(label, ariaLabel, disabled, onClick, extraClass = '') {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = `mini ${extraClass}`.trim();
-  button.textContent = label;
+  const iconPaths = {
+    '↑': 'M8 13V3m-4 4 4-4 4 4',
+    '↓': 'M8 3v10m-4-4 4 4 4-4',
+    '✕': 'M4 4l8 8m0-8-8 8',
+  };
+  if (iconPaths[label]) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 16 16');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.5');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', iconPaths[label]);
+    svg.appendChild(path);
+    button.appendChild(svg);
+  } else button.textContent = label;
   button.setAttribute('aria-label', ariaLabel);
   button.disabled = disabled;
   button.addEventListener('click', onClick);
@@ -233,7 +288,8 @@ function moveInArray(array, from, to) {
 function moveNote(note, direction) {
   const from = state.notes.indexOf(note);
   let to = from + direction;
-  while (to >= 0 && to < state.notes.length && state.notes[to].categoryId !== note.categoryId) {
+  while (to >= 0 && to < state.notes.length
+    && (state.notes[to].categoryId !== note.categoryId || state.notes[to].archived !== note.archived)) {
     to += direction;
   }
   if (to < 0 || to >= state.notes.length) return;
@@ -266,6 +322,9 @@ function renderEditor() {
   fields.creator.value = note.creator;
   fields.review.value = note.review;
   fields.type.value = note.type;
+  dom.editorCategory.textContent = state.categories.find((category) => category.id === note.categoryId)?.title || 'Uncategorized';
+  dom.editorTitle.textContent = note.title;
+  dom.archiveButton.textContent = note.archived ? 'Restore note' : 'Archive note';
 
   const categorySelect = fields.categoryId;
   categorySelect.textContent = '';
@@ -386,7 +445,10 @@ dom.form.addEventListener('input', (event) => {
   const { name, value } = event.target;
   if (!name) return;
   note[name] = value;
-  if (name === 'title') renderSidebar();
+  if (name === 'title') {
+    dom.editorTitle.textContent = value || 'Untitled note';
+    renderSidebar();
+  }
   if (name === 'type') {
     dom.ratingField.hidden = !RATABLE.has(note.type);
     if (!RATABLE.has(note.type)) note.rating = 0;
@@ -456,8 +518,8 @@ function downloadHref(href, filename) {
   link.remove();
 }
 
-function exportJson() {
-  return `${JSON.stringify(state, null, 2)}\n`;
+function exportJson(data = state) {
+  return `${JSON.stringify(data, null, 2)}\n`;
 }
 
 dom.jsonInput.addEventListener('change', () => {
@@ -694,10 +756,14 @@ async function publish() {
 
   const base = `/repos/${config.owner}/${config.repo}`;
   const branch = config.branch || 'main';
+  const publishedState = {
+    ...state,
+    notes: state.notes.map((note) => ({ ...note, images: [...note.images] })),
+  };
   const uploads = [];
   const stamp = Date.now().toString(36).slice(-4);
 
-  state.notes.forEach((note) => {
+  publishedState.notes.forEach((note) => {
     note.images.forEach((src, index) => {
       if (!isDataImage(src)) return;
       const extension = src.slice(11, src.indexOf(';')) || 'png';
@@ -723,7 +789,7 @@ async function publish() {
       upload.note.images[upload.index] = upload.path;
     }
 
-    tree.push({ path: 'notes.json', mode: '100644', type: 'blob', content: exportJson() });
+    tree.push({ path: 'notes.json', mode: '100644', type: 'blob', content: exportJson(publishedState) });
 
     const newTree = await gh(config, `${base}/git/trees`, {
       method: 'POST',
@@ -742,6 +808,7 @@ async function publish() {
       body: JSON.stringify({ sha: commit.sha }),
     });
 
+    state = publishedState;
     persist();
     renderEditor();
     dom.dirtyFlag.hidden = true;
@@ -768,16 +835,29 @@ function openGithubSheet() {
 /* ---------- toolbar ---------- */
 
 const actions = {
+  'archive-note': () => {
+    const note = selectedNote();
+    if (!note) return;
+    note.archived = !note.archived;
+    const restored = !note.archived;
+    selectedId = null;
+    persist();
+    render();
+    toast(restored ? 'Note restored. Publish to show it on the site.' : 'Note archived. Publish to hide it from the site.');
+  },
   'add-category': () => {
-    const title = prompt('Category name', 'New category');
-    if (!title) return;
+    const title = 'New category';
     state.categories.push({
       id: uniqueId(slugify(title), state.categories.map((category) => category.id)),
       title,
       emptyText: '',
     });
+    dom.search.value = '';
     persist();
     render();
+    const field = dom.categoryList.querySelector('.category:last-child .category-title');
+    field?.focus();
+    field?.select();
   },
   'add-note': () => {
     if (!state.categories.length) {
@@ -785,6 +865,8 @@ const actions = {
       return;
     }
     const current = selectedNote();
+    listView = 'active';
+    dom.search.value = '';
     const note = {
       id: uniqueId('untitled-note', state.notes.map((item) => item.id)),
       categoryId: current ? current.categoryId : state.categories[0].id,
@@ -794,6 +876,7 @@ const actions = {
       rating: 0,
       images: [],
       review: '',
+      archived: false,
     };
     state.notes.push(note);
     selectedId = note.id;
@@ -887,8 +970,20 @@ const actions = {
 document.addEventListener('click', (event) => {
   const trigger = event.target.closest('[data-action]');
   if (!trigger) return;
+  trigger.closest('.more-menu')?.removeAttribute('open');
   const action = actions[trigger.dataset.action];
   if (action) action();
+});
+
+document.querySelectorAll('.list-tab').forEach((tab) => tab.addEventListener('click', () => {
+  listView = tab.dataset.view;
+  selectedId = null;
+  render();
+}));
+dom.search.addEventListener('input', renderSidebar);
+document.addEventListener('click', (event) => {
+  const menu = document.querySelector('.more-menu');
+  if (menu.open && !menu.contains(event.target)) menu.open = false;
 });
 
 dom.pathInput.addEventListener('keydown', (event) => {

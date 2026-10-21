@@ -23,41 +23,51 @@
 
     <header class="bar">
       <div class="bar-left">
-        <strong>My Notes</strong>
-        <span class="dirty-flag" hidden>unsaved draft</span>
+        <a class="brand" href="../index.html" aria-label="Back to peace">peace<span class="brand-mark">/</span></a>
+        <span class="bar-divider" aria-hidden="true"></span>
+        <strong>My notes</strong>
+        <span class="dirty-flag" hidden>Draft saved on this device</span>
       </div>
       <div class="bar-right">
-        <button class="ghost" type="button" data-action="import">Import JSON</button>
-        <button class="ghost" type="button" data-action="reload">Reload published</button>
-        <a class="ghost" href="../index.html?preview=draft" target="_blank" rel="noreferrer">Preview draft</a>
-        <button class="ghost" type="button" data-action="copy">Copy JSON</button>
-        <button class="ghost" type="button" data-action="download">Download notes.json</button>
-        <button class="primary" type="button" data-action="publish">Publish to GitHub</button>
-        <button class="ghost" type="button" data-action="github">Token</button>
-        <button class="ghost" type="button" data-action="pin">Change PIN</button>
-        <button class="ghost" type="button" data-action="lock">Lock</button>
-        <button class="ghost icon" type="button" data-action="theme" aria-label="Toggle theme">◐</button>
+        <a class="ghost preview-link" href="../index.html?preview=draft" target="_blank" rel="noreferrer">Preview draft <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h7v7m0-7-9 9" /></svg></a>
+        <button class="primary publish-button" type="button" data-action="publish">Publish changes</button>
+        <details class="more-menu">
+          <summary class="ghost" aria-label="More options">More <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg></summary>
+          <div class="more-panel">
+            <button type="button" data-action="import">Import JSON</button>
+            <button type="button" data-action="reload">Reload published notes</button>
+            <button type="button" data-action="copy">Copy JSON</button>
+            <button type="button" data-action="download">Download notes.json</button>
+            <span class="menu-divider" aria-hidden="true"></span>
+            <button type="button" data-action="github">GitHub token</button>
+            <button type="button" data-action="pin">Change PIN</button>
+            <button type="button" data-action="theme">Switch theme</button>
+            <button type="button" data-action="lock">Lock admin</button>
+          </div>
+        </details>
       </div>
     </header>
-
-    <p class="hint bar-hint">
-      Edits are stored in this browser only. <strong>Publish to GitHub</strong> commits them straight to the repo;
-      without a token, download <code>notes.json</code> and commit it yourself.
-    </p>
 
     <main class="layout">
       <aside class="sidebar">
         <div class="sidebar-head">
-          <h2>Categories</h2>
-          <button class="ghost small" type="button" data-action="add-category">+ Category</button>
+          <div><h1>My notes</h1><p class="sidebar-subtitle">Write, organize, publish.</p></div>
+          <button class="primary new-note" type="button" data-action="add-note">New note</button>
         </div>
+        <label class="search-wrap"><span class="sr-only">Search notes</span><input class="note-search" type="search" placeholder="Search notes" /></label>
+        <div class="list-tabs" role="group" aria-label="Note visibility">
+          <button class="list-tab is-active" type="button" data-view="active" aria-pressed="true">Visible <span class="active-count"></span></button>
+          <button class="list-tab" type="button" data-view="archived" aria-pressed="false">Archived <span class="archived-count"></span></button>
+        </div>
+        <div class="category-heading"><h2>Categories</h2><button class="text-button" type="button" data-action="add-category">+ Add</button></div>
         <div class="category-list"></div>
-        <button class="primary block" type="button" data-action="add-note">+ New note</button>
+        <p class="sidebar-help">Changes save here automatically. Publish when you’re ready to update the site.</p>
       </aside>
 
       <section class="editor">
-        <div class="empty-state">Select a note on the left, or create a new one.</div>
+        <div class="empty-state"><h2>Choose a note to edit</h2><p>Or create a new one to start writing.</p></div>
         <form class="note-form" hidden autocomplete="off">
+          <div class="editor-heading"><div><p class="editor-location">My notes / <span class="editor-category"></span></p><h2 class="editor-title">Edit note</h2></div><div class="editor-heading-actions"><span class="save-status">Saved locally</span><button class="ghost archive-button" type="button" data-action="archive-note">Archive note</button></div></div>
           <div class="field-row">
             <label class="field">
               <span>Title</span>
@@ -117,7 +127,6 @@
 
           <div class="form-footer">
             <button class="danger" type="button" data-action="delete-note">Delete note</button>
-            <span class="saved-flag">Saved to draft automatically</span>
           </div>
         </form>
       </section>
@@ -133,6 +142,7 @@
           <em>Contents: read and write</em>, and give it an expiry date. It is stored in this browser — never
           commit it, and clear it on a shared machine.
         </p>
+        <p class="hint">Without a token, use <strong>More → Download notes.json</strong> and commit that file yourself.</p>
         <label class="field">
           <span>Token</span>
           <input type="password" name="token" autocomplete="off" placeholder="github_pat_…" />
