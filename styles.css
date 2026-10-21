@@ -117,9 +117,11 @@
   .target-cursor { display: none; }
 }
 
+/* Some browsers derive their tab tint from the document surface. */
+html { background-color: var(--browser-theme, var(--page)); }
 body {
   margin: 0;
-  background: var(--page);
+  background: var(--browser-theme, var(--page));
   color: var(--ink);
   font-family: Poppins, Arial, sans-serif;
   font-size: 17px;
@@ -133,6 +135,17 @@ body {
   position: relative;
   -webkit-user-select: none;
   user-select: none;
+}
+/* Keep the page beneath the translucent sky while exposing its top color to
+   browsers that tint their toolbar from the body's background-color. */
+.home-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: var(--page);
+  pointer-events: none;
+  transition: background-color .45s ease;
 }
 html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
 .home-page.is-note-modal-open {

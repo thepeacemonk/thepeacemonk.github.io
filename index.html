@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#ffffff" />
   <meta name="description" content="peace – a peaceful developer" />
   <title>peace</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
@@ -11,8 +12,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=64" />
-  <script type="module" src="assets/ambient-background.js?v=34"></script>
+  <link rel="stylesheet" href="styles.css?v=65" />
+  <script type="module" src="assets/ambient-background.js?v=36"></script>
   <script type="module" src="assets/target-cursor.js?v=9"></script>
   <link rel="stylesheet" href="assets/pong.css?v=18" />
   <script type="module" src="assets/pong.js?v=18"></script>
@@ -1119,26 +1120,10 @@
       return choice ? choice === 'dark' : systemDark.matches;
     };
 
-    const favicon = document.querySelector('link[rel="icon"]');
-    const faviconSource = favicon.getAttribute('href');
-    let faviconMarkup = null;
-
-    // The icon file carries its own prefers-color-scheme rule for the no-JS case; this
-    // appends a later rule so a manual choice wins over the device setting too.
-    const paintFavicon = async () => {
-      try {
-        if (!faviconMarkup) faviconMarkup = await (await fetch(faviconSource)).text();
-        const ink = isDark() ? '#f3f1ed' : '#111';
-        const themed = faviconMarkup.replace('</style>', `path:not(.background) { fill: ${ink}; }</style>`);
-        favicon.href = `data:image/svg+xml,${encodeURIComponent(themed)}`;
-      } catch (error) { }
-    };
-
     const syncToggle = () => {
       const dark = isDark();
       themeToggle.setAttribute('aria-pressed', String(dark));
       themeToggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
-      paintFavicon();
     };
 
     // Passing null clears the manual choice and hands the theme back to the device.
