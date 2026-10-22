@@ -253,10 +253,10 @@ html:has(.pong-dialog[open]) { overflow: hidden; }
 
 /* ══ Stacked bars ══════════════════════════════════════════
    Native DOM adaptation of Bencho's StackedBars.
-   Component-local shades map to the site's ink and ground. */
+   Wins and losses keep their goal-feedback colors in the bars and legend. */
 .stb {
-  --stb-win: var(--ink);
-  --stb-loss: color-mix(in srgb, var(--ink) 32%, var(--page));
+  --stb-win: #16a34a;
+  --stb-loss: #ef4444;
   --stb-r: 3px; --stb-rr: 6px;
   position: relative; display: flex; flex-direction: column; gap: 20px;
   width: min(100%, 360px); padding: 22px; border-radius: 22px;
