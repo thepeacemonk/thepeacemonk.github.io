@@ -16,7 +16,7 @@
   <script type="module" src="assets/ambient-background.js?v=36"></script>
   <script type="module" src="assets/target-cursor.js?v=9"></script>
   <link rel="stylesheet" href="assets/pong.css?v=18" />
-  <script type="module" src="assets/pong.js?v=18"></script>
+  <script type="module" src="assets/pong.js?v=20"></script>
   <script>
     // Applied before paint: a stored choice wins, otherwise the device decides via CSS.
     try {
@@ -1143,15 +1143,22 @@
       holdTimer = setTimeout(() => {
         heldToAuto = true;
         setTheme(null);
-        themeToggle.classList.remove('is-auto-flash');
-        void themeToggle.offsetWidth;
-        themeToggle.classList.add('is-auto-flash');
+        themeToggle.querySelector('.theme-auto-pulse')?.remove();
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        // Reuse the filled icon contour so the pulse follows the sun or moon silhouette.
+        const contour = themeToggle.querySelector(`.control-hover-shape .icon-${isDark() ? 'sun' : 'moon'}`).cloneNode(true);
+        contour.classList.remove('icon-sun', 'icon-moon');
+        const pulse = document.createElement('span');
+        pulse.className = 'control-hover-shape theme-auto-pulse';
+        pulse.setAttribute('aria-hidden', 'true');
+        pulse.append(contour);
+        pulse.addEventListener('animationend', () => pulse.remove(), { once: true });
+        themeToggle.append(pulse);
       }, holdDelay);
     };
 
     const cancelHold = () => clearTimeout(holdTimer);
 
-    themeToggle.addEventListener('animationend', () => themeToggle.classList.remove('is-auto-flash'));
     themeToggle.addEventListener('pointerdown', startHold);
     ['pointerup', 'pointerleave', 'pointercancel'].forEach((type) => {
       themeToggle.addEventListener(type, cancelHold);

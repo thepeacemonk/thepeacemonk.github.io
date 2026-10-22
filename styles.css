@@ -234,11 +234,11 @@ h1,
 }
 
 .theme-toggle:hover { transform: rotate(12deg); }
-.theme-toggle.is-auto-flash { animation: theme-auto-pulse .55s ease-out; }
+.theme-auto-pulse { animation: theme-auto-pulse .55s ease-out; }
 
 @keyframes theme-auto-pulse {
-  from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ink) 30%, transparent); }
-  to { box-shadow: 0 0 0 14px transparent; }
+  from { opacity: .3; transform: scale(1); }
+  to { opacity: 0; transform: scale(2.2); }
 }
 
 .theme-icon { height: 18px; position: absolute; width: 18px; transition: opacity .3s ease, transform .35s ease; }
@@ -1034,7 +1034,7 @@ section p { margin: 0 0 12px; }
 
 @media (prefers-reduced-motion: reduce) {
   .qifrey { animation: none; }
-  .theme-toggle.is-auto-flash { animation: none; }
+  .theme-auto-pulse { animation: none; }
   .note-modal-stack.is-turning .note-modal-card-one { animation: none; }
   .note-modal-close.is-dropped { animation: none; }
   .note-modal-close { transition-duration: .01ms; }

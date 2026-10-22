@@ -13,6 +13,8 @@
    offset a beat after its left neighbour. The same transition
    grows the bars out of the baseline the first time the card is
    seen. This adaptation uses real local matches, no demo data. */
+import { PONG_MODES } from './PongDifficulty.js';
+
 export class StackedBars {
   constructor(root, { getMatches, getTotals }) {
     this.root = root; this.getMatches = getMatches; this.getTotals = getTotals; this.mode = 'Day'; this.at = null;
@@ -82,7 +84,7 @@ export class StackedBars {
     const tx = Math.max(0, Math.min(width - tipWidth, left + this.bw + 8 + tipWidth <= width ? left + this.bw + 8 : left - tipWidth - 8));
     this.tip.replaceChildren();
     const head = document.createElement('div'); head.className = 'stb-tip-head'; head.textContent = d.label; this.tip.append(head);
-    for (const text of [`${d.wins} ${d.wins === 1 ? "win" : "wins"} · ${d.losses} ${d.losses === 1 ? "loss" : "losses"}`, ...d.matches.slice(-3).reverse().map(m => `${m.you} – ${m.bot} · ${['Easy', 'Medium', 'Truly difficult'][['easy', 'medium', 'hard'].indexOf(m.mode)]}`)]) { const row = document.createElement('div'); row.textContent = text; this.tip.append(row); }
+    for (const text of [`${d.wins} ${d.wins === 1 ? "win" : "wins"} · ${d.losses} ${d.losses === 1 ? "loss" : "losses"}`, ...d.matches.slice(-3).reverse().map(m => `${m.you} – ${m.bot} · ${PONG_MODES[m.mode]?.label || m.mode}`)]) { const row = document.createElement('div'); row.textContent = text; this.tip.append(row); }
     this.ring.style.width = `${this.bw + 6}px`;
     this.go({ x: left - 3, y: 126 - height - 3, h: Math.max(8, height + 6), tip: tx }, was === null);
   }

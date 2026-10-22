@@ -20,13 +20,14 @@
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const H = 20; // a bar at rest, px
 export class WakeSlider {
-  constructor(root, { onChange, bars = 28, wake = 60 } = {}) {
+  constructor(root, { onChange, labels = ['Easy', 'Medium', 'Truly difficult'], bars = 28, wake = 60 } = {}) {
     this.root = root; this.onChange = onChange; this.wake = wake;
-    this.labels = ['Easy', 'Medium', 'Truly difficult'];
+    this.labels = labels;
+    this.max = labels.length - 1;
     this.at = 0; this.value = 0; this.energy = new Float32Array(bars); this.raf = 0; this.disabled = false;
     this.track = document.createElement('div'); this.track.className = 'wks-track cursor-target';
     this.track.tabIndex = 0; this.track.setAttribute('role', 'slider');
-    for (const [key, value] of Object.entries({ 'aria-label': 'Difficulty', 'aria-valuemin': '0', 'aria-valuemax': '2' })) this.track.setAttribute(key, value);
+    for (const [key, value] of Object.entries({ 'aria-label': 'Difficulty', 'aria-valuemin': '0', 'aria-valuemax': String(this.max) })) this.track.setAttribute(key, value);
     this.els = Array.from({ length: bars }, () => { const el = document.createElement('span'); el.className = 'wks-bar'; el.style.height = `${H}px`; el.setAttribute('aria-hidden', 'true'); this.track.append(el); return el; });
     this.reading = document.createElement('span'); this.reading.className = 'wks-value';
     root.classList.add('wks'); root.append(this.track, this.reading); this.paint();
@@ -45,7 +46,7 @@ export class WakeSlider {
       this.speed = this.speed * .5 + v * .5; this.lastX = e.clientX; this.lastT = now;
       this.to(fraction(e.clientX), this.speed);
     });
-    const release = () => { this.down = false; this.to(this.value / 2, 0); };
+    const release = () => { this.down = false; this.to(this.value / this.max, 0); };
     this.track.addEventListener('pointerup', release); this.track.addEventListener('pointercancel', release);
     this.track.addEventListener('lostpointercapture', () => { if (this.down) release(); });
     this.track.addEventListener('keydown', e => {
@@ -54,11 +55,11 @@ export class WakeSlider {
       if (['ArrowRight', 'ArrowUp'].includes(e.key)) next++;
       else if (['ArrowLeft', 'ArrowDown'].includes(e.key)) next--;
       else if (e.key === 'Home') next = 0;
-      else if (e.key === 'End') next = 2;
+      else if (e.key === 'End') next = this.max;
       else return;
       e.preventDefault(); e.stopPropagation();
       /* a key press is a small, quick step: a little wake */
-      this.to(clamp(next, 0, 2) / 2, 600);
+      this.to(clamp(next, 0, this.max) / this.max, 600);
     });
   }
   paint() {
@@ -73,7 +74,7 @@ export class WakeSlider {
        curve that saturates, scaled by the knob */
     const push = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : (1 - Math.exp(-speed / 900)) * this.wake / 60;
     for (let i = Math.min(a, b); i <= Math.max(a, b); i++) this.energy[i] = Math.max(this.energy[i], push);
-    this.at = f; const next = Math.round(f * 2), changed = next !== this.value; this.value = next; this.paint();
+    this.at = f; const next = Math.round(f * this.max), changed = next !== this.value; this.value = next; this.paint();
     if (changed) this.onChange?.(next);
     this.loop();
   }

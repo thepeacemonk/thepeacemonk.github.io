@@ -35,7 +35,13 @@ const MOODS = {
   victory: { label: 'celebrating a match victory', w: 16, h: 16, r: 4.5 },
   defeat: { label: 'defeated, but ready for a rematch', w: 13, h: 13, r: 4.5 },
 };
-const POKES = ['Hey, I see you.', 'Boop.', 'That tickles.', 'Hi there!', 'Stop poking me.', "I'm watching you.", 'Again? Okay.', 'You found Wu.'];
+const POKES = [
+  'Hey, I see you.', 'Boop.', 'That tickles.', 'Hi there!', 'Stop poking me.', "I'm watching you.", 'Again? Okay.', 'You found Wu.',
+  'Personal space: one tiny square.', 'Yes, these eyes are following you.', 'I am not the play button.',
+  'My thoughts? Mostly bouncing.', 'A boop before battle. Traditional.', 'Careful. That is my thinking corner.',
+  'You poke. I remember.', 'I accept payment in rematches.', 'Paddle practice is over there.',
+  'This is my serious face. Probably.', 'I was trying to look mysterious.', 'Fine. One more boop.',
+];
 
 /* ── one spring, for everything that settles ───────────────
    Frames, not milliseconds. `dt` is expressed in sixtieths of

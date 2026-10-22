@@ -1,8 +1,9 @@
-import { WakeSlider } from './components/WakeSlider.js';
-import { StackedBars } from './components/StackedBars.js';
+import { WakeSlider } from './components/WakeSlider.js?v=2';
+import { StackedBars } from './components/StackedBars.js?v=2';
+import { PONG_MODES as modes } from './components/PongDifficulty.js';
 import { PongSound } from './components/PongSound.js?v=3';
 import { GooeyMorph } from './components/GooeyMorph.js?v=3';
-import { EyeTracker } from './components/EyeTracker.js';
+import { EyeTracker } from './components/EyeTracker.js?v=2';
 import { advanceBall } from './components/PongPhysics.js?v=3';
 
 // The secret court is self-contained; only completed matches affect its local record.
@@ -80,11 +81,7 @@ try {
 } catch {}
 const W = 720, H = 400, HALF = 35, R = 8, PADDLE_PAD = 14;
 const MIN_Y = HALF + PADDLE_PAD, MAX_Y = H - HALF - PADDLE_PAD;
-const modes = {
-  easy: { speed: 310, paddle: 205, reaction: .24, error: 65 },
-  medium: { speed: 385, paddle: 305, reaction: .16, error: 32 },
-  hard: { speed: 455, paddle: 410, reaction: .10, error: 16 },
-};
+const modeKeys = Object.keys(modes);
 const lines = {
   point: [
     'That was a warm-up. Obviously.', 'A tactical miss. Very advanced stuff.',
@@ -94,6 +91,12 @@ const lines = {
     'Okay. Respectfully: rude.', 'You found the gap in my confidence.',
     'I saw that coming. Emotionally, I was elsewhere.', 'My comeback is buffering.',
     'One point to you. A deep sigh to me.', 'That was annoyingly elegant.',
+    'I was guarding the other timeline.', 'That angle was not in the syllabus.',
+    'My reflexes are on a tea break.', 'The wall and I need to have a talk.',
+    'A point for you. A plot twist for me.', 'I moved. Just in the wrong direction.',
+    'You made that look much too easy.', 'That ball took the scenic route.',
+    'I would appeal, but the ball has receipts.', 'My confidence just lost a pixel.',
+    'The gap was tiny. Your aim was not.', 'Please stop improving during the match.',
   ],
   miss: [
     'A tiny donation to the Wu appreciation club. Thank you.', 'My training data finally paid off.',
@@ -103,6 +106,12 @@ const lines = {
     'Did you see that? I have witnesses.', 'Please admire my very modest celebration.',
     'My two eyes are smiling. Both of them.', 'A little point. A lot of joy.',
     'That bounce deserves a tiny trophy.', 'Confidence level: slightly unreasonable.',
+    'A calculated bounce. Ignore the calculator.', 'Right through the gap. How polite.',
+    'My paddle would like a little applause.', 'One small point for Wu-kind.',
+    'That one came with a victory wiggle.', 'The wall is my doubles partner.',
+    'I have peaked. Until the next point.', 'That ball understood the assignment.',
+    'Filed under: things I will brag about.', 'A little bounce of destiny.',
+    'I was cool about that. Internally: fireworks.', 'You blinked. I took notes.',
   ],
   win: [
     'I demand a rematch. And a larger paddle.', 'You mastered it. I’m going to stare at a wall.',
@@ -112,6 +121,12 @@ const lines = {
     'You beat me fair and square. Mostly square.', 'Please be gentle in the match history.',
     'I shall return. After a very small nap.', 'My eyes are Xs. My respect is real.',
     'You earned that. I earned a snack break.', 'The student has defeated the little square.',
+    'Five points. I have five new questions.', 'The rematch button is looking at you.',
+    'I brought a paddle to a masterclass.', 'You win. I will supervise the confetti.',
+    'That was a lesson. Where is my certificate?', 'My defeat has excellent replay value.',
+    'I accept this loss with several tiny sighs.', 'The legend grows. Mine needs a nap.',
+    'Please put: brave opponent in the history.', 'You found the ending where Wu learns humility.',
+    'I bow to your paddle. Very slightly.', 'Your training arc is going alarmingly well.',
   ],
   lose: [
     'Truly difficult, said the human. Play again?', 'I won! Adding this to my very small résumé.',
@@ -121,6 +136,12 @@ const lines = {
     'Behold: your tiny undefeated-looking rival.', 'I won the match. You won my respect.',
     'Wu: one. Humility: temporarily unavailable.', 'The trophy goes right beside my imaginary sofa.',
     'Same time next rematch?', 'Today, the square gets the happy ending.',
+    'My victory dance requires very little space.', 'I would high-five you, but: no hands.',
+    'Five points! I counted them twice.', 'That was close. My ego says otherwise.',
+    'I believe this makes me a sports cube.', 'A win for me. A rematch for us?',
+    'The Patriarch said practice. I listened.', 'My imaginary crowd is going wild.',
+    'I will be unbearable for several seconds.', 'You gave me a workout and a story.',
+    'I saved you a spot in the comeback arc.', 'Victory secured. Snack negotiations begin.',
   ],
 };
 
@@ -142,11 +163,16 @@ let playerY = H / 2, botY = H / 2, targetY = H / 2;
 let ball = { x: W / 2, y: H / 2, vx: 0, vy: 0 };
 let ballInCourt = true;
 let frame = 0, last = 0, serve = 0, reaction = 0, morph = 0;
+let aimError = 0;
 let exitTimer = 0, lastPointerPos = { clientX: 0, clientY: 0 };
 let countdown = 0;
 let ink = '#111', openingAnimations = [], previousComment = '';
+const commentPools = new Map();
 const keys = new Set();
-const difficulty = new WakeSlider(levels, { onChange: value => { mode = ['easy', 'medium', 'hard'][value]; reset(); } });
+const difficulty = new WakeSlider(levels, {
+  labels: modeKeys.map(key => modes[key].label),
+  onChange: value => { mode = modeKeys[value]; reset(); },
+});
 const history = new StackedBars(historyDialog.querySelector('.pong-history-card'), {
   getMatches: () => matches,
   getTotals: () => Object.values(stats).reduce((total, item) => ({ wins: total.wins + item.wins, losses: total.losses + item.losses }), { wins: 0, losses: 0 }),
@@ -216,8 +242,11 @@ function getCourtScreen() {
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 const keyMovement = () => (keys.has('arrowdown') ? 1 : 0) - (keys.has('arrowup') || keys.has('w') ? 1 : 0);
 function say(kind) {
-  const options = lines[kind].filter(line => line !== previousComment);
-  previousComment = options[Math.floor(Math.random() * options.length)];
+  let options = commentPools.get(kind);
+  if (!options?.length) { options = [...lines[kind]]; commentPools.set(kind, options); }
+  let index = Math.floor(Math.random() * options.length);
+  if (options[index] === previousComment && options.length > 1) index = (index + 1) % options.length;
+  previousComment = options.splice(index, 1)[0];
   wu.react(({ point: 'sad', miss: 'happy', win: 'defeat', lose: 'victory' })[kind], previousComment, kind === 'win' || kind === 'lose');
 }
 function showRecord() {
@@ -307,10 +336,18 @@ function reset() {
   showRecord(); draw();
   window.dispatchEvent(new CustomEvent('peace:pong-reset'));
 }
+function resetBotAim() {
+  const settings = modes[mode];
+  reaction = settings.reaction;
+  targetY = botY;
+  // Keep one aiming error for the whole return; repeated rerolls cancel mistakes out.
+  aimError = (Math.random() - .5) * settings.error * 2;
+}
 function launch(direction) {
   const angle = (Math.random() - .5) * .7;
   ball = { x: W / 2, y: H / 2, vx: direction * modes[mode].speed * Math.cos(angle), vy: modes[mode].speed * Math.sin(angle) };
-  serve = .8; reaction = 0;
+  serve = .8;
+  resetBotAim();
 }
 function finish() {
   state = 'finished'; dialog.dataset.state = state; sideHint.hidden = true; keys.clear(); difficulty.setDisabled(false);
@@ -341,8 +378,10 @@ function rebound(paddleY, direction) {
   sound.play('hit');
   const offset = clamp((ball.y - paddleY) / HALF, -1, 1);
   const angle = offset * Math.PI / 3;
-  const speed = Math.min(780, Math.hypot(ball.vx, ball.vy) * 1.065);
+  const settings = modes[mode];
+  const speed = Math.min(settings.maxSpeed, Math.hypot(ball.vx, ball.vy) * settings.acceleration);
   ball.vx = direction * speed * Math.cos(angle); ball.vy = speed * Math.sin(angle);
+  if (direction < 0) resetBotAim();
 }
 function step(dt) {
   const previousPlayerY = playerY, previousWuY = botY;
@@ -351,11 +390,13 @@ function step(dt) {
   const settings = modes[mode];
   reaction -= dt;
   if (reaction <= 0) {
-    // A delayed prediction and a speed limit keep even the hardest bot fallible.
-    let projected = ball.vx < 0 ? ball.y + ball.vy * (36 + R - ball.x) / ball.vx : H / 2;
+    // Easier levels see less of the future, rather than predicting every landing perfectly.
+    const approaching = ball.vx < 0;
+    const lookAhead = approaching ? Math.min(settings.lookAhead, Math.max(0, (36 + R - ball.x) / ball.vx)) : 0;
+    let projected = approaching ? ball.y + ball.vy * lookAhead : H / 2;
     const span = H - 2 * R;
     projected = ((projected - R) % (2 * span) + 2 * span) % (2 * span);
-    targetY = clamp(R + (projected > span ? 2 * span - projected : projected) + (Math.random() - .5) * settings.error * 2, MIN_Y, MAX_Y);
+    targetY = clamp(R + (projected > span ? 2 * span - projected : projected) + (approaching ? aimError : 0), MIN_Y, MAX_Y);
     reaction = settings.reaction;
   }
   botY = clamp(botY + clamp(targetY - botY, -settings.paddle * dt, settings.paddle * dt), MIN_Y, MAX_Y);
