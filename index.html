@@ -620,9 +620,23 @@
     });
 
     const sectionFromLocation = () => {
-      const section = location.hash.slice(1);
+      const section = location.hash.slice(1).split('/')[0];
       return Object.prototype.hasOwnProperty.call(collectionSections, section) ? section : null;
     };
+
+    const noteSlugFromLocation = () => {
+      const hash = location.hash.slice(1);
+      if (!hash.startsWith('notes/')) return null;
+      const raw = hash.slice('notes/'.length).split('/')[0];
+      if (!raw) return null;
+      try {
+        return decodeURIComponent(raw).trim().toLowerCase() || null;
+      } catch (error) {
+        return raw.trim().toLowerCase() || null;
+      }
+    };
+
+    let syncNoteFromLocation = () => {};
 
     const restoreCollection = () => {
       if (!activeCollection) return;
@@ -705,7 +719,10 @@
       });
     };
 
-    const syncCollectionFromLocation = ({ focus = false, animate = true } = {}) => navigateCollection(sectionFromLocation(), { focus, animate });
+    const syncCollectionFromLocation = ({ focus = false, animate = true } = {}) => {
+      navigateCollection(sectionFromLocation(), { focus, animate });
+      syncNoteFromLocation();
+    };
 
     sectionLinks.forEach((link) => {
       link.addEventListener('click', (event) => {
@@ -1151,13 +1168,30 @@
       return figure;
     }
 
-    function openNote(note) {
+    let activeNote = null;
+    let activeNoteSlug = null;
+    let closingNoteFromLocation = false;
+    let noteEntries = [];
+
+    function slugifyNoteTitle(value) {
+      return (value || 'note')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '') || 'note';
+    }
+
+    function openNote(note, { updateUrl = true } = {}) {
       stopPhotoParallax();
       clearNotePreviews();
       notesCategories.classList.add('is-note-preview-suppressed');
       noteModalScroll.scrollTop = 0;
       closeNoteModal.classList.remove('is-dropped');
       const images = (note.images || []).filter(Boolean);
+      const entry = noteEntries.find((item) => item.note === note);
+      activeNote = note;
+      activeNoteSlug = entry ? entry.slug : slugifyNoteTitle(note.title);
       noteModalTitle.textContent = note.title;
       noteModalMeta.textContent = noteMeta(note);
       noteModalMeta.hidden = !noteMeta(note);
@@ -1191,15 +1225,50 @@
         unlockNoteBackground();
         throw error;
       }
+      document.title = `${note.title} · My notes · peace`;
+      if (updateUrl) {
+        const targetHash = `#notes/${activeNoteSlug}`;
+        if (location.hash !== targetHash) {
+          history.pushState({ peaceSection: 'notes', peaceNote: activeNoteSlug }, '', targetHash);
+        }
+      }
       noteModalScroll.scrollTop = 0;
       startPhotoParallax();
       requestAnimationFrame(updateNoteModalScrollbar);
     }
 
+    syncNoteFromLocation = () => {
+      const slug = noteSlugFromLocation();
+      if (!slug) {
+        if (noteModal.open) {
+          closingNoteFromLocation = true;
+          noteModal.close();
+          closingNoteFromLocation = false;
+        }
+        return;
+      }
+      const match = noteEntries.find((item) => item.slug === slug || (item.note.id || '').toLowerCase() === slug);
+      if (!match) return;
+      if (noteModal.open && activeNote === match.note) return;
+      openNote(match.note, { updateUrl: false });
+    };
+
     function renderNotes(data) {
       notesCategories.textContent = '';
       const categories = data.categories || [];
       const notes = (data.notes || []).filter((note) => note.archived !== true);
+      const usedSlugs = new Set();
+      noteEntries = notes.map((note) => {
+        const base = slugifyNoteTitle(note.title);
+        let slug = base;
+        let n = 2;
+        while (usedSlugs.has(slug)) {
+          slug = `${base}-${n}`;
+          n += 1;
+        }
+        usedSlugs.add(slug);
+        return { note, slug };
+      });
       categories.forEach((category) => {
         const section = document.createElement('section');
         section.className = 'notes-category';
@@ -1257,6 +1326,7 @@
         section.appendChild(list);
         notesCategories.appendChild(section);
       });
+      syncNoteFromLocation();
     }
 
     const draftPreview = new URLSearchParams(location.search).get('preview') === 'draft';
@@ -1314,6 +1384,13 @@
       unlockNoteBackground();
       clearNotePreviews();
       notesCategories.classList.remove('is-note-preview-suppressed');
+      activeNote = null;
+      activeNoteSlug = null;
+      document.title = activeCollection ? `${collectionSections[activeCollection].title} · peace` : 'peace';
+      if (!closingNoteFromLocation && noteSlugFromLocation()) {
+        if (history.state?.peaceNote) history.back();
+        else history.replaceState(null, '', '#notes');
+      }
     });
     noteModal.addEventListener('click', (event) => {
       if (event.target === noteModal) noteModal.close();
