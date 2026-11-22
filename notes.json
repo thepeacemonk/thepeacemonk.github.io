@@ -15,6 +15,11 @@
       "id": "books",
       "title": "Reading reviews",
       "emptyText": ""
+    },
+    {
+      "id": "new-category",
+      "title": "Thoughts",
+      "emptyText": ""
     }
   ],
   "notes": [
@@ -199,7 +204,7 @@
     },
     {
       "id": "untitled-note-8",
-      "categoryId": "movies",
+      "categoryId": "new-category",
       "title": "The Two-Fold Train Paradox",
       "type": "thought",
       "creator": "Peace, inspired by Jace",
