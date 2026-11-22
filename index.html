@@ -293,7 +293,7 @@
         </div>
       </div>
 
-      <div class="lab">
+      <div class="lab" hidden>
         <a class="section-link" href="#lab" data-section="lab">My lab</a>
         <div class="lab-gallery" id="lab-content" hidden>
           <article class="lab-card" id="ascii-rain" aria-labelledby="ascii-rain-title">
@@ -554,7 +554,7 @@
       projects: { title: 'My projects', source: document.querySelector('#project-list') },
       tools: { title: 'My tools', source: document.querySelector('#tool-list') },
       notes: { title: 'My notes', source: document.querySelector('#notes-content') },
-      lab: { title: 'My lab', source: document.querySelector('#lab-content') },
+      // lab: { title: 'My lab', source: document.querySelector('#lab-content') },
     };
     const sourceHomes = Object.fromEntries(Object.entries(collectionSections).map(([key, { source }]) => [key, {
       parent: source.parentNode,
