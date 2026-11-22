@@ -1029,6 +1029,29 @@ section p { margin: 0 0 12px; }
 }
 .note-modal-review blockquote:first-child { margin-top: 0; }
 .note-modal-review blockquote:last-child { margin-bottom: 0; }
+.note-modal-review hr {
+  border: 0;
+  height: 1px;
+  margin: 22px 0;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+}
+.note-modal-review hr:first-child { margin-top: 0; }
+.note-modal-review hr:last-child { margin-bottom: 0; }
+.note-modal-review .note-modal-photo {
+  margin: 18px 0;
+  display: flex;
+  justify-content: center;
+}
+.note-modal-review .note-modal-photo:first-child { margin-top: 0; }
+.note-modal-review .note-modal-photo:last-child { margin-bottom: 0; }
+.note-modal-review .note-modal-photo img {
+  display: block;
+  max-width: 100%;
+  max-height: 460px;
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+}
 
 @keyframes note-modal-in {
   from { opacity: 0; transform: scale(.98); }

@@ -20,6 +20,9 @@ const dom = {
   imageList: document.querySelector('.image-list'),
   pathInput: document.querySelector('.path-input'),
   fileInput: document.querySelector('.file-input'),
+  bodyImageList: document.querySelector('.body-image-list'),
+  bodyPathInput: document.querySelector('.body-path-input'),
+  bodyFileInput: document.querySelector('.body-file-input'),
   jsonInput: document.querySelector('.json-input'),
   dirtyFlag: document.querySelector('.dirty-flag'),
   toast: document.querySelector('.toast'),
@@ -89,6 +92,20 @@ function isDataImage(src) {
   return typeof src === 'string' && src.startsWith('data:');
 }
 
+function photoNameFromPath(value) {
+  const base = String(value || '').split('/').pop().split('\\').pop();
+  return base.replace(/\.[^.]+$/, '').trim() || 'photo';
+}
+
+function uniquePhotoName(base, items) {
+  const clean = (base || 'photo').trim() || 'photo';
+  const taken = new Set((items || []).map((item) => (item.name || '').trim().toLowerCase()));
+  if (!taken.has(clean.toLowerCase())) return clean;
+  let n = 2;
+  while (taken.has(`${clean}-${n}`.toLowerCase())) n += 1;
+  return `${clean}-${n}`;
+}
+
 /* ---------- persistence ---------- */
 
 function persist() {
@@ -112,6 +129,15 @@ function normalize(data) {
       creator: note.creator || '',
       rating: Number(note.rating) || 0,
       images: (note.images || []).filter(Boolean),
+      bodyImages: (note.bodyImages || [])
+        .map((item) => {
+          if (typeof item === 'string') return item ? { name: photoNameFromPath(item), src: item } : null;
+          if (item && item.src) {
+            return { name: String(item.name || photoNameFromPath(item.src) || 'photo').trim(), src: item.src };
+          }
+          return null;
+        })
+        .filter(Boolean),
       review: note.review || '',
       archived: note.archived === true,
     })),
@@ -339,6 +365,7 @@ function renderEditor() {
   dom.ratingField.hidden = !RATABLE.has(note.type);
   renderStars(note);
   renderImages(note);
+  renderBodyImages(note);
 }
 
 function renderStars(note) {
@@ -432,6 +459,82 @@ function renderImages(note) {
   }
 }
 
+function insertBodyPhotoTag(note, name) {
+  const tagName = (name || '').trim();
+  if (!tagName) {
+    toast('Give the photo a name first.');
+    return;
+  }
+  const textarea = dom.form.elements.review;
+  const tag = `\\photo[${tagName}]`;
+  const start = textarea.selectionStart ?? textarea.value.length;
+  const end = textarea.selectionEnd ?? textarea.value.length;
+  const before = textarea.value.slice(0, start);
+  const after = textarea.value.slice(end);
+  const prefix = before && !before.endsWith('\n') ? '\n' : '';
+  const suffix = after && !after.startsWith('\n') ? '\n' : '';
+  const inserted = `${prefix}${tag}${suffix}`;
+  textarea.value = `${before}${inserted}${after}`;
+  note.review = textarea.value;
+  const caret = before.length + inserted.length;
+  textarea.focus();
+  textarea.setSelectionRange(caret, caret);
+  persist();
+  toast(`Inserted ${tag}`);
+}
+
+function renderBodyImages(note) {
+  dom.bodyImageList.textContent = '';
+  note.bodyImages = note.bodyImages || [];
+  note.bodyImages.forEach((item, index) => {
+    const row = document.createElement('div');
+    row.className = 'image-row';
+
+    const img = document.createElement('img');
+    img.src = isDataImage(item.src) ? item.src : `../${item.src}`;
+    img.alt = '';
+    row.appendChild(img);
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'body-image-name';
+    nameInput.value = item.name || '';
+    nameInput.placeholder = 'photo-name';
+    nameInput.setAttribute('aria-label', 'Body photo name');
+    nameInput.addEventListener('input', () => {
+      item.name = nameInput.value;
+      persist();
+    });
+    row.appendChild(nameInput);
+
+    row.appendChild(miniButton('insert', 'Insert photo tag into review', false, () => {
+      insertBodyPhotoTag(note, item.name);
+    }));
+
+    if (isDataImage(item.src)) {
+      row.appendChild(miniButton('save as file', 'Save this photo to disk', false, () => {
+        const extension = item.src.slice(11, item.src.indexOf(';')) || 'png';
+        downloadHref(item.src, `${slugify(note.title)}-body-${slugify(item.name) || index + 1}.${extension}`);
+      }));
+    }
+
+    row.appendChild(miniButton('✕', 'Remove body photo', false, () => {
+      note.bodyImages.splice(index, 1);
+      persist();
+      renderBodyImages(note);
+    }, 'remove'));
+
+    dom.bodyImageList.appendChild(row);
+  });
+
+  if (!note.bodyImages.length) {
+    const empty = document.createElement('p');
+    empty.className = 'note-empty';
+    empty.textContent = 'No body photos yet.';
+    dom.bodyImageList.appendChild(empty);
+  }
+}
+
 function render() {
   renderSidebar();
   renderEditor();
@@ -505,6 +608,29 @@ async function addFiles(files) {
 dom.fileInput.addEventListener('change', () => {
   if (dom.fileInput.files.length) addFiles([...dom.fileInput.files]);
   dom.fileInput.value = '';
+});
+
+async function addBodyFiles(files) {
+  const note = selectedNote();
+  if (!note) return;
+  note.bodyImages = note.bodyImages || [];
+  for (const file of files) {
+    try {
+      const src = await resizeImage(file);
+      const name = uniquePhotoName(photoNameFromPath(file.name), note.bodyImages);
+      note.bodyImages.push({ name, src });
+    } catch (error) {
+      toast(`${file.name}: ${error.message}`);
+    }
+  }
+  persist();
+  renderBodyImages(note);
+  toast('Body photo added.');
+}
+
+dom.bodyFileInput.addEventListener('change', () => {
+  if (dom.bodyFileInput.files.length) addBodyFiles([...dom.bodyFileInput.files]);
+  dom.bodyFileInput.value = '';
 });
 
 /* ---------- import / export ---------- */
@@ -758,7 +884,11 @@ async function publish() {
   const branch = config.branch || 'main';
   const publishedState = {
     ...state,
-    notes: state.notes.map((note) => ({ ...note, images: [...note.images] })),
+    notes: state.notes.map((note) => ({
+      ...note,
+      images: [...note.images],
+      bodyImages: (note.bodyImages || []).map((item) => ({ ...item, name: (item.name || '').trim() })),
+    })),
   };
   const uploads = [];
   const stamp = Date.now().toString(36).slice(-4);
@@ -769,6 +899,13 @@ async function publish() {
       const extension = src.slice(11, src.indexOf(';')) || 'png';
       const path = `assets/covers/${slugify(note.title)}-${index + 1}-${stamp}.${extension}`;
       uploads.push({ path, base64: src.slice(src.indexOf(',') + 1), note, index });
+    });
+    (note.bodyImages || []).forEach((item, index) => {
+      if (!isDataImage(item.src)) return;
+      const extension = item.src.slice(11, item.src.indexOf(';')) || 'png';
+      const label = slugify(item.name) || String(index + 1);
+      const path = `assets/covers/${slugify(note.title)}-body-${label}-${stamp}.${extension}`;
+      uploads.push({ path, base64: item.src.slice(item.src.indexOf(',') + 1), target: item });
     });
   });
 
@@ -786,7 +923,8 @@ async function publish() {
         body: JSON.stringify({ content: upload.base64, encoding: 'base64' }),
       });
       tree.push({ path: upload.path, mode: '100644', type: 'blob', sha: blob.sha });
-      upload.note.images[upload.index] = upload.path;
+      if (upload.target) upload.target.src = upload.path;
+      else upload.note.images[upload.index] = upload.path;
     }
 
     tree.push({ path: 'notes.json', mode: '100644', type: 'blob', content: exportJson(publishedState) });
@@ -875,6 +1013,7 @@ const actions = {
       creator: '',
       rating: 0,
       images: [],
+      bodyImages: [],
       review: '',
       archived: false,
     };
@@ -903,6 +1042,19 @@ const actions = {
     renderImages(note);
   },
   'add-file': () => dom.fileInput.click(),
+  'add-body-path': () => {
+    const note = selectedNote();
+    const value = dom.bodyPathInput.value.trim();
+    if (!note || !value) return;
+    note.bodyImages = note.bodyImages || [];
+    const src = value.replace(/^\.?\//, '');
+    const name = uniquePhotoName(photoNameFromPath(src), note.bodyImages);
+    note.bodyImages.push({ name, src });
+    dom.bodyPathInput.value = '';
+    persist();
+    renderBodyImages(note);
+  },
+  'add-body-file': () => dom.bodyFileInput.click(),
   import: () => dom.jsonInput.click(),
   reload: async () => {
     if (!confirm('Discard the local draft and reload the published notes.json?')) return;
@@ -990,6 +1142,13 @@ dom.pathInput.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
     event.preventDefault();
     actions['add-path']();
+  }
+});
+
+dom.bodyPathInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    actions['add-body-path']();
   }
 });
 

@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=71" />
+  <link rel="stylesheet" href="styles.css?v=72" />
   <script type="module" src="assets/ambient-background.js?v=37"></script>
   <script type="module" src="assets/target-cursor.js?v=9"></script>
   <script type="module" src="assets/ascii-rain.js?v=6"></script>
@@ -956,6 +956,7 @@
 
     function parseNoteBlocks(review) {
       const blocks = [];
+      const photoPattern = /(\\photo\[[^\]]+\])/g;
       (review || '').replace(/\r\n?/g, '\n').split(/\n\s*\n/).forEach((chunk) => {
         const paragraphLines = [];
         const flushParagraph = () => {
@@ -965,17 +966,53 @@
         };
         chunk.split('\n').forEach((line) => {
           const trimmed = line.trim();
+          if (!trimmed) return;
           if (trimmed.startsWith('>')) {
             flushParagraph();
             const quoteText = trimmed.replace(/^>\s*/, '');
             if (quoteText) blocks.push({ type: 'quote', text: quoteText });
-          } else if (trimmed) {
-            paragraphLines.push(trimmed);
+            return;
           }
+          if (/^-{3,}$/.test(trimmed)) {
+            flushParagraph();
+            blocks.push({ type: 'divider' });
+            return;
+          }
+          if (trimmed.includes('\\photo[')) {
+            trimmed.split(photoPattern).forEach((part) => {
+              const photoMatch = part.match(/^\\photo\[([^\]]+)\]$/);
+              if (photoMatch) {
+                flushParagraph();
+                const name = photoMatch[1].trim();
+                if (name) blocks.push({ type: 'photo', name });
+              } else if (part.trim()) {
+                paragraphLines.push(part.trim());
+              }
+            });
+            return;
+          }
+          paragraphLines.push(trimmed);
         });
         flushParagraph();
       });
       return blocks;
+    }
+
+    function resolveBodyPhoto(note, requestedName) {
+      const target = (requestedName || '').trim().toLowerCase();
+      if (!target) return null;
+      const items = (note.bodyImages || []).map((item) => (
+        typeof item === 'string' ? { name: '', src: item } : item
+      )).filter((item) => item && item.src);
+      return items.find((item) => {
+        const name = (item.name || '').trim().toLowerCase();
+        if (name && name === target) return true;
+        const src = item.src.trim().toLowerCase();
+        if (src === target) return true;
+        const file = src.split('/').pop().split('\\').pop();
+        const stem = file.replace(/\.[^.]+$/, '');
+        return file === target || stem === target;
+      }) || null;
     }
 
     function openNote(note) {
@@ -988,9 +1025,28 @@
       noteModalMeta.textContent = noteMeta(note);
       noteModalMeta.hidden = !noteMeta(note);
       noteModalReview.textContent = '';
-      parseNoteBlocks(note.review).forEach(({ type, text }) => {
-        const element = document.createElement(type === 'quote' ? 'blockquote' : 'p');
-        element.textContent = text;
+      parseNoteBlocks(note.review).forEach((block) => {
+        if (block.type === 'divider') {
+          noteModalReview.appendChild(document.createElement('hr'));
+          return;
+        }
+        if (block.type === 'photo') {
+          const photo = resolveBodyPhoto(note, block.name);
+          if (!photo) return;
+          const figure = document.createElement('figure');
+          figure.className = 'note-modal-photo';
+          const img = document.createElement('img');
+          img.src = photo.src;
+          img.alt = photo.name || note.title;
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          img.addEventListener('load', updateNoteModalScrollbar);
+          figure.appendChild(img);
+          noteModalReview.appendChild(figure);
+          return;
+        }
+        const element = document.createElement(block.type === 'quote' ? 'blockquote' : 'p');
+        element.textContent = block.text;
         noteModalReview.appendChild(element);
       });
 

@@ -106,7 +106,7 @@
           </div>
 
           <div class="field">
-            <span>Photos</span>
+            <span>Photos - Cover</span>
             <div class="image-list"></div>
             <div class="image-actions">
               <input type="text" class="path-input" placeholder="assets/covers/my-cover.jpg" />
@@ -120,9 +120,23 @@
             </p>
           </div>
 
+          <div class="field">
+            <span>Photos - Body</span>
+            <div class="body-image-list image-list"></div>
+            <div class="image-actions">
+              <input type="text" class="body-path-input path-input" placeholder="assets/covers/my-body-photo.jpg" />
+              <button class="ghost small" type="button" data-action="add-body-path">Add path</button>
+              <button class="ghost small" type="button" data-action="add-body-file">Upload photo…</button>
+              <input type="file" class="body-file-input" accept="image/*" multiple hidden />
+            </div>
+            <p class="hint">
+              Attach inside the review with <code>\photo[name]</code>. Click <em>insert</em> to add the tag at the cursor.
+            </p>
+          </div>
+
           <label class="field">
             <span>Review</span>
-            <textarea name="review" rows="14" placeholder="Blank line between paragraphs. Start a line with > for a quote."></textarea>
+            <textarea name="review" rows="14" placeholder="Blank line between paragraphs. Use > for quotes, --- for a divider, and \photo[name] for body photos."></textarea>
           </label>
 
           <div class="form-footer">
