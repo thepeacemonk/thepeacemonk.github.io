@@ -196,6 +196,7 @@ html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
 }
 .ambient-background.has-renderer { background: none; }
 .ambient-background[data-mode="light"] { opacity: .65; }
+.home-page.is-lab-open .ambient-background { opacity: .18; }
 .ambient-background.is-note-open,
 .ambient-background.is-pong-open {
   position: fixed;
@@ -604,7 +605,8 @@ section p { margin: 0 0 12px; }
 .project-list a:focus-visible { color: var(--project-name); transform: translateX(3px); }
 
 .tools,
-.notes { margin-top: 8px; }
+.notes,
+.lab { margin-top: 8px; }
 
 .tool-list-inner {
   display: grid;
@@ -979,7 +981,8 @@ section p { margin: 0 0 12px; }
   isolation: isolate;
 }
 .note-modal-review,
-.note-modal-review p {
+.note-modal-review p,
+.note-modal-review blockquote {
   -webkit-user-select: text;
   user-select: text;
 }
@@ -1005,6 +1008,27 @@ section p { margin: 0 0 12px; }
 }
 .note-modal-review p { margin: 0 0 12px; }
 .note-modal-review p:last-child { margin-bottom: 0; }
+.note-modal-review blockquote {
+  position: relative;
+  margin: 16px 0;
+  padding: 14px 18px 14px 32px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+.note-modal-review blockquote::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  bottom: 14px;
+  width: 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 32%, transparent);
+}
+.note-modal-review blockquote:first-child { margin-top: 0; }
+.note-modal-review blockquote:last-child { margin-bottom: 0; }
 
 @keyframes note-modal-in {
   from { opacity: 0; transform: scale(.98); }
@@ -1273,6 +1297,248 @@ section p { margin: 0 0 12px; }
 }
 
 .collection-content { max-width: 620px; }
+
+.home-page.is-lab-open main { width: min(1120px, calc(100% - 48px)); }
+.is-lab-open .collection-shell,
+.is-lab-open .collection-content { max-width: none; }
+
+.lab-gallery {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+}
+
+.lab-card { min-width: 0; }
+
+.lab-card-trigger {
+  background: var(--page);
+  border: 1px solid color-mix(in srgb, var(--ink) 13%, var(--page));
+  border-radius: 16px;
+  color: var(--ink);
+  cursor: pointer;
+  display: block;
+  font: inherit;
+  padding: 8px;
+  text-align: start;
+  width: 100%;
+}
+
+.lab-card-trigger:hover { border-color: var(--muted); }
+
+.lab-card-preview {
+  aspect-ratio: 4 / 3;
+  background: #121e24;
+  border-radius: 10px;
+  display: block;
+}
+
+.lab-editor-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lab-card-footer {
+  display: block;
+  padding: 10px 5px 2px;
+}
+
+.lab-card-title,
+.lab-card h2 {
+  font: 400 clamp(20px, 4vw, 25px)/1.15 "Funnel Display", Poppins, sans-serif;
+  margin: 0;
+}
+
+.lab-card-title,
+.lab-card-hint { display: block; }
+
+.lab-editor button {
+  background: var(--page);
+  border: 1px solid var(--muted);
+  border-radius: 999px;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  min-height: 44px;
+  min-width: 68px;
+  padding-inline: 14px;
+}
+
+.lab-editor button:hover { border-color: var(--ink); }
+
+.lab-rain-stage {
+  background: #121e24;
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  touch-action: pan-y pinch-zoom;
+}
+
+.lab-rain-stage canvas {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.lab-card-hint,
+.lab-editor p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 6px 0 0;
+}
+
+html:has(.lab-editor[open]) { overflow: hidden; }
+
+.lab-editor {
+  --muted: var(--collection-muted);
+  background: var(--page);
+  border: 1px solid color-mix(in srgb, var(--ink) 15%, var(--page));
+  border-radius: 16px;
+  color: var(--ink);
+  max-height: calc(100dvh - 32px);
+  max-width: none;
+  overscroll-behavior: contain;
+  padding: 12px;
+  width: min(1056px, calc(100% - 32px));
+}
+
+.lab-editor::backdrop { background: rgb(0 0 0 / .64); }
+
+.lab-editor-layout {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 300px);
+}
+
+.lab-editor-preview {
+  border-radius: 12px;
+  min-height: clamp(300px, 62vh, 580px);
+}
+
+.lab-editor-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 4px 4px 4px 0;
+}
+
+.lab-card .lab-editor-close {
+  align-items: center;
+  display: inline-flex;
+  flex: none;
+  justify-content: center;
+  min-width: 44px;
+  padding: 0;
+}
+
+.lab-rain-controls {
+  display: grid;
+  gap: 10px;
+  margin: 24px 0;
+}
+
+.slosh-slider {
+  /* An opaque well keeps the outline of the whole track visible, even at zero. */
+  --slosh-track-color: color-mix(in srgb, var(--ink) 8%, var(--page));
+  --slosh-fill-color: color-mix(in srgb, var(--ink) 20%, var(--page));
+  align-items: center;
+  background: var(--slosh-track-color);
+  border-radius: 13px;
+  display: grid;
+  font-size: 13px;
+  gap: 8px;
+  grid-template-columns: 1fr auto;
+  isolation: isolate;
+  min-height: 48px;
+  padding-inline: 14px;
+  position: relative;
+}
+
+.slosh-slider::before {
+  /* Clip only the leading edge, so the liquid stays flat against the track. */
+  background: var(--slosh-fill-color);
+  border-radius: inherit;
+  clip-path: polygon(0 0, clamp(0%, var(--slosh-top, 0%), 100%) 0,
+    clamp(0%, var(--slosh-bottom, 0%), 100%) 100%, 0 100%);
+  content: "";
+  inset: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+.slosh-slider::after {
+  /* Keep the rigid handle inside the curved track at either endpoint. */
+  background: var(--ink);
+  border-radius: 99px;
+  bottom: 4px;
+  content: "";
+  height: 6px;
+  left: clamp(9px, var(--slosh-position, 0%), calc(100% - 9px));
+  pointer-events: none;
+  position: absolute;
+  transform: translateX(-50%);
+  width: 2px;
+}
+
+.slosh-slider output {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.slosh-slider input {
+  cursor: ew-resize;
+  height: 100%;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  position: absolute;
+  touch-action: pan-y;
+  width: 100%;
+}
+
+.slosh-slider:has(input:focus-visible) {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.lab-rain-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.lab-rain-status {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.lab-rain-copy-fallback {
+  background: var(--page);
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  color: var(--ink);
+  font: 13px/1.5 ui-monospace, monospace;
+  margin-top: 8px;
+  padding: 10px;
+  resize: vertical;
+  user-select: text;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .lab-editor-layout { grid-template-columns: minmax(0, 1fr); }
+  .lab-editor-preview { min-height: clamp(210px, 56vw, 340px); }
+  .lab-editor-panel { display: contents; }
+  .lab-editor-heading { order: -1; }
+  .lab-editor-panel p,
+  .lab-rain-controls { margin: 0; }
+}
 
 .studyhub-coming-soon {
   align-items: center;

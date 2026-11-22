@@ -12,9 +12,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=65" />
-  <script type="module" src="assets/ambient-background.js?v=36"></script>
+  <link rel="stylesheet" href="styles.css?v=71" />
+  <script type="module" src="assets/ambient-background.js?v=37"></script>
   <script type="module" src="assets/target-cursor.js?v=9"></script>
+  <script type="module" src="assets/ascii-rain.js?v=6"></script>
   <link rel="stylesheet" href="assets/pong.css?v=19" />
   <script type="module" src="assets/pong.js?v=20"></script>
   <script>
@@ -292,6 +293,65 @@
         </div>
       </div>
 
+      <div class="lab">
+        <a class="section-link" href="#lab" data-section="lab">My lab</a>
+        <div class="lab-gallery" id="lab-content" hidden>
+          <article class="lab-card" id="ascii-rain" aria-labelledby="ascii-rain-title">
+            <button class="lab-card-trigger" type="button" aria-labelledby="ascii-rain-title" aria-haspopup="dialog">
+              <span class="lab-card-preview">
+                <span class="lab-rain-stage">
+                  <canvas aria-hidden="true"></canvas>
+                </span>
+              </span>
+              <span class="lab-card-footer">
+                <span class="lab-card-title" id="ascii-rain-title">ASCII Rain</span>
+                <span class="lab-card-hint">Move or drag to take shelter.</span>
+              </span>
+            </button>
+            <dialog class="lab-editor" aria-labelledby="ascii-rain-editor-title">
+              <div class="lab-editor-layout">
+                <div class="lab-editor-preview"></div>
+                <div class="lab-editor-panel">
+                  <div class="lab-editor-heading">
+                    <h2 id="ascii-rain-editor-title">ASCII Rain</h2>
+                    <button class="lab-editor-close" type="button" aria-label="Close editor" autofocus>
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                        <path d="m18 6-12 12M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <p>Move your pointer or touch the preview to take shelter.</p>
+                  <div class="lab-rain-controls" role="group" aria-label="Rain settings">
+                    <div class="slosh-slider">
+                      <label for="rain-density">Intensity</label>
+                      <output for="rain-density" aria-hidden="true">100%</output>
+                      <input id="rain-density" name="density" type="range" min="25" max="200" step="5" value="100">
+                    </div>
+                    <div class="slosh-slider">
+                      <label for="rain-speed">Speed</label>
+                      <output id="rain-speed-value" for="rain-speed" aria-hidden="true">1×</output>
+                      <input id="rain-speed" name="speed" type="range" min="25" max="200" step="5" value="100">
+                    </div>
+                    <div class="slosh-slider">
+                      <label for="rain-trail">Trail length</label>
+                      <output for="rain-trail" aria-hidden="true">68 px</output>
+                      <input id="rain-trail" name="trailLength" type="range" min="24" max="120" value="68">
+                    </div>
+                  </div>
+                  <div class="lab-rain-actions">
+                    <button type="button" data-rain-copy="code">Copy code</button>
+                    <button type="button" data-rain-copy="prompt">Copy prompt</button>
+                    <span class="lab-rain-status" role="status"></span>
+                  </div>
+                  <textarea class="lab-rain-copy-fallback" aria-label="Text to copy" rows="5" readonly hidden></textarea>
+                </div>
+              </div>
+            </dialog>
+          </article>
+        </div>
+      </div>
+
       <nav class="elsewhere" aria-label="Elsewhere">
         <a href="https://github.com/thepeacemonk" target="_blank" rel="noreferrer" aria-label="GitHub">
           <svg viewBox="0 0 24 24" aria-hidden="true" width="1em" height="1em">
@@ -494,6 +554,7 @@
       projects: { title: 'My projects', source: document.querySelector('#project-list') },
       tools: { title: 'My tools', source: document.querySelector('#tool-list') },
       notes: { title: 'My notes', source: document.querySelector('#notes-content') },
+      lab: { title: 'My lab', source: document.querySelector('#lab-content') },
     };
     const sourceHomes = Object.fromEntries(Object.entries(collectionSections).map(([key, { source }]) => [key, {
       parent: source.parentNode,
@@ -579,6 +640,7 @@
         if (focus && key) requestAnimationFrame(() => collectionTitle.focus({ preventScroll: true }));
         return;
       }
+      document.body.classList.toggle('is-lab-open', key === 'lab');
       if (!key) {
         const wasCollectionOpen = Boolean(activeCollection);
         if (wasCollectionOpen) {
@@ -892,6 +954,30 @@
       noteModalMedia.appendChild(count);
     }
 
+    function parseNoteBlocks(review) {
+      const blocks = [];
+      (review || '').replace(/\r\n?/g, '\n').split(/\n\s*\n/).forEach((chunk) => {
+        const paragraphLines = [];
+        const flushParagraph = () => {
+          const text = paragraphLines.join('\n').trim();
+          if (text) blocks.push({ type: 'paragraph', text });
+          paragraphLines.length = 0;
+        };
+        chunk.split('\n').forEach((line) => {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('>')) {
+            flushParagraph();
+            const quoteText = trimmed.replace(/^>\s*/, '');
+            if (quoteText) blocks.push({ type: 'quote', text: quoteText });
+          } else if (trimmed) {
+            paragraphLines.push(trimmed);
+          }
+        });
+        flushParagraph();
+      });
+      return blocks;
+    }
+
     function openNote(note) {
       clearNotePreviews();
       notesCategories.classList.add('is-note-preview-suppressed');
@@ -902,11 +988,10 @@
       noteModalMeta.textContent = noteMeta(note);
       noteModalMeta.hidden = !noteMeta(note);
       noteModalReview.textContent = '';
-      (note.review || '').split(/\n\s*\n/).forEach((chunk) => {
-        if (!chunk.trim()) return;
-        const p = document.createElement('p');
-        p.textContent = chunk.trim();
-        noteModalReview.appendChild(p);
+      parseNoteBlocks(note.review).forEach(({ type, text }) => {
+        const element = document.createElement(type === 'quote' ? 'blockquote' : 'p');
+        element.textContent = text;
+        noteModalReview.appendChild(element);
       });
 
       const rating = Number(note.rating) || 0;

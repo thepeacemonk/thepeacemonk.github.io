@@ -116,7 +116,8 @@ const pageMessages = {
   home: 'welcome, wanderer',
   projects: 'welcome to my projects',
   tools: 'welcome to my tools',
-  notes: 'welcome to my notes'
+  notes: 'welcome to my notes',
+  lab: ''
 };
 let currentPage = Object.hasOwn(pageMessages, location.hash.slice(1)) ? location.hash.slice(1) : 'home';
 const syncAppearance = () => {
