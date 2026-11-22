@@ -1041,16 +1041,61 @@ section p { margin: 0 0 12px; }
   margin: 18px 0;
   display: flex;
   justify-content: center;
+  perspective: 900px;
 }
 .note-modal-review .note-modal-photo:first-child { margin-top: 0; }
 .note-modal-review .note-modal-photo:last-child { margin-bottom: 0; }
-.note-modal-review .note-modal-photo img {
+.note-modal-review .note-modal-photo-card {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.note-modal-review .note-modal-photo-img {
   display: block;
   max-width: 100%;
   max-height: 460px;
   width: auto;
   height: auto;
-  border-radius: 10px;
+  transform: scale(1.06);
+  will-change: transform;
+  pointer-events: none;
+}
+.note-modal-review .note-modal-photo-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 48%, rgb(0 0 0 / .52));
+}
+.note-modal-review .note-modal-photo-title {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 18px;
+  pointer-events: none;
+  color: #fff;
+  font-size: clamp(18px, 3.2vw, 24px);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -.025em;
+  text-shadow: 0 1px 12px rgb(0 0 0 / .28);
+  will-change: transform;
+}
+.note-modal-review .note-modal-photo-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--g, 0);
+  background: radial-gradient(240px circle at var(--gx, 50%) var(--gy, 30%), rgb(255 255 255 / .16), transparent 62%);
+  mix-blend-mode: screen;
+}
+@media (prefers-reduced-motion: reduce) {
+  .note-modal-review .note-modal-photo-img { transform: none; }
+  .note-modal-review .note-modal-photo-glare { display: none; }
 }
 
 @keyframes note-modal-in {

@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=72" />
+  <link rel="stylesheet" href="styles.css?v=73" />
   <script type="module" src="assets/ambient-background.js?v=37"></script>
   <script type="module" src="assets/target-cursor.js?v=9"></script>
   <script type="module" src="assets/ascii-rain.js?v=6"></script>
@@ -983,8 +983,11 @@
               const photoMatch = part.match(/^\\photo\[([^\]]+)\]$/);
               if (photoMatch) {
                 flushParagraph();
-                const name = photoMatch[1].trim();
-                if (name) blocks.push({ type: 'photo', name });
+                const raw = photoMatch[1];
+                const pipe = raw.indexOf('|');
+                const name = (pipe === -1 ? raw : raw.slice(0, pipe)).trim();
+                const title = pipe === -1 ? '' : raw.slice(pipe + 1).trim();
+                if (name) blocks.push({ type: 'photo', name, title });
               } else if (part.trim()) {
                 paragraphLines.push(part.trim());
               }
@@ -1015,7 +1018,141 @@
       }) || null;
     }
 
+    let photoParallaxItems = [];
+    let photoParallaxFrame = 0;
+    let photoParallaxLast = 0;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    function stopPhotoParallax() {
+      if (photoParallaxFrame) {
+        cancelAnimationFrame(photoParallaxFrame);
+        photoParallaxFrame = 0;
+      }
+      photoParallaxItems = [];
+    }
+
+    function stepPhotoParallax(now) {
+      if (!noteModal.open || !photoParallaxItems.length || prefersReducedMotion.matches) {
+        photoParallaxFrame = 0;
+        return;
+      }
+      const dt = Math.min((now - photoParallaxLast) / 1000, 1 / 30);
+      photoParallaxLast = now;
+      const sub = 4;
+      const stepSpring = (s, h) => {
+        const a = -s.k * (s.x - s.t) - s.c * s.v;
+        s.v += a * h;
+        s.x += s.v * h;
+      };
+      const tiltMax = 5.5;
+      const depthMax = 8;
+      photoParallaxItems.forEach((item) => {
+        for (let i = 0; i < sub; i += 1) {
+          const h = dt / sub;
+          item.clock += h;
+          if (item.hover) {
+            item.rx.t = -item.ny * tiltMax;
+            item.ry.t = item.nx * tiltMax;
+            item.g.t = 1;
+          } else {
+            item.rx.t = Math.sin(item.clock * 0.7) * 1.2;
+            item.ry.t = Math.cos(item.clock * 0.55) * 1.8;
+            item.g.t = 0.25;
+          }
+          stepSpring(item.rx, h);
+          stepSpring(item.ry, h);
+          stepSpring(item.g, h);
+        }
+        item.card.style.transform = `rotateX(${item.rx.x.toFixed(3)}deg) rotateY(${item.ry.x.toFixed(3)}deg)`;
+        const ox = item.ry.x / tiltMax;
+        const oy = -item.rx.x / tiltMax;
+        item.img.style.transform = `translate3d(${(ox * depthMax * 0.3).toFixed(2)}px, ${(oy * depthMax * 0.3).toFixed(2)}px, 0) scale(1.06)`;
+        if (item.titleEl) {
+          item.titleEl.style.transform = `translate3d(${(ox * depthMax * 0.9).toFixed(2)}px, ${(oy * depthMax * 0.9).toFixed(2)}px, 0)`;
+        }
+        item.glare.style.setProperty('--g', String(Math.max(0, Math.min(1, item.g.x))));
+        item.glare.style.setProperty('--gx', `${(item.hover ? item.gx : 50 + ox * 24).toFixed(1)}%`);
+        item.glare.style.setProperty('--gy', `${(item.hover ? item.gy : 30 + oy * 24).toFixed(1)}%`);
+      });
+      photoParallaxFrame = requestAnimationFrame(stepPhotoParallax);
+    }
+
+    function startPhotoParallax() {
+      if (photoParallaxFrame || !photoParallaxItems.length || prefersReducedMotion.matches) return;
+      photoParallaxLast = performance.now();
+      photoParallaxFrame = requestAnimationFrame(stepPhotoParallax);
+    }
+
+    function createBodyPhotoFigure(photo, title, fallbackAlt) {
+      const figure = document.createElement('figure');
+      figure.className = 'note-modal-photo';
+      const card = document.createElement('div');
+      card.className = 'note-modal-photo-card';
+
+      const img = document.createElement('img');
+      img.className = 'note-modal-photo-img';
+      img.src = photo.src;
+      img.alt = title || photo.name || fallbackAlt;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.draggable = false;
+      img.addEventListener('load', updateNoteModalScrollbar);
+      card.appendChild(img);
+
+      let titleEl = null;
+      if (title) {
+        const shade = document.createElement('div');
+        shade.className = 'note-modal-photo-shade';
+        shade.setAttribute('aria-hidden', 'true');
+        card.appendChild(shade);
+
+        titleEl = document.createElement('figcaption');
+        titleEl.className = 'note-modal-photo-title';
+        titleEl.textContent = title;
+        card.appendChild(titleEl);
+      }
+
+      const glare = document.createElement('div');
+      glare.className = 'note-modal-photo-glare';
+      glare.setAttribute('aria-hidden', 'true');
+      card.appendChild(glare);
+
+      figure.appendChild(card);
+
+      const item = {
+        card,
+        img,
+        titleEl,
+        glare,
+        hover: false,
+        nx: 0,
+        ny: 0,
+        gx: 50,
+        gy: 30,
+        clock: photoParallaxItems.length * 1.4,
+        rx: { x: 0, v: 0, t: 0, k: 140, c: 18 },
+        ry: { x: 0, v: 0, t: 0, k: 140, c: 18 },
+        g: { x: 0, v: 0, t: 0, k: 180, c: 22 },
+      };
+
+      figure.addEventListener('pointermove', (event) => {
+        if (event.pointerType === 'touch') return;
+        const rect = card.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        item.nx = Math.max(-1, Math.min(1, ((event.clientX - rect.left) / rect.width) * 2 - 1));
+        item.ny = Math.max(-1, Math.min(1, ((event.clientY - rect.top) / rect.height) * 2 - 1));
+        item.gx = (item.nx + 1) * 50;
+        item.gy = (item.ny + 1) * 50;
+        item.hover = true;
+      });
+      figure.addEventListener('pointerleave', () => { item.hover = false; });
+
+      photoParallaxItems.push(item);
+      return figure;
+    }
+
     function openNote(note) {
+      stopPhotoParallax();
       clearNotePreviews();
       notesCategories.classList.add('is-note-preview-suppressed');
       noteModalScroll.scrollTop = 0;
@@ -1033,16 +1170,7 @@
         if (block.type === 'photo') {
           const photo = resolveBodyPhoto(note, block.name);
           if (!photo) return;
-          const figure = document.createElement('figure');
-          figure.className = 'note-modal-photo';
-          const img = document.createElement('img');
-          img.src = photo.src;
-          img.alt = photo.name || note.title;
-          img.loading = 'lazy';
-          img.decoding = 'async';
-          img.addEventListener('load', updateNoteModalScrollbar);
-          figure.appendChild(img);
-          noteModalReview.appendChild(figure);
+          noteModalReview.appendChild(createBodyPhotoFigure(photo, block.title, note.title));
           return;
         }
         const element = document.createElement(block.type === 'quote' ? 'blockquote' : 'p');
@@ -1064,6 +1192,7 @@
         throw error;
       }
       noteModalScroll.scrollTop = 0;
+      startPhotoParallax();
       requestAnimationFrame(updateNoteModalScrollbar);
     }
 
@@ -1181,6 +1310,7 @@
       updateNoteModalScrollbar();
     });
     noteModal.addEventListener('close', () => {
+      stopPhotoParallax();
       unlockNoteBackground();
       clearNotePreviews();
       notesCategories.classList.remove('is-note-preview-suppressed');
