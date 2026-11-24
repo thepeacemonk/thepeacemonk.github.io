@@ -4,7 +4,16 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Paper Mono";
+  src: url("assets/fonts/paper-mono.woff2") format("woff2");
+  font-weight: 100 800;
+  font-display: swap;
+}
+
 :root {
+  --outer-bg: #f0efe9;
+  --frame-border: rgb(17 17 17 / .08);
   --page: #fff;
   --studyhub-icon-body: #6b6965;
   --studyhub-icon-eyes: #fff;
@@ -20,6 +29,8 @@
 }
 
 :root[data-theme="dark"] {
+  --outer-bg: #0f0f0f;
+  --frame-border: rgb(255 255 255 / .09);
   --page: #171717;
   --studyhub-icon-body: #b8b5b0;
   --studyhub-icon-eyes: #151515;
@@ -36,6 +47,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    --outer-bg: #0f0f0f;
+    --frame-border: rgb(255 255 255 / .09);
     --page: #171717;
     --studyhub-icon-body: #b8b5b0;
     --studyhub-icon-eyes: #151515;
@@ -117,11 +130,11 @@
   .target-cursor { display: none; }
 }
 
-/* Some browsers derive their tab tint from the document surface. */
-html { background-color: var(--browser-theme, var(--page)); }
+/* Sober outer canvas framing the site container. */
+html { background-color: var(--outer-bg); }
 body {
   margin: 0;
-  background: var(--browser-theme, var(--page));
+  background: var(--outer-bg);
   color: var(--ink);
   font-family: Poppins, Arial, sans-serif;
   font-size: 17px;
@@ -130,22 +143,28 @@ body {
 }
 
 .home-page {
+  --frame-gap: clamp(10px, 1.5vw, 18px);
+  display: flex;
+  flex-direction: column;
   isolation: isolate;
   min-height: 100svh;
+  padding: var(--frame-gap);
   position: relative;
   -webkit-user-select: none;
   user-select: none;
 }
-/* Keep the page beneath the translucent sky while exposing its top color to
-   browsers that tint their toolbar from the body's background-color. */
-.home-page::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -2;
+
+.site-frame {
+  position: relative;
+  isolation: isolate;
+  flex: 1 0 auto;
+  width: 100%;
+  margin: 0 auto;
   background: var(--page);
-  pointer-events: none;
-  transition: background-color .45s ease;
+  border: 1px solid var(--frame-border);
+  border-radius: 16px;
+  overflow: clip;
+  transition: background-color .45s ease, border-color .45s ease;
 }
 html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
 .home-page.is-note-modal-open {
@@ -155,7 +174,8 @@ html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
   width: var(--note-page-width);
   overflow: hidden;
 }
-.home-page.is-note-modal-open main { opacity: .16; }
+.home-page.is-note-modal-open main,
+.home-page.is-note-modal-open .header-controls { opacity: .16; }
 
 /* The sky remains live while the page crossfades and Qifrey travels between positions. */
 :root { view-transition-name: none; }
@@ -186,7 +206,7 @@ html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
   overflow: hidden;
   pointer-events: none;
   position: absolute;
-  z-index: -1;
+  z-index: 0;
 }
 
 /* Keep the page surface while modules load; the renderer has its own entrance.
@@ -194,8 +214,8 @@ html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
 .ambient-background.is-fallback {
   background: radial-gradient(ellipse at 50% 0%, var(--ambient-sky), var(--ambient-edge) 48%, transparent 80%);
 }
-.ambient-background.has-renderer { background: none; }
-.ambient-background[data-mode="light"] { opacity: .65; }
+.ambient-background.has-renderer { background: none; opacity: 1; }
+.ambient-background[data-mode="light"]:not(.has-renderer) { opacity: .65; }
 .home-page.is-lab-open .ambient-background { opacity: .18; }
 .ambient-background.is-note-open,
 .ambient-background.is-pong-open {
@@ -206,8 +226,10 @@ html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
   mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
 }
-.ambient-background.is-note-open[data-mode="light"],
-.ambient-background.is-pong-open[data-mode="light"] { opacity: .72; }
+.ambient-background.has-renderer.is-note-open,
+.ambient-background.has-renderer.is-pong-open { opacity: 1; }
+.ambient-background.is-note-open[data-mode="light"]:not(.has-renderer),
+.ambient-background.is-pong-open[data-mode="light"]:not(.has-renderer) { opacity: .72; }
 .gradient-ascii-canvas { display: block; height: 100%; width: 100%; }
 
 h1,
@@ -255,9 +277,10 @@ h1,
 
 main {
   position: relative;
+  z-index: 1;
   width: min(640px, calc(100% - 48px));
   margin: 0 auto;
-  padding: clamp(150px, 19vh, 250px) 0 120px;
+  padding: clamp(120px, 16vh, 210px) 0 120px;
   transition: opacity .18s ease;
 }
 
@@ -1049,7 +1072,7 @@ section p { margin: 0 0 12px; }
   position: relative;
   display: inline-block;
   max-width: 100%;
-  border-radius: 16px;
+  border-radius: 8px;
   overflow: hidden;
   will-change: transform;
   user-select: none;
@@ -1158,12 +1181,13 @@ section p { margin: 0 0 12px; }
   color: var(--ink);
   cursor: pointer;
   display: flex;
-  font-family: inherit;
-  font-size: 12px;
+  font-family: "Paper Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 14px;
   font-variant-numeric: tabular-nums;
-  line-height: 1.4;
+  font-weight: 400;
+  line-height: 1;
   min-height: 38px;
-  padding: 0 10px;
+  padding: 0 6px;
   transition: color .45s ease;
   white-space: nowrap;
 }
@@ -1285,10 +1309,12 @@ section p { margin: 0 0 12px; }
   --control-outline-gap: 3px;
   align-items: center;
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  opacity: var(--ascii-controls-reveal, 1);
   position: absolute;
-  right: 0;
-  top: clamp(150px, 19vh, 250px);
+  right: clamp(16px, 2.4vw, 28px);
+  top: calc(var(--ascii-row-center, 34px) - 19px);
+  transition: opacity .18s ease;
   z-index: 3;
 }
 
@@ -1745,7 +1771,11 @@ body.is-studyhub-coming-soon-open .collection-shell { visibility: hidden !import
 }
 
 @media (max-width: 600px) {
-  .header-controls { top: 120px; }
+  .home-page { --frame-gap: 8px; }
+  .site-frame { border-radius: 14px; }
+  .header-controls { gap: 8px; opacity: 1; right: 24px; top: 120px; }
+  .clock-toggle,
+  .weather-button { font-size: 12px; padding: 0 10px; }
   .collection-header { margin-bottom: 24px; }
   .collection-title-row { gap: 10px; }
   .collection-qifrey-motion { height: 42px; width: 42px; }

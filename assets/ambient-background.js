@@ -1,4 +1,4 @@
-import { createGradientASCII, INTRO_SECONDS } from './gradient-ascii.js?v=23';
+import { createGradientASCII, INTRO_SECONDS } from './gradient-ascii.js?v=28';
 
 import { createLocalWeather, weatherStyle } from './local-weather.js?v=7';
 import { imagePalette } from './note-image-colors.js?v=1';
@@ -119,7 +119,38 @@ const pageMessages = {
   notes: 'welcome to my notes',
   lab: ''
 };
-let currentPage = Object.hasOwn(pageMessages, location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+const initialHashSection = location.hash.slice(1).split('/')[0];
+let currentPage = Object.hasOwn(pageMessages, initialHashSection) ? initialHashSection : 'home';
+const headerControls = document.querySelector('.header-controls');
+const noteModal = document.querySelector('.note-modal');
+const measureGreetingLayout = () => {
+  const compact = window.matchMedia('(max-width: 600px)').matches;
+  const messageTop = compact ? 30 : 34;
+  if (!headerControls) return { messageTop, messageLeft: 24, controlsSpans: null };
+  const containerRect = container.getBoundingClientRect();
+  const controlsRect = headerControls.getBoundingClientRect();
+  if (!containerRect.width || !controlsRect.width) return { messageTop, messageLeft: 24, controlsSpans: null };
+  const messageLeft = Math.max(14, containerRect.right - controlsRect.right);
+  const targets = [
+    headerControls.querySelector('.local-clock'),
+    headerControls.querySelector('.weather-value'),
+    headerControls.querySelector('.theme-toggle'),
+  ];
+  const controlsSpans = targets.map((el) => {
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    if (!r.width) return null;
+    if (el.classList.contains('theme-toggle')) {
+      const cx = (r.left + r.right) / 2 - containerRect.left;
+      return [Math.max(0, cx - 10), Math.min(containerRect.width, cx + 10)];
+    }
+    return [
+      Math.max(0, r.left - containerRect.left),
+      Math.min(containerRect.width, r.right - containerRect.left),
+    ];
+  }).filter(Boolean);
+  return { messageTop, messageLeft, controlsSpans };
+};
 const syncAppearance = () => {
   const now = new Date();
   const hour = now.getHours() + now.getMinutes() / 60;
@@ -136,7 +167,13 @@ const syncAppearance = () => {
   const atmosphere = weatherStyle(brazil ? null : weather, dark);
   const timeColors = start[mode].map((color, i) => mixColor(color, end[mode][i], progress));
   const colors = pongColors || noteColors || (brazil ? brazilColors : timeColors.map((color, i) => atmosphere.colors ? mixColor(color, atmosphere.colors[i], atmosphere.strength) : color));
-  currentSettings = { colors: displayedColors || colors, flagMix: displayedFlagMix, repeatText: pongDialog?.open ? '' : 'brasil', repeatReveal: displayedRepeatReveal, lightMode: !dark, speed: atmosphere.speed, grain: atmosphere.grain, flicker: 0, density: 1, glyphOpacity: .65, softness: atmosphere.softness, flow: atmosphere.flow, glow: 0, message: pongDialog?.open ? '' : pageMessages[currentPage] };
+  const compact = window.matchMedia('(max-width: 600px)').matches;
+  const { messageTop, messageLeft, controlsSpans } = compact
+    ? { messageTop: null, messageLeft: null, controlsSpans: null }
+    : measureGreetingLayout();
+  const modalOpen = Boolean(noteModal?.open || pongDialog?.open);
+  const fieldOpacity = modalOpen ? (dark ? .78 : .72) : (dark ? .5 : .65);
+  currentSettings = { colors: displayedColors || colors, flagMix: displayedFlagMix, repeatText: pongDialog?.open ? '' : 'brasil', repeatReveal: displayedRepeatReveal, lightMode: !dark, speed: atmosphere.speed, grain: atmosphere.grain, flicker: 0, density: 1, glyphOpacity: .65, fieldOpacity, softness: atmosphere.softness, flow: atmosphere.flow, glow: 0, message: (pongDialog?.open || compact) ? '' : pageMessages[currentPage], messageTop, messageLeft, controlsSpans: (modalOpen || compact) ? null : controlsSpans };
   container.dataset.timeOfDay = start.name;
   container.dataset.mode = mode;
   container.dataset.weather = weather?.kind || 'unknown';
@@ -156,7 +193,6 @@ localWeather = createLocalWeather();
 localWeather.subscribe(syncAppearance);
 syncAppearance();
 
-const noteModal = document.querySelector('.note-modal');
 const frontNoteImage = () => noteModal.querySelector('.note-modal-card-one img, .note-modal-card.is-single img');
 const syncNotePalette = async (force = false) => {
   const image = noteModal.open ? frontNoteImage() : null;
@@ -248,6 +284,10 @@ document.addEventListener('visibilitychange', () => {
   syncAppearance();
 });
 window.addEventListener('pageshow', syncAppearance);
+window.addEventListener('resize', syncAppearance, { passive: true });
+if (headerControls && typeof ResizeObserver === 'function') {
+  new ResizeObserver(syncAppearance).observe(headerControls);
+}
 window.addEventListener('focus', syncAppearance);
 
 // A lost graphics context falls back to the same palette; restore the renderer if possible.

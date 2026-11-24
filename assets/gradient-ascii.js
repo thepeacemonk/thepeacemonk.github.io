@@ -17,7 +17,7 @@ const ATLAS_COLUMNS = 16;
 const FONT_SCALE = 0.78;
 const DEFAULT_COLORS = ['#1e3fd8', '#f6f8ff', '#a5d8ff', '#38bdf8'];
 const DEFAULT_CHARACTERS = ' .,:;-+=*0123456789ilrtfxnouczLCQOahkbdpqwmMW#%&@$';
-const DEFAULT_FONT = '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+const DEFAULT_FONT = '"Paper Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
 const SHAPES = { horizon: 0, pinch: 1, rise: 2, eclipse: 3 };
 const CLICK_EFFECTS = { none: 0, wave: 1, burst: 2 };
 
@@ -232,6 +232,8 @@ uniform float uZeroGlyph;
 uniform float uRepeatText[64];
 uniform float uRepeatLength;
 uniform float uRepeatReveal;
+uniform vec2 uClearSpans[3];
+uniform float uClearRow;
 ${COMMON}
 float sampleGlyph(float index, vec2 local, vec2 coord, float soft) {
   float column = mod(index, uAtlasGrid.x);
@@ -249,7 +251,7 @@ float boldGreetingGlyph(float index, vec2 local, vec2 coord) {
   return max(center, max(left, right));
 }
 
-vec4 glyphAt(vec2 px) {
+vec4 glyphAt(vec2 px, out float greetingOut) {
   vec2 coord = (px - uOffset) / uCell;
   vec2 cell = floor(coord);
   vec2 local = coord - cell;
@@ -291,10 +293,10 @@ vec4 glyphAt(vec2 px) {
   bool currentGreeting = messageCell && uMessageReveal >= (letter + 1.0) / uMessageLength && decode < 0.35;
   bool previousGreeting = previousCell && decode < 0.35;
   if (currentGreeting) {
-    nextAlpha = max(uOpacity, 0.94) * max(cutoff, 0.92) * boldGreetingGlyph(uMessage[int(letter)], local, coord);
+    nextAlpha = boldGreetingGlyph(uMessage[int(letter)], local, coord);
   }
   if (previousGreeting) {
-    previousAlpha = max(uOpacity, 0.94) * max(cutoff, 0.92) * boldGreetingGlyph(uPreviousMessage[int(previousLetter)], local, coord);
+    previousAlpha = boldGreetingGlyph(uPreviousMessage[int(previousLetter)], local, coord);
   }
   alpha = mix(previousAlpha, nextAlpha, uMessageTransition);
   // The old greeting's emphasis must leave with its letters, including its wider edges.
@@ -315,12 +317,22 @@ vec4 glyphAt(vec2 px) {
     alpha = mix(alpha, repeatedAlpha, revealed);
     greetingEmphasis *= 1.0 - revealed;
   }
+  bool clearedCell = cell.y == uClearRow && uMessageReveal >= 0.35 && decode < 0.35 && (
+    (uClearSpans[0].y > uClearSpans[0].x && cell.x >= uClearSpans[0].x && cell.x < uClearSpans[0].y) ||
+    (uClearSpans[1].y > uClearSpans[1].x && cell.x >= uClearSpans[1].x && cell.x < uClearSpans[1].y) ||
+    (uClearSpans[2].y > uClearSpans[2].x && cell.x >= uClearSpans[2].x && cell.x < uClearSpans[2].y)
+  );
+  if (clearedCell) {
+    alpha = 0.0;
+    greetingEmphasis = 0.0;
+  }
+  greetingOut = greetingEmphasis;
   if (uLight < 0.5) {
-    vec3 light = mix(field.rgb * 0.55 + vec3(0.03) * field.a, vec3(0.96), greetingEmphasis);
+    vec3 light = mix(field.rgb * 0.55 + vec3(0.03) * field.a, vec3(0.953, 0.945, 0.929), greetingEmphasis);
     float outputAlpha = mix(0.6 * field.a * alpha, alpha, greetingEmphasis);
     return vec4(light * alpha, outputAlpha);
   }
-  vec3 ink = mix(visible * 0.8, vec3(0.12), greetingEmphasis);
+  vec3 ink = mix(visible * 0.8, vec3(0.067, 0.067, 0.067), greetingEmphasis);
   return vec4(ink * alpha, alpha);
 }
 `;
@@ -332,7 +344,8 @@ in vec2 vUv;
 out vec4 outColor;
 ${GLYPHS}
 void main() {
-  outColor = glyphAt(gl_FragCoord.xy * uDownscale);
+  float g = 0.0;
+  outColor = glyphAt(gl_FragCoord.xy * uDownscale, g);
 }`;
 
 const BLUR = `#version 300 es
@@ -357,23 +370,31 @@ uniform float uGlow;
 uniform float uGradient;
 uniform float uGrain;
 uniform float uFrame;
+uniform float uFieldOpacity;
 in vec2 vUv;
 out vec4 outColor;
 ${GLYPHS}
 void main() {
   vec4 base = texture(uField, vUv) * uGradient;
-  vec4 glyph = glyphAt(gl_FragCoord.xy);
+  float greeting = 0.0;
+  vec4 glyph = glyphAt(gl_FragCoord.xy, greeting);
   vec4 halo = texture(uHalo, vUv) * uGlow;
-  vec4 color;
+  vec4 sky;
   if (uLight < 0.5) {
-    color = base + glyph + halo;
+    sky = base + glyph * (1.0 - greeting) + halo;
   } else {
-    color = glyph + base * (1.0 - glyph.a);
-    color += halo * 0.6 * (1.0 - color.a);
+    vec4 nonGreeting = glyph * (1.0 - greeting);
+    sky = nonGreeting + base * (1.0 - nonGreeting.a);
+    sky += halo * 0.6 * (1.0 - sky.a);
   }
   float grain = (hash12(gl_FragCoord.xy + uFrame * vec2(17.0, 59.0)) + hash12(gl_FragCoord.xy * 1.31 + uFrame * 7.0) - 1.0) * uGrain;
-  float body = clamp(color.a, 0.0, 1.0);
-  color.rgb += grain * (0.25 + body) * 0.5;
+  float body = clamp(sky.a, 0.0, 1.0);
+  sky.rgb += grain * (0.25 + body) * 0.5;
+  sky.a = clamp(sky.a, 0.0, 1.0);
+  sky.rgb = clamp(sky.rgb, 0.0, sky.a);
+  sky *= uFieldOpacity;
+  vec4 greetingGlyph = glyph * greeting;
+  vec4 color = greetingGlyph + sky * (1.0 - greetingGlyph.a);
   color.a = clamp(color.a, 0.0, 1.0);
   color.rgb = clamp(color.rgb, 0.0, color.a);
   outColor = color;
@@ -604,6 +625,9 @@ function normaliseSettings({
   shape = 'horizon',
   characters = DEFAULT_CHARACTERS,
   message = '',
+  messageTop = null,
+  messageLeft = null,
+  controlsSpans = null,
   repeatText = '',
   repeatReveal = 0,
   cellSize = 18,
@@ -617,6 +641,7 @@ function normaliseSettings({
   flow = 0.5,
   speed = 1,
   gradientOpacity = 0.9,
+  fieldOpacity = 1,
   grain = 0.08,
   variation = 0,
   mouseInteraction = true,
@@ -634,6 +659,13 @@ function normaliseSettings({
     shape: SHAPES[shape] ?? 0,
     characters: characters || DEFAULT_CHARACTERS,
     message: [...String(message)].filter(char => char !== '\n' && char !== '\r').slice(0, 64).join(''),
+    messageTop: Number.isFinite(messageTop) ? Math.max(0, messageTop) : null,
+    messageLeft: Number.isFinite(messageLeft) ? Math.max(0, messageLeft) : null,
+    controlsSpans: Array.isArray(controlsSpans)
+      ? controlsSpans
+        .slice(0, 3)
+        .filter(span => Array.isArray(span) && span.length === 2 && Number.isFinite(span[0]) && Number.isFinite(span[1]) && span[1] > span[0])
+      : null,
     repeatText: [...String(repeatText)].filter(char => char !== '\n' && char !== '\r').slice(0, 64).join(''),
     repeatReveal: clamp(repeatReveal, 0, 1),
     cellSize: clamp(cellSize, 6, 64),
@@ -647,6 +679,7 @@ function normaliseSettings({
     flow: clamp(flow, 0, 2),
     speed: Math.max(0, speed),
     gradientOpacity: clamp(gradientOpacity, 0, 1),
+    fieldOpacity: clamp(fieldOpacity, 0, 1),
     grain: clamp(grain, 0, 0.4),
     variation: Math.max(0, variation),
     mouseInteraction,
@@ -717,6 +750,7 @@ export function createGradientASCII(container, options = {}) {
     const messageData = new Float32Array(64);
     const previousMessageData = new Float32Array(64);
     const repeatTextData = new Float32Array(64);
+    const clearSpansData = new Float32Array(6);
     let previousMessage = '';
     let activeMessage = settingsRef.current.message;
     let messageClock = 1;
@@ -741,17 +775,16 @@ export function createGradientASCII(container, options = {}) {
       const key = `${s.fontFamily}|${[...new Set(alphabet)].join('')}`;
       if (key === atlasKey && atlas) return;
       atlasKey = key;
+      const rebuild = () => {
+        if (disposed || atlasKey !== key) return;
+        if (atlas) { gl.deleteTexture(atlas.texture); gl.deleteTexture(atlas.choicesTexture); }
+        atlas = buildAtlas(gl, alphabet, s.fontFamily, s.characters);
+        draw();
+      };
       if (atlas) { gl.deleteTexture(atlas.texture); gl.deleteTexture(atlas.choicesTexture); }
       atlas = buildAtlas(gl, alphabet, s.fontFamily, s.characters);
-      document.fonts?.load?.(`300 64px ${s.fontFamily}`, s.characters).then(
-        () => {
-          if (disposed || atlasKey !== key) return;
-          if (atlas) { gl.deleteTexture(atlas.texture); gl.deleteTexture(atlas.choicesTexture); }
-          atlas = buildAtlas(gl, alphabet, s.fontFamily, s.characters);
-          draw();
-        },
-        () => {}
-      );
+      document.fonts?.load?.(`300 64px ${s.fontFamily}`, alphabet).then(rebuild, () => {});
+      document.fonts?.ready?.then(() => document.fonts.load(`300 64px ${s.fontFamily}`, alphabet)).then(rebuild, () => {});
     };
 
     const syncPalette = () => {
@@ -796,17 +829,53 @@ export function createGradientASCII(container, options = {}) {
       gl.uniform1fv(u.uMessage, messageData);
       gl.uniform1f(u.uMessageLength, message.length);
       const columns = Math.ceil(width / cellW);
+      const offsetX = (width - columns * cellW) / 2;
       const offsetY = (height - Math.ceil(height / cellH) * cellH) / 2;
-      gl.uniform2f(u.uMessageStart, Math.floor((columns - message.length) / 2), Math.floor((height * .8 - offsetY) / cellH));
+      const topY = s.messageTop !== null ? height - s.messageTop * view.ratio : height * .8;
+      const controlsRow = Math.floor((topY - offsetY) / cellH);
+      const rowCenterCss = (height - (offsetY + (controlsRow + 0.5) * cellH)) / view.ratio;
+      const messageReveal = reduce ? 1 : clamp((introClock - .35) / .55, 0, 1);
+      if (container.parentElement && Number.isFinite(rowCenterCss)) {
+        container.parentElement.style.setProperty('--ascii-row-center', `${rowCenterCss.toFixed(2)}px`);
+        container.parentElement.style.setProperty('--ascii-controls-reveal', clamp((messageReveal - .35) / .45, 0, 1).toFixed(3));
+      }
+      clearSpansData.fill(0);
+      let minClearCol = columns;
+      if (s.controlsSpans && s.controlsSpans.length) {
+        s.controlsSpans.forEach((span, i) => {
+          const leftPx = span[0] * view.ratio - offsetX + cellW * 0.12;
+          const rightPx = span[1] * view.ratio - offsetX - cellW * 0.12;
+          const startCol = Math.floor(leftPx / cellW);
+          const endCol = Math.ceil(rightPx / cellW);
+          clearSpansData[i * 2] = startCol;
+          clearSpansData[i * 2 + 1] = endCol;
+          if (endCol > startCol && startCol < minClearCol) minClearCol = startCol;
+        });
+        gl.uniform2fv(u.uClearSpans, clearSpansData);
+        gl.uniform1f(u.uClearRow, controlsRow);
+      } else {
+        gl.uniform2fv(u.uClearSpans, clearSpansData);
+        gl.uniform1f(u.uClearRow, -1);
+      }
+      const messageCol = (len) => (
+        s.messageLeft !== null
+          ? Math.max(1, Math.round((s.messageLeft * view.ratio - offsetX) / cellW))
+          : Math.floor((columns - len) / 2)
+      );
+      const maxLen = Math.max(message.length, s.message ? [...previousMessage].length : 0);
+      const startCol = messageCol(maxLen);
+      const overlapsControls = s.controlsSpans && s.controlsSpans.length && (startCol + maxLen + 2 > minClearCol);
+      const messageRow = overlapsControls ? Math.max(0, controlsRow - 2) : controlsRow;
+      gl.uniform2f(u.uMessageStart, messageCol(message.length), messageRow);
       // An explicitly empty greeting also clears its transition predecessor.
       const previous = s.message ? [...previousMessage] : [];
       previousMessageData.fill(0);
       previous.forEach((char, i) => { previousMessageData[i] = atlas.characters.indexOf(char); });
       gl.uniform1fv(u.uPreviousMessage, previousMessageData);
       gl.uniform1f(u.uPreviousLength, previous.length);
-      gl.uniform2f(u.uPreviousStart, Math.floor((columns - previous.length) / 2), Math.floor((height * .8 - offsetY) / cellH));
+      gl.uniform2f(u.uPreviousStart, messageCol(previous.length), messageRow);
       gl.uniform1f(u.uMessageTransition, messageClock * messageClock * (3 - 2 * messageClock));
-      gl.uniform1f(u.uMessageReveal, reduce ? 1 : clamp((introClock - .35) / .55, 0, 1));
+      gl.uniform1f(u.uMessageReveal, messageReveal);
       gl.uniform1f(u.uDensity, s.density);
       gl.uniform1f(u.uOpacity, s.glyphOpacity);
       gl.uniform1f(u.uFlicker, reduce ? 0 : s.flicker);
@@ -891,6 +960,7 @@ export function createGradientASCII(container, options = {}) {
       gl.uniform1f(cu.uGradient, s.gradientOpacity);
       gl.uniform1f(cu.uGrain, s.grain);
       gl.uniform1f(cu.uFrame, frameSeed);
+      gl.uniform1f(cu.uFieldOpacity, s.fieldOpacity);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       container.classList.add('has-renderer');
     };
