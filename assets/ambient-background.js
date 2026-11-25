@@ -8,16 +8,12 @@ const syncFavicon = createGradientFavicon();
 let localWeather = null;
 const container = document.querySelector('.ambient-background');
 const browserTheme = document.querySelector('meta[name="theme-color"]');
-const syncBrowserTheme = (colors, flagMix) => {
-  const style = getComputedStyle(container);
-  const base = style.getPropertyValue('--page').trim().replace(/^#(.)(.)(.)$/, '#$1$1$2$2$3$3');
-  const page = [1, 3, 5].map(offset => parseInt(base.slice(offset, offset + 2), 16));
-  // The horizon's upper sky ends at the last ramp color; Brazil starts in blue.
-  const sky = mixColor(colors.at(-1), colors[0], flagMix);
-  const opacity = Number(style.opacity) * .9;
-  const rgb = page.map((channel, i) => Math.round(parseInt(sky.slice(1 + i * 2, 3 + i * 2), 16) * opacity + channel * (1 - opacity)));
-  const color = `#${rgb.map(channel => channel.toString(16).padStart(2, '0')).join('')}`;
-  if (browserTheme?.content === color) return;
+const syncBrowserTheme = () => {
+  const color = getComputedStyle(document.documentElement)
+    .getPropertyValue('--outer-bg')
+    .trim()
+    .replace(/^#(.)(.)(.)$/, '#$1$1$2$2$3$3');
+  if (!color || browserTheme?.content === color) return;
   if (browserTheme) browserTheme.content = color;
   document.documentElement.style.setProperty('--browser-theme', color);
 };

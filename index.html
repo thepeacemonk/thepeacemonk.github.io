@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#ffffff" />
+  <meta name="theme-color" content="#f0efe9" />
   <meta name="description" content="peace – a peaceful developer" />
   <title>peace</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300&display=swap" />
   <link rel="stylesheet" href="styles.css?v=81" />
-  <script type="module" src="assets/ambient-background.js?v=43"></script>
+  <script type="module" src="assets/ambient-background.js?v=44"></script>
   <script type="module" src="assets/target-cursor.js?v=9"></script>
   <script type="module" src="assets/ascii-rain.js?v=6"></script>
   <link rel="stylesheet" href="assets/pong.css?v=19" />
@@ -24,6 +24,9 @@
     try {
       const stored = localStorage.getItem('theme');
       if (stored === 'light' || stored === 'dark') document.documentElement.dataset.theme = stored;
+      const dark = stored === 'dark' || (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      const themeMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeMeta) themeMeta.content = dark ? '#0f0f0f' : '#f0efe9';
     } catch (error) { }
   </script>
 </head>
