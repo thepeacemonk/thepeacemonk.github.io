@@ -1,19 +1,20 @@
 @font-face {
-  font-family: Poppins;
-  src: url("assets/fonts/poppins-400.woff2") format("woff2");
+  font-family: Allo;
+  src: url("assets/fonts/AlloVariable-400to700-Round35.ttf") format("truetype");
+  font-weight: 400 700;
+  font-style: normal;
   font-display: swap;
 }
 
 @font-face {
   font-family: "Paper Mono";
   src: url("assets/fonts/paper-mono.woff2") format("woff2");
-  font-weight: 100 800;
+  font-weight: 400;
+  font-style: normal;
   font-display: swap;
 }
 
 :root {
-  --outer-bg: #f0efe9;
-  --frame-border: rgb(17 17 17 / .08);
   --page: #fff;
   --studyhub-icon-body: #6b6965;
   --studyhub-icon-eyes: #fff;
@@ -29,8 +30,6 @@
 }
 
 :root[data-theme="dark"] {
-  --outer-bg: #0f0f0f;
-  --frame-border: rgb(255 255 255 / .09);
   --page: #171717;
   --studyhub-icon-body: #b8b5b0;
   --studyhub-icon-eyes: #151515;
@@ -47,8 +46,6 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --outer-bg: #0f0f0f;
-    --frame-border: rgb(255 255 255 / .09);
     --page: #171717;
     --studyhub-icon-body: #b8b5b0;
     --studyhub-icon-eyes: #151515;
@@ -130,41 +127,35 @@
   .target-cursor { display: none; }
 }
 
-/* Sober outer canvas framing the site container. */
-html { background-color: var(--outer-bg); }
+/* Some browsers derive their tab tint from the document surface. */
+html { background-color: var(--browser-theme, var(--page)); }
 body {
   margin: 0;
-  background: var(--outer-bg);
+  background: var(--browser-theme, var(--page));
   color: var(--ink);
-  font-family: Poppins, Arial, sans-serif;
+  font-family: Allo, Arial, sans-serif;
   font-size: 17px;
   line-height: 1.7;
   transition: background-color .45s ease, color .45s ease;
 }
 
 .home-page {
-  --frame-gap: clamp(10px, 1.5vw, 18px);
-  display: flex;
-  flex-direction: column;
   isolation: isolate;
   min-height: 100svh;
-  padding: var(--frame-gap);
   position: relative;
   -webkit-user-select: none;
   user-select: none;
 }
-
-.site-frame {
-  position: relative;
-  isolation: isolate;
-  flex: 1 0 auto;
-  width: 100%;
-  margin: 0 auto;
+/* Keep the page beneath the translucent sky while exposing its top color to
+   browsers that tint their toolbar from the body's background-color. */
+.home-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
   background: var(--page);
-  border: 1px solid var(--frame-border);
-  border-radius: 16px;
-  overflow: clip;
-  transition: background-color .45s ease, border-color .45s ease;
+  pointer-events: none;
+  transition: background-color .45s ease;
 }
 html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
 .home-page.is-note-modal-open {
@@ -174,8 +165,7 @@ html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
   width: var(--note-page-width);
   overflow: hidden;
 }
-.home-page.is-note-modal-open main,
-.home-page.is-note-modal-open .header-controls { opacity: .16; }
+.home-page.is-note-modal-open main { opacity: .16; }
 
 /* The sky remains live while the page crossfades and Qifrey travels between positions. */
 :root { view-transition-name: none; }
@@ -206,7 +196,7 @@ html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
   overflow: hidden;
   pointer-events: none;
   position: absolute;
-  z-index: 0;
+  z-index: -1;
 }
 
 /* Keep the page surface while modules load; the renderer has its own entrance.
@@ -214,8 +204,8 @@ html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
 .ambient-background.is-fallback {
   background: radial-gradient(ellipse at 50% 0%, var(--ambient-sky), var(--ambient-edge) 48%, transparent 80%);
 }
-.ambient-background.has-renderer { background: none; opacity: 1; }
-.ambient-background[data-mode="light"]:not(.has-renderer) { opacity: .65; }
+.ambient-background.has-renderer { background: none; }
+.ambient-background[data-mode="light"] { opacity: .65; }
 .home-page.is-lab-open .ambient-background { opacity: .18; }
 .ambient-background.is-note-open,
 .ambient-background.is-pong-open {
@@ -226,10 +216,8 @@ html.is-note-modal-open { overflow: hidden; overscroll-behavior: none; }
   mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
 }
-.ambient-background.has-renderer.is-note-open,
-.ambient-background.has-renderer.is-pong-open { opacity: 1; }
-.ambient-background.is-note-open[data-mode="light"]:not(.has-renderer),
-.ambient-background.is-pong-open[data-mode="light"]:not(.has-renderer) { opacity: .72; }
+.ambient-background.is-note-open[data-mode="light"],
+.ambient-background.is-pong-open[data-mode="light"] { opacity: .72; }
 .gradient-ascii-canvas { display: block; height: 100%; width: 100%; }
 
 h1,
@@ -277,10 +265,9 @@ h1,
 
 main {
   position: relative;
-  z-index: 1;
   width: min(640px, calc(100% - 48px));
   margin: 0 auto;
-  padding: clamp(120px, 16vh, 210px) 0 120px;
+  padding: clamp(150px, 19vh, 250px) 0 120px;
   transition: opacity .18s ease;
 }
 
@@ -350,7 +337,7 @@ header { margin-bottom: 20px; position: relative; }
 }
 
 h1 {
-  font-family: "Funnel Display", Poppins, Arial, sans-serif;
+  font-family: "Funnel Display", Allo, Arial, sans-serif;
   margin: 0;
   font-size: 18px;
   font-weight: 300;
@@ -449,7 +436,7 @@ section p { margin: 0 0 12px; }
 
 .project-category-title {
   color: var(--muted);
-  font-family: "Funnel Display", Poppins, Arial, sans-serif;
+  font-family: Allo, Arial, sans-serif;
   font-size: 12px;
   font-weight: 400;
   letter-spacing: 0;
@@ -701,7 +688,7 @@ section p { margin: 0 0 12px; }
 
 .notes-category h3 {
   color: var(--muted);
-  font-family: "Funnel Display", Poppins, Arial, sans-serif;
+  font-family: Allo, Arial, sans-serif;
   font-size: 12px;
   font-weight: 400;
   margin: 0 0 7px;
@@ -1181,13 +1168,12 @@ section p { margin: 0 0 12px; }
   color: var(--ink);
   cursor: pointer;
   display: flex;
-  font-family: "Paper Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 14px;
+  font-family: inherit;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
-  font-weight: 400;
-  line-height: 1;
+  line-height: 1.4;
   min-height: 38px;
-  padding: 0 6px;
+  padding: 0 10px;
   transition: color .45s ease;
   white-space: nowrap;
 }
@@ -1309,12 +1295,10 @@ section p { margin: 0 0 12px; }
   --control-outline-gap: 3px;
   align-items: center;
   display: flex;
-  gap: 6px;
-  opacity: var(--ascii-controls-reveal, 1);
+  gap: 8px;
   position: absolute;
-  right: clamp(16px, 2.4vw, 28px);
-  top: calc(var(--ascii-row-center, 34px) - 19px);
-  transition: opacity .18s ease;
+  right: 0;
+  top: clamp(150px, 19vh, 250px);
   z-index: 3;
 }
 
@@ -1382,7 +1366,7 @@ section p { margin: 0 0 12px; }
 }
 
 .collection-title {
-  font-family: "Funnel Display", Poppins, Arial, sans-serif;
+  font-family: Allo, Arial, sans-serif;
   font-size: clamp(38px, 7vw, 56px);
   font-weight: 300;
   letter-spacing: -.025em;
@@ -1440,7 +1424,7 @@ section p { margin: 0 0 12px; }
 
 .lab-card-title,
 .lab-card h2 {
-  font: 400 clamp(20px, 4vw, 25px)/1.15 "Funnel Display", Poppins, sans-serif;
+  font: 400 clamp(20px, 4vw, 25px)/1.15 Allo, Arial, sans-serif;
   margin: 0;
 }
 
@@ -1617,7 +1601,7 @@ html:has(.lab-editor[open]) { overflow: hidden; }
   border: 1px solid var(--muted);
   border-radius: 8px;
   color: var(--ink);
-  font: 13px/1.5 ui-monospace, monospace;
+  font: 13px/1.5 "Paper Mono", ui-monospace, monospace;
   margin-top: 8px;
   padding: 10px;
   resize: vertical;
@@ -1696,7 +1680,7 @@ body.is-studyhub-coming-soon-open .collection-shell { visibility: hidden !import
 
 .studyhub-coming-soon p {
   color: var(--ink);
-  font-family: "Funnel Display", Poppins, Arial, sans-serif;
+  font-family: Allo, Arial, sans-serif;
   font-size: clamp(20px, 4vw, 26px);
   font-weight: 300;
   line-height: 1.35;
@@ -1771,11 +1755,7 @@ body.is-studyhub-coming-soon-open .collection-shell { visibility: hidden !import
 }
 
 @media (max-width: 600px) {
-  .home-page { --frame-gap: 8px; }
-  .site-frame { border-radius: 14px; }
-  .header-controls { gap: 8px; opacity: 1; right: 24px; top: 120px; }
-  .clock-toggle,
-  .weather-button { font-size: 12px; padding: 0 10px; }
+  .header-controls { top: 120px; }
   .collection-header { margin-bottom: 24px; }
   .collection-title-row { gap: 10px; }
   .collection-qifrey-motion { height: 42px; width: 42px; }
@@ -1786,7 +1766,7 @@ body.is-studyhub-coming-soon-open .collection-shell { visibility: hidden !import
 :root {
   --fill-on: var(--ink);
   --fill-slab: var(--page);
-  --font-ui: Poppins, Arial, sans-serif;
+  --font-ui: Allo, Arial, sans-serif;
   --on-ink: var(--page);
   --ink-rgb: 17, 17, 17;
   --shadow-rgb: 0, 0, 0;

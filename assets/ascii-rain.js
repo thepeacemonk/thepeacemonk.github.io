@@ -91,7 +91,7 @@ export function mountAsciiRain(canvas, initialSettings) {
   function paint() {
     ctx.globalAlpha = 1;
     ctx.drawImage(backdrop, 0, 0, width, height);
-    ctx.font = '11px ui-monospace, monospace';
+    ctx.font = '11px "Paper Mono", ui-monospace, monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const tick = Math.floor(clock * 7);

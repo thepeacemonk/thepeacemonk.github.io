@@ -1,4 +1,4 @@
-import { syncControlContour, initIconContours } from './control-contours.js?v=2';
+import { syncControlContour, initIconContours } from './control-contours.js?v=3';
 
 // Weather uses only an approximate network location; no device-location prompt.
 // Data sources: Open-Meteo (https://open-meteo.com/) and GeoJS (https://www.geojs.io/).

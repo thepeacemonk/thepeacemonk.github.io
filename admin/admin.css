@@ -1,6 +1,16 @@
 @font-face {
-  font-family: Poppins;
-  src: url("../assets/fonts/poppins-400.woff2") format("woff2");
+  font-family: Allo;
+  src: url("../assets/fonts/AlloVariable-400to700-Round35.ttf") format("truetype");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Paper Mono";
+  src: url("../assets/fonts/paper-mono.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
   font-display: swap;
 }
 
@@ -31,7 +41,7 @@ body {
   margin: 0;
   background: var(--page);
   color: var(--ink);
-  font: 14px/1.55 Poppins, Arial, sans-serif;
+  font: 14px/1.55 Allo, Arial, sans-serif;
 }
 ::selection { background: var(--ink); color: var(--page); }
 button, input, select, textarea, summary { font: inherit; }
@@ -40,7 +50,7 @@ button:disabled { cursor: default; opacity: .35; }
 :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 input:focus-visible, select:focus-visible, textarea:focus-visible { outline-offset: 1px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
-code { background: var(--surface); border-radius: 4px; padding: 1px 5px; }
+code { background: var(--surface); border-radius: 4px; font-family: "Paper Mono", ui-monospace, monospace; padding: 1px 5px; }
 em { color: var(--muted); font-style: normal; }
 .hint { color: var(--muted); font-size: 12px; margin: 7px 0 0; }
 
